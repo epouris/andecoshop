@@ -617,18 +617,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             await refreshBrands();
             renderBrandsTable();
-        // Refresh brand dropdown in product modal if it's open
-        if (productModal.classList.contains('active')) {
-            populateBrandDropdown();
-            // Restore selected value if editing a product
-            if (editingProductId) {
-                const product = getProductById(editingProductId);
-                if (product && product.category) {
-                    document.getElementById('productCategory').value = product.category;
+            // Refresh brand dropdown in product modal if it's open
+            if (productModal.classList.contains('active')) {
+                populateBrandDropdown();
+                // Restore selected value if editing a product
+                if (editingProductId) {
+                    const product = getProductById(editingProductId);
+                    if (product && product.category) {
+                        document.getElementById('productCategory').value = product.category;
+                    }
                 }
             }
+            closeBrandModal();
+        } catch (error) {
+            alert('Error saving brand: ' + error.message);
         }
-        closeBrandModal();
     });
 
     addBrandBtn.addEventListener('click', () => openBrandModal());
