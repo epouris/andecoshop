@@ -61,18 +61,19 @@ console.log(JSON.stringify(data, null, 2));
       console.log('Migrating products...');
       for (const product of exportedData.products) {
         try {
-          // Check if product already exists
+          // Check if product already exists by name (since we're not preserving IDs)
           const existing = await pool.query(
-            'SELECT id FROM products WHERE id = $1',
-            [product.id]
+            'SELECT id FROM products WHERE name = $1 AND category = $2',
+            [product.name, product.category]
           );
 
           if (existing.rows.length === 0) {
+            // Don't try to preserve old ID - let database generate new one
+            // This avoids integer overflow issues with large timestamp-based IDs
             await pool.query(`
-              INSERT INTO products (id, name, category, price, stock, description, standard_equipment, specs, images, options)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+              INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `, [
-              parseInt(product.id) || null, // Let DB generate if not a number
               product.name,
               product.category,
               product.price,

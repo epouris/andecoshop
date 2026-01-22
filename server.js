@@ -33,7 +33,7 @@ async function initializeDatabase() {
     // Products table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS products (
-        id SERIAL PRIMARY KEY,
+        id BIGSERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         category VARCHAR(255),
         price DECIMAL(10, 2) NOT NULL,
@@ -64,7 +64,7 @@ async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS orders (
         id SERIAL PRIMARY KEY,
         order_number VARCHAR(50) UNIQUE NOT NULL,
-        product_id INTEGER REFERENCES products(id),
+        product_id BIGINT REFERENCES products(id),
         product_name VARCHAR(255) NOT NULL,
         product_brand VARCHAR(255),
         product_price DECIMAL(10, 2),
@@ -545,13 +545,17 @@ app.post('/api/admin/migrate-localstorage', authenticateAdmin, async (req, res) 
     if (exportedData.products && exportedData.products.length > 0) {
       for (const product of exportedData.products) {
         try {
-          const existing = await pool.query('SELECT id FROM products WHERE id = $1', [product.id]);
+          // Check if product already exists by name (since we're not preserving old IDs)
+          const existing = await pool.query(
+            'SELECT id FROM products WHERE name = $1 AND category = $2',
+            [product.name, product.category]
+          );
           if (existing.rows.length === 0) {
+            // Let database generate new ID (BIGSERIAL)
             await pool.query(`
-              INSERT INTO products (id, name, category, price, stock, description, standard_equipment, specs, images, options)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+              INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `, [
-              parseInt(product.id) || null,
               product.name,
               product.category,
               product.price,
@@ -591,6 +595,30 @@ app.post('/api/admin/migrate-localstorage', authenticateAdmin, async (req, res) 
         try {
           const existing = await pool.query('SELECT id FROM orders WHERE order_number = $1', [order.orderNumber]);
           if (existing.rows.length === 0) {
+            // Try to find product by name if productId is too large
+            let productId = null;
+            if (order.productId) {
+              try {
+                const productIdNum = parseInt(order.productId);
+                // Check if it's a valid integer range
+                if (!isNaN(productIdNum) && productIdNum > 0 && productIdNum < 2147483647) {
+                  const productResult = await pool.query('SELECT id FROM products WHERE id = $1', [productIdNum]);
+                  if (productResult.rows.length > 0) {
+                    productId = productIdNum;
+                  }
+                }
+                // If ID is too large or not found, try to find by name
+                if (!productId && order.productName) {
+                  const productByName = await pool.query('SELECT id FROM products WHERE name = $1 LIMIT 1', [order.productName]);
+                  if (productByName.rows.length > 0) {
+                    productId = productByName.rows[0].id;
+                  }
+                }
+              } catch (e) {
+                // Ignore errors, productId will remain null
+              }
+            }
+            
             await pool.query(`
               INSERT INTO orders (
                 order_number, product_id, product_name, product_brand, product_price,
@@ -600,7 +628,7 @@ app.post('/api/admin/migrate-localstorage', authenticateAdmin, async (req, res) 
               ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
             `, [
               order.orderNumber,
-              order.productId ? parseInt(order.productId) : null,
+              productId,
               order.productName,
               order.productBrand,
               order.productPrice,
