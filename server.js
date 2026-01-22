@@ -105,6 +105,34 @@ async function initializeDatabase() {
     `);
 
     console.log('Database tables initialized');
+    
+    // After tables are created, initialize admin user
+    if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
+      try {
+        const checkResult = await pool.query(
+          'SELECT * FROM admin_users WHERE username = $1',
+          [process.env.ADMIN_USERNAME]
+        );
+        
+        if (checkResult.rows.length === 0) {
+          // Create admin user
+          await pool.query(
+            'INSERT INTO admin_users (username, password_hash) VALUES ($1, $2)',
+            [process.env.ADMIN_USERNAME, process.env.ADMIN_PASSWORD]
+          );
+          console.log(`Admin user created: ${process.env.ADMIN_USERNAME}`);
+        } else {
+          // Update password if user exists
+          await pool.query(
+            'UPDATE admin_users SET password_hash = $1 WHERE username = $2',
+            [process.env.ADMIN_PASSWORD, process.env.ADMIN_USERNAME]
+          );
+          console.log(`Admin user password updated: ${process.env.ADMIN_USERNAME}`);
+        }
+      } catch (err) {
+        console.error('Error initializing admin user:', err);
+      }
+    }
   } catch (error) {
     console.error('Error initializing database:', error);
   }
