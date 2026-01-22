@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AndecoMarine.shop - Product Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/product.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="landing.html" class="logo">
+                    <span class="logo-text">AndecoMarine.shop</span>
+                </a>
+                <nav class="nav">
+                    <a href="landing.html" class="nav-link">Home</a>
+                    <a href="index.html" class="nav-link">Brands</a>
+                    <div class="nav-dropdown">
+                        <a href="#" class="nav-link" id="brandsDropdown">All Brands</a>
+                        <div class="dropdown-menu" id="brandsMenu">
+                            <!-- Brands will be loaded here -->
+                        </div>
+                    </div>
+                    <a href="admin.html" class="nav-link">Admin</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container-full">
+            <a href="index.html" class="back-link" id="backLink">← Back to Brands</a>
+            
+            <div id="productContainer" class="product-container">
+                <!-- Product details will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 AndecoMarine.shop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Your Order</h3>
+                <button class="modal-close" id="closeOrderModal">&times;</button>
+            </div>
+            <form id="orderForm" class="product-form">
+                <div class="form-group">
+                    <label for="orderFullName">Full Name *</label>
+                    <input type="text" id="orderFullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="orderEmail">Email *</label>
+                    <input type="email" id="orderEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="orderPhone">Phone Number *</label>
+                    <input type="tel" id="orderPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="orderCity">City *</label>
+                    <input type="text" id="orderCity" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelOrderBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/product.js"></script>
+</body>
+</html>

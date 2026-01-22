@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AndecoMarine.shop - Products</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="landing.html" class="logo">
+                    <span class="logo-text">AndecoMarine.shop</span>
+                </a>
+                <nav class="nav">
+                    <a href="landing.html" class="nav-link">Home</a>
+                    <a href="index.html" class="nav-link active">Brands</a>
+                    <div class="nav-dropdown">
+                        <a href="#" class="nav-link" id="brandsDropdown">All Brands</a>
+                        <div class="dropdown-menu" id="brandsMenu">
+                            <!-- Brands will be loaded here -->
+                        </div>
+                    </div>
+                    <a href="admin.html" class="nav-link">Admin</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h2>Our Brands</h2>
+            </div>
+
+            <div class="brands-grid" id="brandsGrid">
+                <!-- Brands will be loaded here -->
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <p>No brands found.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 AndecoMarine.shop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
