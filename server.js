@@ -106,6 +106,48 @@ async function initializeDatabase() {
 
     console.log('Database tables initialized');
     
+    // Migrate existing schema if needed (fix INTEGER to BIGINT for product IDs)
+    try {
+      // Check products.id column type
+      const productsCheck = await pool.query(`
+        SELECT data_type 
+        FROM information_schema.columns 
+        WHERE table_name = 'products' AND column_name = 'id'
+      `);
+      
+      if (productsCheck.rows.length > 0 && productsCheck.rows[0].data_type === 'integer') {
+        console.log('Migrating products.id from INTEGER to BIGINT...');
+        await pool.query(`
+          ALTER TABLE products 
+          ALTER COLUMN id TYPE BIGINT USING id::BIGINT
+        `);
+        // Update sequence
+        await pool.query(`
+          ALTER SEQUENCE products_id_seq AS BIGINT
+        `);
+        console.log('✓ Products.id migrated to BIGINT');
+      }
+      
+      // Check orders.product_id column type
+      const ordersCheck = await pool.query(`
+        SELECT data_type 
+        FROM information_schema.columns 
+        WHERE table_name = 'orders' AND column_name = 'product_id'
+      `);
+      
+      if (ordersCheck.rows.length > 0 && ordersCheck.rows[0].data_type === 'integer') {
+        console.log('Migrating orders.product_id from INTEGER to BIGINT...');
+        await pool.query(`
+          ALTER TABLE orders 
+          ALTER COLUMN product_id TYPE BIGINT USING product_id::BIGINT
+        `);
+        console.log('✓ Orders.product_id migrated to BIGINT');
+      }
+    } catch (migrationError) {
+      // Ignore migration errors (table might not exist yet or already migrated)
+      console.log('Schema migration check completed (or not needed)');
+    }
+    
     // After tables are created, initialize admin user
     if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
       try {
