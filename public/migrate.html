@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migrate Data to Database</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--bg-light);
+        }
+        .migrate-container {
+            background: var(--bg-color);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid var(--border-light);
+        }
+        .migrate-container h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .info-box {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+        .info-box p {
+            margin: 0.5rem 0;
+        }
+        .file-input-wrapper {
+            margin: 1.5rem 0;
+        }
+        .file-input-wrapper input[type="file"] {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+        .btn-migrate {
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: none;
+        }
+        .results.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        .results.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .loading.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="migrate-container">
+        <h1>📦 Migrate Data to Database</h1>
+        
+        <div class="info-box">
+            <p><strong>Instructions:</strong></p>
+            <ol>
+                <li>Make sure you're logged in as admin</li>
+                <li>Select your <code>localstorage-export.json</code> file</li>
+                <li>Click "Migrate Data"</li>
+                <li>Wait for the migration to complete</li>
+            </ol>
+        </div>
+
+        <div class="file-input-wrapper">
+            <label for="jsonFile"><strong>Select Export File:</strong></label>
+            <input type="file" id="jsonFile" accept=".json">
+        </div>
+
+        <div class="loading" id="loading">
+            <p>⏳ Migrating data... Please wait...</p>
+        </div>
+
+        <button class="btn btn-primary btn-migrate" id="migrateBtn" onclick="migrateData()">🚀 Migrate Data</button>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script type="module">
+        import { isAdminAuthenticated } from './js/api.js';
+
+        // Check authentication
+        if (!isAdminAuthenticated()) {
+            window.location.href = 'login.html';
+        }
+
+        window.migrateData = async function() {
+            const fileInput = document.getElementById('jsonFile');
+            const file = fileInput.files[0];
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const migrateBtn = document.getElementById('migrateBtn');
+
+            if (!file) {
+                alert('Please select the localstorage-export.json file');
+                return;
+            }
+
+            // Read file
+            const text = await file.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                alert('Invalid JSON file: ' + e.message);
+                return;
+            }
+
+            // Upload file content to server
+            loading.classList.add('show');
+            migrateBtn.disabled = true;
+            results.style.display = 'none';
+
+            try {
+                // First, we need to upload the file to the server
+                // Since we can't directly upload files via API, we'll send the data
+                const token = localStorage.getItem('admin_token');
+                
+                // Create a FormData to send the file
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // For now, let's send the JSON data directly
+                const response = await fetch('/api/admin/migrate-localstorage', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                loading.classList.remove('show');
+                migrateBtn.disabled = false;
+
+                if (result.success) {
+                    results.className = 'results success';
+                    results.innerHTML = `
+                        <h3>✅ Migration Successful!</h3>
+                        <p><strong>Products:</strong> ${result.results.products} migrated</p>
+                        <p><strong>Brands:</strong> ${result.results.brands} migrated</p>
+                        <p><strong>Orders:</strong> ${result.results.orders} migrated</p>
+                        <p><strong>Logo:</strong> ${result.results.logo ? 'Migrated' : 'Not found'}</p>
+                        ${result.results.errors.length > 0 ? `<p><strong>Errors:</strong> ${result.results.errors.length}</p>` : ''}
+                    `;
+                } else {
+                    results.className = 'results error';
+                    results.innerHTML = `<h3>❌ Migration Failed</h3><p>${result.message || result.error}</p>`;
+                }
+            } catch (error) {
+                loading.classList.remove('show');
+                migrateBtn.disabled = false;
+                results.className = 'results error';
+                results.innerHTML = `<h3>❌ Error</h3><p>${error.message}</p>`;
+            }
+        };
+    </script>
+</body>
+</html>

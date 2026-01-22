@@ -497,6 +497,125 @@ app.put('/api/admin/settings/logo', authenticateAdmin, async (req, res) => {
   }
 });
 
+// Migration endpoint (admin only - for one-time data migration)
+app.post('/api/admin/migrate-localstorage', authenticateAdmin, async (req, res) => {
+  try {
+    // Get data from request body (sent from frontend)
+    const exportedData = req.body;
+    
+    if (!exportedData || (!exportedData.products && !exportedData.brands && !exportedData.orders)) {
+      return res.status(400).json({ error: 'Invalid data. Expected products, brands, orders, or logo.' });
+    }
+    const results = { products: 0, brands: 0, orders: 0, logo: false, errors: [] };
+
+    // Migrate Products
+    if (exportedData.products && exportedData.products.length > 0) {
+      for (const product of exportedData.products) {
+        try {
+          const existing = await pool.query('SELECT id FROM products WHERE id = $1', [product.id]);
+          if (existing.rows.length === 0) {
+            await pool.query(`
+              INSERT INTO products (id, name, category, price, stock, description, standard_equipment, specs, images, options)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `, [
+              parseInt(product.id) || null,
+              product.name,
+              product.category,
+              product.price,
+              product.stock || 0,
+              product.description,
+              JSON.stringify(product.standardEquipment || []),
+              JSON.stringify(product.specs || {}),
+              product.images || [],
+              JSON.stringify(product.options || [])
+            ]);
+            results.products++;
+          }
+        } catch (err) {
+          results.errors.push(`Product "${product.name}": ${err.message}`);
+        }
+      }
+    }
+
+    // Migrate Brands
+    if (exportedData.brands && exportedData.brands.length > 0) {
+      for (const brand of exportedData.brands) {
+        try {
+          const existing = await pool.query('SELECT id FROM brands WHERE name = $1', [brand.name]);
+          if (existing.rows.length === 0) {
+            await pool.query('INSERT INTO brands (name, logo) VALUES ($1, $2)', [brand.name, brand.logo]);
+            results.brands++;
+          }
+        } catch (err) {
+          results.errors.push(`Brand "${brand.name}": ${err.message}`);
+        }
+      }
+    }
+
+    // Migrate Orders
+    if (exportedData.orders && exportedData.orders.length > 0) {
+      for (const order of exportedData.orders) {
+        try {
+          const existing = await pool.query('SELECT id FROM orders WHERE order_number = $1', [order.orderNumber]);
+          if (existing.rows.length === 0) {
+            await pool.query(`
+              INSERT INTO orders (
+                order_number, product_id, product_name, product_brand, product_price,
+                selected_options, price_breakdown, total_excl_vat, total_incl_vat,
+                customer_info, product_images, product_description, product_specs,
+                product_standard_equipment, status, date
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+            `, [
+              order.orderNumber,
+              order.productId ? parseInt(order.productId) : null,
+              order.productName,
+              order.productBrand,
+              order.productPrice,
+              JSON.stringify(order.selectedOptions || {}),
+              JSON.stringify(order.priceBreakdown || []),
+              order.totalExclVAT,
+              order.totalInclVAT,
+              JSON.stringify(order.customerInfo || {}),
+              order.productImages || [],
+              order.productDescription,
+              JSON.stringify(order.productSpecs || {}),
+              JSON.stringify(order.productStandardEquipment || []),
+              order.status || 'pending',
+              order.date ? new Date(order.date) : new Date()
+            ]);
+            results.orders++;
+          }
+        } catch (err) {
+          results.errors.push(`Order "${order.orderNumber}": ${err.message}`);
+        }
+      }
+    }
+
+    // Migrate Shop Logo
+    if (exportedData.logo) {
+      try {
+        await pool.query(`
+          INSERT INTO settings (key, value, updated_at)
+          VALUES ('shop_logo', $1, CURRENT_TIMESTAMP)
+          ON CONFLICT (key) DO UPDATE SET value = $1, updated_at = CURRENT_TIMESTAMP
+        `, [exportedData.logo]);
+        results.logo = true;
+      } catch (err) {
+        results.errors.push(`Logo: ${err.message}`);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Migration completed',
+      results: results
+    });
+  } catch (error) {
+    console.error('Migration error:', error);
+    res.status(500).json({ error: 'Migration failed', message: error.message });
+  }
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
