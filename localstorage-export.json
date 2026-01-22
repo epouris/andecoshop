@@ -1,0 +1,575 @@
+{
+  "products": [
+    {
+      "name": "Olympic 499 Star",
+      "category": "Olympic Ribs",
+      "price": 18000,
+      "stock": 1,
+      "description": "The Olympic 4.99 Star powerboat is produced by the brand Olympic Ribs since 2018. The Olympic 4.99 Star is a 4.98 meters RIB boat with inflatable sides with accommodation for 6 people and a draft of 0.50 meters. The boat has a fiberglass / grp hull with a CE certification class (C) and can navigate along the coastline and on rivers and canals. The base price of a new Olympic 4.99 Star is not currently published, please contact the itBoat team for pricing details.",
+      "standardEquipment": [
+        {
+          "header": "Μπαλόνια",
+          "items": [
+            "Ύφασμα Orca 866 1670 DTEX",
+            "Χειρολαβές neoprene",
+            "Περιμετρικό λάστιχο neoprene"
+          ]
+        },
+        {
+          "header": "Nντεπόζιτα",
+          "items": [
+            "Ρεζερβουάρ καυσίμου  58ltrs"
+          ]
+        },
+        {
+          "header": "Deck",
+          "items": [
+            "Σετ μαξιλαριών",
+            "Πλάτη καναπέ",
+            "Κονσόλα",
+            "Τιμόνι με κλωβό και ντίζα",
+            "ΙΝΟΧ κλείστρα και καταβάτες",
+            "ΙΝΟΧ μεντεσέδες",
+            "Κάγκελο κονσόλας",
+            "Πρίζες USB",
+            "Ηλεκτρική κόρνα",
+            "Δέστρα trailer βαραίος",
+            "Σκάλα μπάνιου",
+            "Δελφινιέρα με ράουλο"
+          ]
+        },
+        {
+          "header": "Ηλεκτρολογικά",
+          "items": [
+            "Πίνακας 6 θέσεων",
+            "Φώτα ναυσιπλοΐας",
+            "Αντλία σεντίνας",
+            "Γενικός διακόπτης δύο θέσεων",
+            "Ηλεκτρική εγκατάσταση 12V με marine καλώδια"
+          ]
+        }
+      ],
+      "specs": {
+        "Length OA": "4.98m",
+        "Breadth": "2.29m",
+        "Tub Diameter": "0.50m",
+        "Max HP": "115 HP",
+        "Min HP": "60 HP",
+        "Dry Weight": "360 Kg",
+        "Fuel Tank": "58ltrs",
+        "CE": "C",
+        "PAX No": "6"
+      },
+      "images": [
+        "https://cdn.prod.website-files.com/66fea88084a63f96ada457cc/6716bcc095c5f8fd32fa79ee_Main-picture-1024x683-1.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1517948176/1517948214_0.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1517948176/1517948428_0.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1517948176/1517948440_0.jpeg"
+      ],
+      "options": [
+        {
+          "name": "Engine",
+          "type": "radio",
+          "required": true,
+          "choices": [
+            {
+              "label": "No Engine",
+              "price": 0
+            },
+            {
+              "label": "Yamaha",
+              "price": 7500
+            },
+            {
+              "label": "Suzuki",
+              "price": 6500
+            }
+          ]
+        }
+      ],
+      "id": "1769037197761"
+    },
+    {
+      "name": "Allrounder Silver Electric",
+      "category": "Sipaboards",
+      "price": 2460,
+      "stock": 5,
+      "description": "Crafted from aerospace-grade materials for superior performance, this electric paddleboard is distinctly sleek and agile. Its elongated design ensures swift, smooth acceleration up to 3 knots, ideal for easy cruising. Engineered for minimal drag yet maintaining remarkable stability, the Allrounder Drive Silver caters to both seasoned paddlers and those seeking an intensive workout. Experience the seamless blend of technical sophistication and serene paddling. Buy the set and get all the features you need: board, motor, battery pack, leash, carry straps, chargers and carrying equipment.",
+      "standardEquipment": [
+        {
+          "header": "PADDLE AND ACCESSORIES",
+          "items": [
+            "3-piece carbon fibre paddle",
+            "10'' coiled leash",
+            "carry strap",
+            "Repair kit / maintenance kit",
+            "Quick-lock-fin"
+          ]
+        },
+        {
+          "header": "MOTOR, BATTERIES AND CHARGERS",
+          "items": [
+            "Bluetooth remote control",
+            "charger",
+            "standard 180 Wh battery pack"
+          ]
+        },
+        {
+          "header": "TRAVEL GEAR",
+          "items": [
+            "durable high grade travel backpack and bag"
+          ]
+        }
+      ],
+      "specs": {
+        "Length": "11 feet (3.36 m)",
+        "Width": "35.4 inches (87.63 cm)",
+        "Thickness": "6 inches (15 cm)",
+        "Volume": "340 l",
+        "Weight of board with motor": "32.8 lbs (14.9 kg)",
+        "Weight of board without motor": "24 lbs (11.9 kg)"
+      },
+      "images": [
+        "https://sipaboards.com/wp-content/uploads/2025/01/SipaBoards_e-SUP_Allrounder_Silver_Set.webp",
+        "https://sipaboards.com/wp-content/uploads/2024/11/SipaBoards_Electric_SUP_Allrounder_Silver_Bottom_view-2.webp",
+        "https://sipaboards.com/wp-content/uploads/2024/11/SipaBoards_Electric_SUP_Allrounder_Silver_Top_view-2.webp",
+        "https://sipaboards.com/wp-content/uploads/2024/11/SipaBoard_Electric_SUP_PRO_CF_Paddle-5.webp",
+        "https://sipaboards.com/wp-content/uploads/2024/11/SipaBoards_Electric_SUP_Allrounder_Silver__Top__with_remotez%E2%95%A0i.webp"
+      ],
+      "options": [
+        {
+          "name": "Battery Upgrade",
+          "type": "radio",
+          "required": true,
+          "choices": [
+            {
+              "label": "No Upgrade",
+              "price": 0
+            },
+            {
+              "label": "270 Wh",
+              "price": 233.24
+            },
+            {
+              "label": "360 Wh",
+              "price": 466.48
+            }
+          ]
+        }
+      ],
+      "id": "1769040224177"
+    },
+    {
+      "name": "430 Captain Hook",
+      "category": "Olympic Ribs",
+      "price": 12000,
+      "stock": 1,
+      "description": "The Olympic Captain Hook powerboat is produced by the brand Olympic Ribs since 2015. The Olympic Captain Hook is a 4.30 meters RIB boat with inflatable sides with accommodation for 5 people and a draft of 0.50 meters. The boat has a fiberglass / grp hull with a CE certification class (C) and can navigate along the coastline and on rivers and canals. The base price of a new Olympic Captain Hook is not currently published, please contact the itBoat team for pricing details.",
+      "standardEquipment": [
+        {
+          "header": "Μπαλόνια",
+          "items": [
+            "Ύφασμα Orca 866 1670 DTEX",
+            "Χειρολαβές neoprene",
+            "Περιμετρικό λάστιχο neoprene"
+          ]
+        },
+        {
+          "header": "Nντεπόζιτα",
+          "items": [
+            "Ρεζερβουάρ καυσίμου  58ltrs"
+          ]
+        },
+        {
+          "header": "Deck",
+          "items": [
+            "Σετ μαξιλαριών",
+            "Πλάτη καναπέ",
+            "Κονσόλα",
+            "Τιμόνι με κλωβό και ντίζα",
+            "ΙΝΟΧ κλείστρα και καταβάτες",
+            "ΙΝΟΧ μεντεσέδες",
+            "Κάγκελο κονσόλας",
+            "Πρίζες USB",
+            "Ηλεκτρική κόρνα",
+            "Δέστρα trailer βαραίος",
+            "Σκάλα μπάνιου",
+            "Δελφινιέρα με ράουλο"
+          ]
+        },
+        {
+          "header": "Ηλεκτρολογικά",
+          "items": [
+            "Πίνακας 6 θέσεων",
+            "Φώτα ναυσιπλοΐας",
+            "Αντλία σεντίνας",
+            "Γενικός διακόπτης δύο θέσεων",
+            "Ηλεκτρική εγκατάσταση 12V με marine καλώδια"
+          ]
+        }
+      ],
+      "specs": {
+        "Length OA": "4.30m",
+        "Breadth": "1,90m",
+        "Tub Diameter": "0.46m",
+        "Max HP": "60 HP",
+        "Min HP": "30 HP",
+        "Dry Weight": "170 Kg",
+        "Fuel Tank": "60ltrs",
+        "CE": "C",
+        "PAX No": "5"
+      },
+      "images": [
+        "https://www.psarema-skafos.gr/products_img/1513282829/1513282861_0.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1513282829/1513282901_0.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1513282829/1513283049_0.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1513282829/1513282896_0.jpeg"
+      ],
+      "options": [
+        {
+          "name": "Engine",
+          "type": "radio",
+          "required": true,
+          "choices": [
+            {
+              "label": "No Engine",
+              "price": 0
+            },
+            {
+              "label": "Yamaha",
+              "price": 7500
+            },
+            {
+              "label": "Suzuki",
+              "price": 6500
+            }
+          ]
+        }
+      ],
+      "id": "1769041944645"
+    },
+    {
+      "name": "Alpha One Allrounder Electric",
+      "category": "Sipaboards",
+      "price": 1640,
+      "stock": 5,
+      "description": "The Alpha One brings SipaBoards' superiority to a wider market. Aerospace-grade materials for elite level SUP performance, coupled up with a motor, that provides stability, optimal speed and unparalleled safety. Self inflating, connected and smart. Our idea when designing it, was to make a luxury level experience for people who like to stay in great shape and love the outdoors. The Alpha One is engineered for minimal drag yet maintaining remarkable stability, and it will amaze both seasoned paddlers and newcomers to the sport. Go further with more confidence and faster with more safety. Buy the set and get all the features you need: board, motor, battery pack, leash, carry straps, chargers and carrying equipment. Experience the seamless blend of technical sophistication and serene paddling.",
+      "standardEquipment": [
+        {
+          "header": "PADDLE AND ACCESSORIES",
+          "items": [
+            "3-piece carbon fibre paddle",
+            "10'' coiled leash",
+            "carry strap",
+            "Repair kit / maintenance kit",
+            "Quick-lock-fin"
+          ]
+        },
+        {
+          "header": "MOTOR, BATTERIES AND CHARGERS",
+          "items": [
+            "Bluetooth remote control",
+            "charger",
+            "standard 180 Wh battery pack"
+          ]
+        },
+        {
+          "header": "TRAVEL GEAR",
+          "items": [
+            "durable high grade travel backpack and bag"
+          ]
+        }
+      ],
+      "specs": {
+        "Length": "10.6 feet (3.23 m)",
+        "Width": "35 inches (89 cm)",
+        "Thickness": "6 inches (15 cm)",
+        "Volume": "320 l",
+        "Weight of board with motor": "35.82 lbs (16.2 kg)",
+        "Weight of board without motor": "11.4 lbs (5.2 kg)"
+      },
+      "images": [
+        "https://sipaboards.com/wp-content/uploads/2025/01/image_0009b-copy-2-scaled.webp",
+        "https://sipaboards.com/wp-content/uploads/2025/01/AlphaOne_1.webp",
+        "https://sipaboards.com/wp-content/uploads/2025/01/AlphaOne_2.webp",
+        "https://sipaboards.com/wp-content/uploads/2025/01/AlphaOne_3-e1739270306380.webp",
+        "https://sipaboards.com/wp-content/uploads/2025/01/AlphaOne_5.webp",
+        "https://sipaboards.com/wp-content/uploads/2025/01/AlphaOne_4.webp"
+      ],
+      "options": [
+        {
+          "name": "Battery Upgrade",
+          "type": "radio",
+          "required": true,
+          "choices": [
+            {
+              "label": "No Upgrade",
+              "price": 0
+            },
+            {
+              "label": "270 Wh",
+              "price": 233.24
+            },
+            {
+              "label": "360 Wh",
+              "price": 466.48
+            }
+          ]
+        }
+      ],
+      "id": "1769042516504"
+    },
+    {
+      "name": "BMW x SipaBoards Tourer Electric",
+      "category": "Sipaboards",
+      "price": 3270,
+      "stock": 5,
+      "description": "Sleek. Agile. Precision on water.\n\nElongated hull for swift, smooth glide—accelerates up to 4 knots for expansive exploration. Engineered for low drag with rock-steady stability. A whole-body workout, with the ease of electric assist.\n\n\nIntegrated BMW x SipaBoards mounting system secures the paddle to the deck—no extra handles or straps. 17mounting points let you add accessories with effortless simplicity.\n\n\nExperience the seamless blend of technical sophistication and serene paddling.\nIn the set: board, motor, battery pack, leash, charger, travel kit.",
+      "standardEquipment": [
+        {
+          "header": "PADDLE AND ACCESSORIES",
+          "items": [
+            "3-piece carbon fibre paddle",
+            "10'' coiled leash",
+            "carry strap",
+            "Repair kit / maintenance kit",
+            "Quick-lock-fin"
+          ]
+        },
+        {
+          "header": "MOTOR, BATTERIES AND CHARGERS",
+          "items": [
+            "Bluetooth remote control",
+            "charger",
+            "standard 180 Wh battery pack"
+          ]
+        },
+        {
+          "header": "TRAVEL GEAR",
+          "items": [
+            "durable high grade travel backpack and bag"
+          ]
+        }
+      ],
+      "specs": {
+        "Length": "3.65 m ( 12 feet)",
+        "Width": "82 cm (32.2 inches)",
+        "Thickness": "6 inches (15 cm)",
+        "Volume": "320 l",
+        "Weight of board with motor": "14.9 kg (32.8 lbs)",
+        "Weight of board without motor": "10.9 kg (24 lbs)"
+      },
+      "images": [
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet_Pulse_Pack_shop-e1757323593638.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet-Rush_Both_Sides_shop.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet_Pulse_Top_Front_shop.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Remote_Control_Boards_Functions_shop-11-3.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_SipaDrive_LED_shop-06-3.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_DriveBag_shop-05-3.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet_Pulse_LifeStyle_Image_shop.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet_Pulse_Cave_LifeStyle_Image_shop.webp"
+      ],
+      "options": [
+        {
+          "name": "Battery Upgrade",
+          "type": "radio",
+          "required": true,
+          "choices": [
+            {
+              "label": "No Upgrade",
+              "price": 0
+            },
+            {
+              "label": "360 Wh",
+              "price": 466.48
+            }
+          ]
+        }
+      ],
+      "id": "1769043142738"
+    }
+  ],
+  "brands": [
+    {
+      "name": "Sipaboards",
+      "logo": "https://sipaboards.com/wp-content/uploads/2024/10/sipaLogo2.png",
+      "id": "1769041417291"
+    },
+    {
+      "name": "Olympic Ribs",
+      "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLPvofelXSm3ip9YGWz3HmdsM6UwRHLQ12QA&s",
+      "id": "1769041451439"
+    }
+  ],
+  "orders": [
+    {
+      "productId": "1769043142738",
+      "productName": "BMW x SipaBoards Tourer Electric",
+      "productBrand": "Sipaboards",
+      "productPrice": 3270,
+      "selectedOptions": {
+        "Battery Upgrade": "360 Wh"
+      },
+      "priceBreakdown": [
+        {
+          "label": "Base Price",
+          "price": 3270
+        },
+        {
+          "label": "Battery Upgrade: 360 Wh",
+          "price": 466.48
+        }
+      ],
+      "totalExclVAT": 3736.48,
+      "totalInclVAT": 4446.4112,
+      "customerInfo": {
+        "fullName": "Epaminondas Pouris",
+        "email": "epaminondas.pouris@andecomarine.com",
+        "phone": "99409725",
+        "city": "Larnaca"
+      },
+      "productImages": [
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet_Pulse_Pack_shop-e1757323593638.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet-Rush_Both_Sides_shop.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet_Pulse_Top_Front_shop.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Remote_Control_Boards_Functions_shop-11-3.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_SipaDrive_LED_shop-06-3.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_DriveBag_shop-05-3.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet_Pulse_LifeStyle_Image_shop.webp",
+        "https://bmw.sipaboards.com/wp-content/uploads/2025/08/BMW_Sipaboards_Electric_SUP_Violet_Pulse_Cave_LifeStyle_Image_shop.webp"
+      ],
+      "productDescription": "Sleek. Agile. Precision on water.\n\nElongated hull for swift, smooth glide—accelerates up to 4 knots for expansive exploration. Engineered for low drag with rock-steady stability. A whole-body workout, with the ease of electric assist.\n\n\nIntegrated BMW x SipaBoards mounting system secures the paddle to the deck—no extra handles or straps. 17mounting points let you add accessories with effortless simplicity.\n\n\nExperience the seamless blend of technical sophistication and serene paddling.\nIn the set: board, motor, battery pack, leash, charger, travel kit.",
+      "productSpecs": {
+        "Length": "3.65 m ( 12 feet)",
+        "Width": "82 cm (32.2 inches)",
+        "Thickness": "6 inches (15 cm)",
+        "Volume": "320 l",
+        "Weight of board with motor": "14.9 kg (32.8 lbs)",
+        "Weight of board without motor": "10.9 kg (24 lbs)"
+      },
+      "productStandardEquipment": [
+        {
+          "header": "PADDLE AND ACCESSORIES",
+          "items": [
+            "3-piece carbon fibre paddle",
+            "10'' coiled leash",
+            "carry strap",
+            "Repair kit / maintenance kit",
+            "Quick-lock-fin"
+          ]
+        },
+        {
+          "header": "MOTOR, BATTERIES AND CHARGERS",
+          "items": [
+            "Bluetooth remote control",
+            "charger",
+            "standard 180 Wh battery pack"
+          ]
+        },
+        {
+          "header": "TRAVEL GEAR",
+          "items": [
+            "durable high grade travel backpack and bag"
+          ]
+        }
+      ],
+      "id": "1769123345675",
+      "orderNumber": "ORD-1769123345675",
+      "date": "2026-01-22T23:09:05.675Z",
+      "status": "confirmed"
+    },
+    {
+      "productId": "1769037197761",
+      "productName": "Olympic 499 Star",
+      "productBrand": "Olympic Ribs",
+      "productPrice": 18000,
+      "selectedOptions": {
+        "Engine": "Yamaha"
+      },
+      "priceBreakdown": [
+        {
+          "label": "Base Price",
+          "price": 18000
+        },
+        {
+          "label": "Engine: Yamaha",
+          "price": 7500
+        }
+      ],
+      "totalExclVAT": 25500,
+      "totalInclVAT": 30345,
+      "customerInfo": {
+        "fullName": "Epaminondas",
+        "email": "info@andecomarine.com",
+        "phone": "99409725",
+        "city": "Larnaca"
+      },
+      "productImages": [
+        "https://cdn.prod.website-files.com/66fea88084a63f96ada457cc/6716bcc095c5f8fd32fa79ee_Main-picture-1024x683-1.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1517948176/1517948214_0.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1517948176/1517948428_0.jpeg",
+        "https://www.psarema-skafos.gr/products_img/1517948176/1517948440_0.jpeg"
+      ],
+      "productDescription": "The Olympic 4.99 Star powerboat is produced by the brand Olympic Ribs since 2018. The Olympic 4.99 Star is a 4.98 meters RIB boat with inflatable sides with accommodation for 6 people and a draft of 0.50 meters. The boat has a fiberglass / grp hull with a CE certification class (C) and can navigate along the coastline and on rivers and canals. The base price of a new Olympic 4.99 Star is not currently published, please contact the itBoat team for pricing details.",
+      "productSpecs": {
+        "Length OA": "4.98m",
+        "Breadth": "2.29m",
+        "Tub Diameter": "0.50m",
+        "Max HP": "115 HP",
+        "Min HP": "60 HP",
+        "Dry Weight": "360 Kg",
+        "Fuel Tank": "58ltrs",
+        "CE": "C",
+        "PAX No": "6"
+      },
+      "productStandardEquipment": [
+        {
+          "header": "Μπαλόνια",
+          "items": [
+            "Ύφασμα Orca 866 1670 DTEX",
+            "Χειρολαβές neoprene",
+            "Περιμετρικό λάστιχο neoprene"
+          ]
+        },
+        {
+          "header": "Nντεπόζιτα",
+          "items": [
+            "Ρεζερβουάρ καυσίμου  58ltrs"
+          ]
+        },
+        {
+          "header": "Deck",
+          "items": [
+            "Σετ μαξιλαριών",
+            "Πλάτη καναπέ",
+            "Κονσόλα",
+            "Τιμόνι με κλωβό και ντίζα",
+            "ΙΝΟΧ κλείστρα και καταβάτες",
+            "ΙΝΟΧ μεντεσέδες",
+            "Κάγκελο κονσόλας",
+            "Πρίζες USB",
+            "Ηλεκτρική κόρνα",
+            "Δέστρα trailer βαραίος",
+            "Σκάλα μπάνιου",
+            "Δελφινιέρα με ράουλο"
+          ]
+        },
+        {
+          "header": "Ηλεκτρολογικά",
+          "items": [
+            "Πίνακας 6 θέσεων",
+            "Φώτα ναυσιπλοΐας",
+            "Αντλία σεντίνας",
+            "Γενικός διακόπτης δύο θέσεων",
+            "Ηλεκτρική εγκατάσταση 12V με marine καλώδια"
+          ]
+        }
+      ],
+      "id": "1769122975905",
+      "orderNumber": "ORD-1769122975905",
+      "date": "2026-01-22T23:02:55.905Z",
+      "status": "confirmed"
+    }
+  ],
+  "logo": "logo.png"
+}

@@ -7,6 +7,9 @@ let ordersCache = [];
 let shopLogoCache = '';
 let cacheInitialized = false;
 
+// Make cacheInitialized accessible globally
+window.cacheInitialized = false;
+
 // Initialize data from API
 async function initializeData() {
   if (cacheInitialized) return;
@@ -29,15 +32,22 @@ async function initializeData() {
     }
     
     cacheInitialized = true;
+    window.cacheInitialized = true;
+    
+    console.log(`Data loaded: ${productsCache.length} products, ${brandsCache.length} brands`);
     
     // Update logo display
     updateShopLogo();
+    
+    // Dispatch event to notify that data is loaded
+    window.dispatchEvent(new CustomEvent('dataLoaded'));
   } catch (error) {
     console.error('Error initializing data:', error);
     // Fallback to empty arrays
     productsCache = [];
     brandsCache = [];
     ordersCache = [];
+    window.cacheInitialized = true; // Set to true even on error so pages don't wait forever
   }
 }
 

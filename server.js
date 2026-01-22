@@ -175,7 +175,20 @@ const authenticateAdmin = async (req, res, next) => {
 app.get('/api/products', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
-    res.json(result.rows);
+    // Convert database format to frontend format
+    const products = result.rows.map(row => ({
+      id: row.id.toString(),
+      name: row.name,
+      category: row.category,
+      price: parseFloat(row.price),
+      stock: row.stock,
+      description: row.description,
+      standardEquipment: row.standard_equipment || [],
+      specs: row.specs || {},
+      images: row.images || [],
+      options: row.options || []
+    }));
+    res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ error: 'Failed to fetch products' });
@@ -189,7 +202,21 @@ app.get('/api/products/:id', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Product not found' });
     }
-    res.json(result.rows[0]);
+    const row = result.rows[0];
+    // Convert database format to frontend format
+    const product = {
+      id: row.id.toString(),
+      name: row.name,
+      category: row.category,
+      price: parseFloat(row.price),
+      stock: row.stock,
+      description: row.description,
+      standardEquipment: row.standard_equipment || [],
+      specs: row.specs || {},
+      images: row.images || [],
+      options: row.options || []
+    };
+    res.json(product);
   } catch (error) {
     console.error('Error fetching product:', error);
     res.status(500).json({ error: 'Failed to fetch product' });
@@ -200,7 +227,13 @@ app.get('/api/products/:id', async (req, res) => {
 app.get('/api/brands', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM brands ORDER BY name');
-    res.json(result.rows);
+    // Convert database format to frontend format
+    const brands = result.rows.map(row => ({
+      id: row.id.toString(),
+      name: row.name,
+      logo: row.logo || ''
+    }));
+    res.json(brands);
   } catch (error) {
     console.error('Error fetching brands:', error);
     res.status(500).json({ error: 'Failed to fetch brands' });

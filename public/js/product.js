@@ -18,7 +18,7 @@ window.handleImageErrorThumb = function(img) {
 };
 
 // Product detail page functionality
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const productContainer = document.getElementById('productContainer');
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
@@ -27,6 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
         productContainer.innerHTML = '<p>Product not found.</p>';
         return;
     }
+
+    // Wait for data to be initialized
+    await new Promise((resolve) => {
+        if (window.cacheInitialized && typeof getProductById !== 'undefined') {
+            resolve();
+        } else {
+            window.addEventListener('dataLoaded', resolve, { once: true });
+            // Timeout after 5 seconds
+            setTimeout(resolve, 5000);
+        }
+    });
 
     const product = getProductById(productId);
     if (!product) {

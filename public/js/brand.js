@@ -10,7 +10,7 @@ window.handleImageError = function(img) {
 };
 
 // Brand page functionality - Shows products for a specific brand
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const productsGrid = document.getElementById('productsGrid');
     const emptyState = document.getElementById('emptyState');
     const brandTitle = document.getElementById('brandTitle');
@@ -21,6 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
+
+    // Wait for data to be initialized
+    await new Promise((resolve) => {
+        if (window.cacheInitialized && typeof getProducts !== 'undefined') {
+            resolve();
+        } else {
+            window.addEventListener('dataLoaded', resolve, { once: true });
+            // Timeout after 5 seconds
+            setTimeout(resolve, 5000);
+        }
+    });
 
     function renderProductCard(product) {
         return `

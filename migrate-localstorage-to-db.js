@@ -34,10 +34,9 @@ const data = {
 console.log(JSON.stringify(data, null, 2));
 // Copy the output and save it to a file named 'localstorage-export.json'
     `);
-    console.log('\nAfter exporting, save it as "localstorage-export.json" in this folder.\n');
-    console.log('Press Enter when you have created the file...');
+    console.log('\nLooking for export file...\n');
     
-    // For now, let's check if the file exists
+    // Check if the file exists
     const fs = require('fs');
     const path = require('path');
     const exportFile = path.join(__dirname, 'localstorage-export.json');

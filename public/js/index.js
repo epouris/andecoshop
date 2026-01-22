@@ -38,7 +38,7 @@ function getAllBrands() {
 }
 
 // Main listing page functionality - Shows brands
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const brandsGrid = document.getElementById('brandsGrid');
     const emptyState = document.getElementById('emptyState');
 
@@ -46,6 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('brandsGrid element not found');
         return;
     }
+
+    // Wait for data to be initialized
+    await new Promise((resolve) => {
+        if (window.cacheInitialized) {
+            resolve();
+        } else {
+            window.addEventListener('dataLoaded', resolve, { once: true });
+            // Timeout after 5 seconds
+            setTimeout(resolve, 5000);
+        }
+    });
 
     function renderBrands() {
         const brands = getAllBrands();
