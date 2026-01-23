@@ -629,6 +629,24 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
 app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
   try {
     const product = req.body;
+    
+    // Get current product values if needed
+    let displayOrder = product.displayOrder;
+    let pdfPhoto = product.pdfPhoto;
+    
+    if (displayOrder === undefined || pdfPhoto === undefined) {
+      const currentProduct = await pool.query('SELECT display_order, pdf_photo FROM products WHERE id = $1', [req.params.id]);
+      if (currentProduct.rows.length === 0) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      if (displayOrder === undefined) {
+        displayOrder = currentProduct.rows[0].display_order || 0;
+      }
+      if (pdfPhoto === undefined) {
+        pdfPhoto = currentProduct.rows[0].pdf_photo || null;
+      }
+    }
+    
     const result = await pool.query(`
       UPDATE products 
       SET name = $1, category = $2, price = $3, stock = $4, description = $5,
@@ -646,14 +664,32 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       JSON.stringify(product.specs || {}),
       product.images || [],
       JSON.stringify(product.options || []),
-      product.displayOrder !== undefined ? product.displayOrder : (await pool.query('SELECT display_order FROM products WHERE id = $1', [req.params.id])).rows[0]?.display_order || 0,
-      product.pdfPhoto !== undefined ? product.pdfPhoto : (await pool.query('SELECT pdf_photo FROM products WHERE id = $1', [req.params.id])).rows[0]?.pdf_photo || null,
+      displayOrder,
+      pdfPhoto,
       req.params.id
     ]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Product not found' });
     }
-    res.json(result.rows[0]);
+    
+    // Convert database format to frontend format
+    const row = result.rows[0];
+    const productResponse = {
+      id: row.id.toString(),
+      name: row.name,
+      category: row.category,
+      price: parseFloat(row.price),
+      stock: row.stock,
+      description: row.description,
+      standardEquipment: typeof row.standard_equipment === 'string' ? JSON.parse(row.standard_equipment) : (row.standard_equipment || []),
+      specs: typeof row.specs === 'string' ? JSON.parse(row.specs) : (row.specs || {}),
+      images: row.images || [],
+      options: typeof row.options === 'string' ? JSON.parse(row.options) : (row.options || []),
+      displayOrder: row.display_order || 0,
+      pdfPhoto: row.pdf_photo || null
+    };
+    
+    res.json(productResponse);
   } catch (error) {
     console.error('Error updating product:', error);
     res.status(500).json({ error: 'Failed to update product' });
