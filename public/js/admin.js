@@ -97,10 +97,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderProductsTable() {
         if (typeof getProducts !== 'function' || typeof getBrands !== 'function') {
             console.error('getProducts or getBrands not available');
+            if (productsTableBody) {
+                productsTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading products...</td></tr>';
+            }
             return;
         }
+        
+        if (!productsTableBody) {
+            console.error('productsTableBody not found');
+            return;
+        }
+        
         const products = getProducts();
         const brands = getBrands();
+        
+        console.log('Rendering products table:', products.length, 'products,', brands.length, 'brands');
+        
+        if (products.length === 0) {
+            productsTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No products found. Click "Add New Product" to get started.</td></tr>';
+            return;
+        }
         
         // Group products by brand
         const productsByBrand = {};
@@ -481,31 +497,58 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const targetTab = btn.dataset.tab;
-            
-            // Update active tab button
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            // Update active tab content
-            tabContents.forEach(content => content.classList.remove('active'));
-            document.getElementById(`${targetTab}Tab`).classList.add('active');
-            
-            // Render appropriate content
-            if (targetTab === 'brands') {
-                renderBrandsTable();
-            } else if (targetTab === 'orders') {
-                renderOrdersTable();
-            } else if (targetTab === 'settings' && shopLogoUrl && typeof getShopLogo === 'function') {
-                // Reload logo URL when settings tab is opened
-                const currentLogo = getShopLogo();
-                if (currentLogo) {
-                    shopLogoUrl.value = currentLogo;
-                    updateLogoPreview(currentLogo);
-                } else {
-                    shopLogoUrl.value = '';
-                    logoPreview.style.display = 'none';
+            try {
+                const targetTab = btn.dataset.tab;
+                
+                // Update active tab button
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                const targetTabContent = document.getElementById(`${targetTab}Tab`);
+                if (targetTabContent) {
+                    targetTabContent.classList.add('active');
                 }
+                
+                // Render appropriate content
+                if (targetTab === 'brands') {
+                    try {
+                        renderBrandsTable();
+                    } catch (error) {
+                        console.error('Error rendering brands table:', error);
+                    }
+                } else if (targetTab === 'orders') {
+                    try {
+                        renderOrdersTable();
+                    } catch (error) {
+                        console.error('Error rendering orders table:', error);
+                    }
+                } else if (targetTab === 'settings') {
+                    try {
+                        const shopLogoUrl = document.getElementById('shopLogoUrl');
+                        const logoPreview = document.getElementById('logoPreview');
+                        if (shopLogoUrl && typeof getShopLogo === 'function') {
+                            // Reload logo URL when settings tab is opened
+                            const currentLogo = getShopLogo();
+                            if (currentLogo) {
+                                shopLogoUrl.value = currentLogo;
+                                if (typeof updateLogoPreview === 'function') {
+                                    updateLogoPreview(currentLogo);
+                                }
+                            } else {
+                                shopLogoUrl.value = '';
+                                if (logoPreview) {
+                                    logoPreview.style.display = 'none';
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading settings:', error);
+                    }
+                }
+            } catch (error) {
+                console.error('Error switching tabs:', error);
             }
         });
     });
