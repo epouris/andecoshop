@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
+const https = require('https');
+const http = require('http');
 require('dotenv').config();
 
 const app = express();
@@ -284,6 +286,53 @@ const authenticateAdmin = async (req, res, next) => {
 };
 
 // Public API Routes
+
+// Image proxy endpoint to bypass CORS
+app.get('/api/image-proxy', async (req, res) => {
+  try {
+    const imageUrl = req.query.url;
+    if (!imageUrl) {
+      return res.status(400).json({ error: 'URL parameter is required' });
+    }
+
+    // Validate URL
+    let url;
+    try {
+      url = new URL(imageUrl);
+    } catch (e) {
+      return res.status(400).json({ error: 'Invalid URL' });
+    }
+
+    // Only allow http/https protocols
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return res.status(400).json({ error: 'Invalid protocol' });
+    }
+
+    // Fetch image
+    const protocol = url.protocol === 'https:' ? https : http;
+    
+    protocol.get(url.href, (response) => {
+      if (response.statusCode !== 200) {
+        return res.status(response.statusCode).json({ error: 'Failed to fetch image' });
+      }
+
+      // Set CORS headers
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET');
+      res.setHeader('Content-Type', response.headers['content-type'] || 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+
+      // Pipe image data to response
+      response.pipe(res);
+    }).on('error', (error) => {
+      console.error('Error fetching image:', error);
+      res.status(500).json({ error: 'Failed to fetch image' });
+    });
+  } catch (error) {
+    console.error('Image proxy error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Get all products
 app.get('/api/products', async (req, res) => {

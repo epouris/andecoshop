@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="product-header">
                     <h3 class="product-name">${product.name}</h3>
                 </div>
-                <img src="${product.images && product.images[0] ? product.images[0] : PLACEHOLDER_IMAGE}" 
+                <img src="${product.images && product.images[0] ? getProxiedImageUrl(product.images[0]) : PLACEHOLDER_IMAGE}" 
                      alt="${product.name}" 
                      class="product-image"
                      onerror="handleImageError(this)">
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const brand = getBrandByName(decodedBrandName);
         const brandLogo = document.getElementById('brandLogo');
         if (brand && brand.logo) {
-            brandLogo.src = brand.logo;
+            brandLogo.src = getProxiedImageUrl(brand.logo);
             brandLogo.alt = `${decodedBrandName} Logo`;
             brandLogo.style.display = 'block';
             brandLogo.onerror = function() {

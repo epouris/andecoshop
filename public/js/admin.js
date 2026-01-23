@@ -223,11 +223,21 @@
                 const headerRow = document.createElement('tr');
                 headerRow.className = 'brand-header-row';
                 const productCount = brandProducts.length;
+                // Use image proxy for external brand logos
+                let brandLogoUrl = '';
+                if (brandInfo && brandInfo.logo) {
+                    if (brandInfo.logo.startsWith('http') && !brandInfo.logo.startsWith(window.location.origin)) {
+                        brandLogoUrl = `/api/image-proxy?url=${encodeURIComponent(brandInfo.logo)}`;
+                    } else {
+                        brandLogoUrl = brandInfo.logo;
+                    }
+                }
+                
                 headerRow.innerHTML = `
                     <td colspan="6" class="brand-header-cell">
                         <div class="brand-header-content">
-                            ${brandInfo && brandInfo.logo ? `
-                                <img src="${escapeHtml(brandInfo.logo)}" alt="${escapeHtml(brandName)} Logo" class="brand-header-logo" onerror="this.style.display='none'">
+                            ${brandLogoUrl ? `
+                                <img src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(brandName)} Logo" class="brand-header-logo" onerror="this.style.display='none'">
                             ` : ''}
                             <h3 class="brand-header-title">${escapeHtml(brandName)}</h3>
                             <span class="brand-header-count">(${productCount} ${productCount === 1 ? 'product' : 'products'})</span>
@@ -241,13 +251,19 @@
                     const tr = document.createElement('tr');
                     tr.className = 'product-row';
                     
-                    const imageSrc = (product.images && product.images[0]) 
-                        ? escapeHtml(product.images[0]) 
+                    const originalImageSrc = (product.images && product.images[0]) 
+                        ? product.images[0] 
                         : window.ADMIN_PLACEHOLDER_IMAGE;
+                    
+                    // Use image proxy for external URLs to avoid CORS issues
+                    let imageSrc = originalImageSrc;
+                    if (originalImageSrc && originalImageSrc.startsWith('http') && !originalImageSrc.startsWith(window.location.origin)) {
+                        imageSrc = `/api/image-proxy?url=${encodeURIComponent(originalImageSrc)}`;
+                    }
                     
                     tr.innerHTML = `
                         <td>
-                            <img src="${imageSrc}" 
+                            <img src="${escapeHtml(imageSrc)}" 
                                  alt="${escapeHtml(product.name)}" 
                                  class="table-image"
                                  loading="lazy"
@@ -756,7 +772,7 @@
                 
                 tr.innerHTML = `
                     <td>
-                        <img src="${escapeHtml(brand.logo || window.ADMIN_PLACEHOLDER_IMAGE)}" 
+                        <img src="${escapeHtml(brand.logo ? getProxiedImageUrl(brand.logo) : window.ADMIN_PLACEHOLDER_IMAGE)}" 
                              alt="${escapeHtml(brand.name)}" 
                              class="table-image"
                              loading="lazy"
@@ -1015,8 +1031,8 @@
             
             // Get brand logo if available
             const brand = getBrandByName(order.productBrand);
-            const brandLogo = brand ? brand.logo : '';
-            const shopLogo = getShopLogo();
+            const brandLogo = brand ? getProxiedImageUrl(brand.logo) : '';
+            const shopLogo = getProxiedImageUrl(getShopLogo());
             
             let yPos = 20;
             
@@ -1080,7 +1096,8 @@
             doc.setFont('helvetica', 'normal');
             
             // Add product image if available - prefer PDF photo, then first product image
-            const productImage = order.productPdfPhoto || (order.productImages && order.productImages.length > 0 ? order.productImages[0] : null);
+            const rawProductImage = order.productPdfPhoto || (order.productImages && order.productImages.length > 0 ? order.productImages[0] : null);
+            const productImage = rawProductImage ? getProxiedImageUrl(rawProductImage) : null;
             let productImageHeight = 0;
             if (productImage) {
                 // Add product image on the right side

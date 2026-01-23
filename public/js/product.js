@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }).join('') : '';
 
         const mainImageSrc = (product.images && product.images.length > 0) 
-            ? (product.images[currentImageIndex] || product.images[0]) 
+            ? (getProxiedImageUrl(product.images[currentImageIndex] || product.images[0])) 
             : PLACEHOLDER_IMAGE_LARGE;
 
         productContainer.innerHTML = `
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${product.images && product.images.length > 1 ? `
                         <div class="thumbnail-grid">
                             ${product.images.map((img, index) => `
-                                <img src="${img}" 
+                                <img src="${getProxiedImageUrl(img)}" 
                                      alt="Thumbnail ${index + 1}" 
                                      class="thumbnail ${index === currentImageIndex ? 'active' : ''}"
                                      onclick="changeImage(${index})"
@@ -383,7 +383,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentImageIndex = index;
         const mainImage = document.getElementById('mainImage');
         if (mainImage && product.images && product.images[index]) {
-            mainImage.src = product.images[index];
+            mainImage.src = getProxiedImageUrl(product.images[index]);
         }
         document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
             thumb.classList.toggle('active', i === index);
@@ -564,8 +564,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Get brand logo if available
         const brand = getBrandByName(order.productBrand);
-        const brandLogo = brand ? brand.logo : '';
-        const shopLogo = getShopLogo();
+        const brandLogo = brand ? getProxiedImageUrl(brand.logo) : '';
+        const shopLogo = getProxiedImageUrl(getShopLogo());
         
         let yPos = 20;
         
@@ -627,7 +627,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         doc.setFont('helvetica', 'normal');
         
         // Add product image if available - prefer PDF photo, then first product image
-        const productImage = order.productPdfPhoto || (order.productImages && order.productImages.length > 0 ? order.productImages[0] : null);
+        const rawProductImage = order.productPdfPhoto || (order.productImages && order.productImages.length > 0 ? order.productImages[0] : null);
+        const productImage = rawProductImage ? getProxiedImageUrl(rawProductImage) : null;
         let productImageHeight = 0;
         if (productImage) {
             // Add product image on the right side
