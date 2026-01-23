@@ -274,20 +274,58 @@
         if (!isAdminAuthenticated()) {
             window.location.href = 'login.html';
         } else {
-            // Load scripts after authentication check
+            // Load data.js first (must be loaded before admin.js)
+            const dataScript = document.createElement('script');
+            dataScript.src = 'js/data.js';
+            document.body.appendChild(dataScript);
+            
+            // Load api.js
             const script1 = document.createElement('script');
             script1.src = 'js/api.js';
             script1.type = 'module';
             document.head.appendChild(script1);
             
+            // Load nav.js
             const script2 = document.createElement('script');
             script2.src = 'js/nav.js';
             document.body.appendChild(script2);
             
-            const script3 = document.createElement('script');
-            script3.src = 'js/admin.js';
-            script3.type = 'module';
-            document.body.appendChild(script3);
+            // Load admin.js after data is initialized
+            dataScript.onload = () => {
+                // Wait for data initialization
+                const waitForData = () => {
+                    if (window.cacheInitialized) {
+                        const script3 = document.createElement('script');
+                        script3.src = 'js/admin.js';
+                        script3.type = 'module';
+                        document.body.appendChild(script3);
+                    } else {
+                        window.addEventListener('dataLoaded', () => {
+                            const script3 = document.createElement('script');
+                            script3.src = 'js/admin.js';
+                            script3.type = 'module';
+                            document.body.appendChild(script3);
+                        }, { once: true });
+                        // Timeout after 5 seconds
+                        setTimeout(() => {
+                            if (!document.querySelector('script[src="js/admin.js"]')) {
+                                const script3 = document.createElement('script');
+                                script3.src = 'js/admin.js';
+                                script3.type = 'module';
+                                document.body.appendChild(script3);
+                            }
+                        }, 5000);
+                    }
+                };
+                
+                // Check immediately or wait for event
+                if (window.cacheInitialized) {
+                    waitForData();
+                } else {
+                    window.addEventListener('dataLoaded', waitForData, { once: true });
+                    setTimeout(waitForData, 1000);
+                }
+            };
         }
     </script>
 </body>

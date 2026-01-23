@@ -10,7 +10,17 @@ window.handleAdminImageError = function(img) {
 };
 
 // Admin portal functionality
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for data to be initialized from database
+    await new Promise((resolve) => {
+        if (window.cacheInitialized) {
+            resolve();
+        } else {
+            window.addEventListener('dataLoaded', resolve, { once: true });
+            // Timeout after 5 seconds
+            setTimeout(resolve, 5000);
+        }
+    });
     const productsTableBody = document.getElementById('productsTableBody');
     const productModal = document.getElementById('productModal');
     const productForm = document.getElementById('productForm');
