@@ -57,8 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
 
         const decodedBrandName = decodeURIComponent(brandName);
-        brandTitle.textContent = `${decodedBrandName} Products`;
-
+        
         // Get brand logo if available
         const brand = getBrandByName(decodedBrandName);
         const brandLogo = document.getElementById('brandLogo');
@@ -72,6 +71,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             brandLogo.style.display = 'none';
         }
+        
+        // Update title with product count for better promotion
+        const productCount = brandProducts.length;
+        brandTitle.textContent = `${decodedBrandName}${productCount > 0 ? ` - ${productCount} ${productCount === 1 ? 'Product' : 'Products'}` : ''}`;
 
         if (brandProducts.length === 0) {
             productsGrid.style.display = 'none';
