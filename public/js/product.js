@@ -149,7 +149,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Determine specs layout (1 or 2 columns)
         const specsColumns = product.specsColumns || 1;
-        const specsEntries = product.specs ? Object.entries(product.specs) : [];
+        // Handle both array format (for order preservation) and object format (backward compatibility)
+        let specsEntries = [];
+        if (product.specs) {
+            if (Array.isArray(product.specs)) {
+                // Array format: [{key: "Color", value: "Red"}, ...]
+                specsEntries = product.specs.map(item => [item.key, item.value]);
+            } else if (typeof product.specs === 'object') {
+                // Object format (backward compatibility): {Color: "Red", ...}
+                specsEntries = Object.entries(product.specs);
+            }
+        }
         
         let specsHtml = '';
         if (specsColumns === 2) {

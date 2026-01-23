@@ -392,9 +392,20 @@
                     document.getElementById('productStandardEquipment').value = '';
                 }
                 
-                // Handle specs
-                if (product.specs && typeof product.specs === 'object') {
-                    document.getElementById('productSpecs').value = JSON.stringify(product.specs, null, 2);
+                // Handle specs - convert from array format to object for display
+                if (product.specs) {
+                    let specsObj = {};
+                    if (Array.isArray(product.specs)) {
+                        // Convert array of {key, value} to object
+                        product.specs.forEach(item => {
+                            if (item && item.key && item.value !== undefined) {
+                                specsObj[item.key] = item.value;
+                            }
+                        });
+                    } else if (typeof product.specs === 'object') {
+                        specsObj = product.specs;
+                    }
+                    document.getElementById('productSpecs').value = JSON.stringify(specsObj, null, 2);
                 } else {
                     document.getElementById('productSpecs').value = '';
                 }
@@ -509,7 +520,17 @@
                 const specsText = document.getElementById('productSpecs').value.trim();
                 if (specsText) {
                     try {
-                        specs = JSON.parse(specsText);
+                        const parsedSpecs = JSON.parse(specsText);
+                        // Convert to array format to preserve order (PostgreSQL JSONB doesn't preserve object key order)
+                        if (typeof parsedSpecs === 'object' && parsedSpecs !== null && !Array.isArray(parsedSpecs)) {
+                            // Convert object to array of {key, value} pairs to preserve insertion order
+                            specs = Object.entries(parsedSpecs).map(([key, value]) => ({ key, value }));
+                        } else if (Array.isArray(parsedSpecs)) {
+                            // Already in array format
+                            specs = parsedSpecs;
+                        } else {
+                            specs = parsedSpecs;
+                        }
                     } catch (e) {
                         alert('Invalid JSON in specifications field');
                         return;
