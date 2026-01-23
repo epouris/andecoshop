@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${specsHtml ? `
                 <div class="product-specs">
                     <h2>Specifications</h2>
-                    <table class="specs-table">
+                    <table class="specs-table ${specsColumns === 2 ? 'specs-table-two-columns' : ''}">
                         ${specsHtml}
                     </table>
                 </div>
