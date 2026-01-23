@@ -543,10 +543,47 @@
                 const pdfPhotoFile = document.getElementById('productPdfPhoto').files[0];
                 
                 if (pdfPhotoFile) {
-                    // Convert file to base64
+                    // Compress and convert file to base64
                     pdfPhoto = await new Promise((resolve, reject) => {
                         const reader = new FileReader();
-                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                // Create canvas to resize/compress
+                                const canvas = document.createElement('canvas');
+                                const maxWidth = 1200; // Max width for PDF
+                                const maxHeight = 1200; // Max height for PDF
+                                
+                                let width = img.width;
+                                let height = img.height;
+                                
+                                // Calculate new dimensions maintaining aspect ratio
+                                if (width > height) {
+                                    if (width > maxWidth) {
+                                        height = (height * maxWidth) / width;
+                                        width = maxWidth;
+                                    }
+                                } else {
+                                    if (height > maxHeight) {
+                                        width = (width * maxHeight) / height;
+                                        height = maxHeight;
+                                    }
+                                }
+                                
+                                canvas.width = width;
+                                canvas.height = height;
+                                
+                                // Draw and compress
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, width, height);
+                                
+                                // Convert to base64 with quality compression (0.8 = 80% quality)
+                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                                resolve(compressedBase64);
+                            };
+                            img.onerror = reject;
+                            img.src = e.target.result;
+                        };
                         reader.onerror = reject;
                         reader.readAsDataURL(pdfPhotoFile);
                     });
