@@ -619,7 +619,25 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       product.displayOrder || newDisplayOrder,
       product.pdfPhoto || null
     ]);
-    res.status(201).json(result.rows[0]);
+    
+    // Convert database format to frontend format
+    const row = result.rows[0];
+    const productResponse = {
+      id: row.id.toString(),
+      name: row.name,
+      category: row.category,
+      price: parseFloat(row.price),
+      stock: row.stock,
+      description: row.description,
+      standardEquipment: typeof row.standard_equipment === 'string' ? JSON.parse(row.standard_equipment) : (row.standard_equipment || []),
+      specs: typeof row.specs === 'string' ? JSON.parse(row.specs) : (row.specs || {}),
+      images: row.images || [],
+      options: typeof row.options === 'string' ? JSON.parse(row.options) : (row.options || []),
+      displayOrder: row.display_order || 0,
+      pdfPhoto: row.pdf_photo || null
+    };
+    
+    res.status(201).json(productResponse);
   } catch (error) {
     console.error('Error creating product:', error);
     res.status(500).json({ error: 'Failed to create product' });
