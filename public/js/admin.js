@@ -422,6 +422,7 @@
             productModal.classList.remove('active');
             editingProductId = null;
             productForm.reset();
+            document.getElementById('productSpecsColumns').value = '1';
             optionsContainer.innerHTML = '';
             optionCounter = 0;
         }
