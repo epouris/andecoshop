@@ -19,6 +19,13 @@
                 </a>
                 <nav class="nav">
                     <a href="index.html" class="nav-link">Home</a>
+                    <a href="brands.html" class="nav-link">Brands</a>
+                    <div class="nav-dropdown">
+                        <a href="#" class="nav-link" id="brandsDropdown">All Brands</a>
+                        <div class="dropdown-menu" id="brandsMenu">
+                            <!-- Brands will be loaded here -->
+                        </div>
+                    </div>
                     <a href="admin.html" class="nav-link active">Admin</a>
                 </nav>
             </div>
@@ -29,6 +36,7 @@
         <div class="container container-full">
             <div class="admin-tabs">
                 <button class="tab-btn active" data-tab="products">Products</button>
+                <button class="tab-btn" data-tab="brands">Brands</button>
                 <button class="tab-btn" data-tab="orders">Orders</button>
                 <button class="tab-btn" data-tab="settings">Settings</button>
             </div>
@@ -149,6 +157,35 @@
             </div>
         </div>
     </main>
+
+    <!-- Brand Modal -->
+    <div id="brandModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="brandModalTitle">Add Brand</h3>
+                <button class="modal-close" id="closeBrandModal">&times;</button>
+            </div>
+            <form id="brandForm" class="product-form">
+                <input type="hidden" id="brandId">
+                
+                <div class="form-group">
+                    <label for="brandName">Brand Name *</label>
+                    <input type="text" id="brandName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="brandLogo">Brand Logo URL *</label>
+                    <input type="text" id="brandLogo" placeholder="https://example.com/logo.png" required>
+                    <small>Enter the URL of the brand logo image</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBrandBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Brand</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Product Modal -->
     <div id="productModal" class="modal">

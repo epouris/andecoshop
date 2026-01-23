@@ -509,7 +509,13 @@
                     }
                     
                     // Render appropriate content
-                    if (targetTab === 'orders') {
+                    if (targetTab === 'brands') {
+                        try {
+                            renderBrandsTable();
+                        } catch (error) {
+                            console.error('Error rendering brands table:', error);
+                        }
+                    } else if (targetTab === 'orders') {
                         try {
                             renderOrdersTable();
                         } catch (error) {
@@ -544,7 +550,141 @@
             });
         });
 
-        // Brand management removed - brands are now managed through product categories
+        // Brand management
+        const brandModal = document.getElementById('brandModal');
+        const brandForm = document.getElementById('brandForm');
+        const addBrandBtn = document.getElementById('addBrandBtn');
+        const closeBrandModalBtn = document.getElementById('closeBrandModal');
+        const cancelBrandBtn = document.getElementById('cancelBrandBtn');
+        const brandsTableBody = document.getElementById('brandsTableBody');
+        let editingBrandId = null;
+
+        function renderBrandsTable() {
+            if (typeof getBrands !== 'function' || typeof getProducts !== 'function') {
+                console.error('getBrands or getProducts not available');
+                return;
+            }
+            const brands = getBrands();
+            const allProducts = getProducts();
+            
+            // Count products per brand
+            const brandProductCounts = {};
+            allProducts.forEach(product => {
+                const brandName = product.category || 'No Brand';
+                brandProductCounts[brandName] = (brandProductCounts[brandName] || 0) + 1;
+            });
+
+            const fragment = document.createDocumentFragment();
+            
+            brands.forEach(brand => {
+                const tr = document.createElement('tr');
+                const escapeHtml = (text) => {
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                };
+                
+                tr.innerHTML = `
+                    <td>
+                        <img src="${escapeHtml(brand.logo || window.ADMIN_PLACEHOLDER_IMAGE)}" 
+                             alt="${escapeHtml(brand.name)}" 
+                             class="table-image"
+                             loading="lazy"
+                             onerror="handleAdminImageError(this)">
+                    </td>
+                    <td>${escapeHtml(brand.name)}</td>
+                    <td>${brandProductCounts[brand.name] || 0}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary btn-small" data-edit-brand="${brand.id}">Edit</button>
+                            <button class="btn btn-danger btn-small" data-delete-brand="${brand.id}">Delete</button>
+                        </div>
+                    </td>
+                `;
+                
+                const editBtn = tr.querySelector(`[data-edit-brand="${brand.id}"]`);
+                const deleteBtn = tr.querySelector(`[data-delete-brand="${brand.id}"]`);
+                editBtn.addEventListener('click', () => editBrand(brand.id));
+                deleteBtn.addEventListener('click', () => {
+                    if (confirm('Are you sure you want to delete this brand?')) {
+                        (async () => {
+                            try {
+                                await deleteBrand(brand.id);
+                                await refreshBrands();
+                                renderBrandsTable();
+                            } catch (error) {
+                                alert('Error deleting brand: ' + error.message);
+                            }
+                        })();
+                    }
+                });
+                
+                fragment.appendChild(tr);
+            });
+            
+            if (brandsTableBody) {
+                brandsTableBody.innerHTML = '';
+                brandsTableBody.appendChild(fragment);
+            }
+        }
+
+        function openBrandModal(brand = null) {
+            editingBrandId = brand ? brand.id : null;
+            document.getElementById('brandModalTitle').textContent = brand ? 'Edit Brand' : 'Add Brand';
+            brandForm.reset();
+            brandModal.classList.add('active');
+
+            if (brand) {
+                document.getElementById('brandName').value = brand.name || '';
+                document.getElementById('brandLogo').value = brand.logo || '';
+            }
+        }
+
+        function closeBrandModal() {
+            brandModal.classList.remove('active');
+            editingBrandId = null;
+            brandForm.reset();
+        }
+
+        async function editBrand(id) {
+            const brands = getBrands();
+            const brand = brands.find(b => b.id == id);
+            if (brand) {
+                openBrandModal(brand);
+            }
+        }
+
+        brandForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const brand = {
+                    name: document.getElementById('brandName').value,
+                    logo: document.getElementById('brandLogo').value
+                };
+                
+                if (editingBrandId) {
+                    await updateBrand(editingBrandId, brand);
+                } else {
+                    await addBrand(brand);
+                }
+                
+                await refreshBrands();
+                renderBrandsTable();
+                closeBrandModal();
+            } catch (error) {
+                alert('Error saving brand: ' + error.message);
+            }
+        });
+
+        addBrandBtn.addEventListener('click', () => openBrandModal());
+        closeBrandModalBtn.addEventListener('click', closeBrandModal);
+        cancelBrandBtn.addEventListener('click', closeBrandModal);
+
+        brandModal.addEventListener('click', (e) => {
+            if (e.target === brandModal) {
+                closeBrandModal();
+            }
+        }, { passive: true });
 
         // Orders management
         const ordersTableBody = document.getElementById('ordersTableBody');
