@@ -324,6 +324,13 @@
     border: 1px solid var(--border-light);
 }
 
+.option-item-form .btn-small {
+    min-width: 36px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
 .option-item-form input {
     flex: 1;
 }

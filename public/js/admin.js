@@ -104,6 +104,20 @@
             }
         }
 
+        function moveOption(optionId, direction) {
+            const optionDiv = document.getElementById(optionId);
+            if (!optionDiv) return;
+
+            const allOptions = Array.from(optionsContainer.querySelectorAll('.option-item-form'));
+            const currentIndex = allOptions.indexOf(optionDiv);
+
+            if (direction === 'up' && currentIndex > 0) {
+                optionsContainer.insertBefore(optionDiv, allOptions[currentIndex - 1]);
+            } else if (direction === 'down' && currentIndex < allOptions.length - 1) {
+                optionsContainer.insertBefore(optionDiv, allOptions[currentIndex + 1].nextSibling);
+            }
+        }
+
         function createOptionElement(optionData = null) {
             const optionId = `option-${optionCounter++}`;
             const optionDiv = document.createElement('div');
@@ -123,6 +137,10 @@
             };
 
             optionDiv.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-right: 0.5rem;">
+                    <button type="button" class="btn btn-small" data-move-option="${optionId}" data-direction="up" title="Move up">↑</button>
+                    <button type="button" class="btn btn-small" data-move-option="${optionId}" data-direction="down" title="Move down">↓</button>
+                </div>
                 <div style="flex: 1;">
                     <label>Option Name</label>
                     <input type="text" class="option-name" value="${escapeHtml(name)}" placeholder="e.g., Color, Size">
@@ -148,6 +166,16 @@
             // Use event delegation instead of inline onclick
             const removeBtn = optionDiv.querySelector(`[data-remove-option="${optionId}"]`);
             removeBtn.addEventListener('click', () => removeOption(optionId));
+            
+            // Add move up/down button handlers
+            const moveUpBtn = optionDiv.querySelector(`[data-move-option="${optionId}"][data-direction="up"]`);
+            const moveDownBtn = optionDiv.querySelector(`[data-move-option="${optionId}"][data-direction="down"]`);
+            if (moveUpBtn) {
+                moveUpBtn.addEventListener('click', () => moveOption(optionId, 'up'));
+            }
+            if (moveDownBtn) {
+                moveDownBtn.addEventListener('click', () => moveOption(optionId, 'down'));
+            }
 
             return optionDiv;
         }
