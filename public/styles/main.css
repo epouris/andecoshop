@@ -496,6 +496,147 @@ body {
     color: var(--text-light);
 }
 
+/* Luxury Models Showcase Section */
+.luxury-models-section {
+    margin: 3rem 0 4rem;
+    padding: 2.5rem 0;
+}
+
+.luxury-models-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 2rem 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+
+.luxury-models-grid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    flex-wrap: wrap;
+    background: var(--bg-color);
+    border-radius: 16px;
+    padding: 2rem 1rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+}
+
+.luxury-model-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    padding: 0 1rem;
+}
+
+.luxury-model-image {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.luxury-model-item:hover .luxury-model-image {
+    transform: scale(1.05);
+}
+
+.luxury-model-separator {
+    position: absolute;
+    right: 0;
+    top: 15%;
+    bottom: 15%;
+    width: 1.5px;
+    background: var(--border-color);
+    z-index: 1;
+    transform: rotate(12deg);
+    transform-origin: center;
+    opacity: 0.6;
+}
+
+.luxury-model-separator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        var(--border-color) 30%,
+        var(--border-color) 70%,
+        transparent 100%
+    );
+}
+
+/* Responsive design for luxury models */
+@media (max-width: 1024px) {
+    .luxury-models-grid {
+        padding: 1.5rem;
+    }
+    
+    .luxury-model-image {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .luxury-models-section {
+        margin: 2rem 0 3rem;
+        padding: 1.5rem 0;
+    }
+    
+    .luxury-models-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .luxury-models-grid {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .luxury-model-item {
+        flex: 0 0 calc(50% - 0.5rem);
+        margin-bottom: 1rem;
+    }
+    
+    .luxury-model-separator {
+        display: none;
+    }
+    
+    .luxury-model-image {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .luxury-models-title {
+        font-size: 1.25rem;
+    }
+    
+    .luxury-models-grid {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .luxury-model-item {
+        flex: 0 0 100%;
+        margin-bottom: 0.75rem;
+    }
+    
+    .luxury-model-image {
+        max-height: 200px;
+    }
+}
+
 /* Brand Filters */
 .category-filters {
     display: flex;

@@ -50,6 +50,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     }
 
+    function renderLuxuryModels(decodedBrandName) {
+        const luxuryModelsSection = document.getElementById('luxuryModelsSection');
+        const luxuryModelsGrid = document.getElementById('luxuryModelsGrid');
+        
+        // Only show for Olympic Ribs
+        if (decodedBrandName !== 'Olympic Ribs') {
+            luxuryModelsSection.style.display = 'none';
+            return;
+        }
+
+        // Luxury models images for Olympic Ribs
+        const luxuryModels = [
+            {
+                image: 'https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/6921b536c89775bca22a0aaf_E1F31112-85FC-49F5-A3F6-E9805C752F00_1_201_a-p-500.jpeg',
+                alt: 'Luxury Model 1'
+            },
+            {
+                image: 'https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/674eced21ca3b15ecca46c0d_45SRC%20top--p-500.jpg',
+                alt: '45SRC Top'
+            },
+            {
+                image: 'https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/674ecee680b693672fb5ad91_45SRC%20Stern%20top--p-500.jpg',
+                alt: '45SRC Stern Top'
+            },
+            {
+                image: 'https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/6921b740386737526df998ac_40SR%20G2%20Thumbnail-p-500.jpeg',
+                alt: '40SR G2'
+            }
+        ];
+
+        luxuryModelsGrid.innerHTML = luxuryModels.map((model, index) => {
+            const isLast = index === luxuryModels.length - 1;
+            return `
+                <div class="luxury-model-item">
+                    <img src="${getProxiedImageUrl(model.image)}" 
+                         alt="${model.alt}" 
+                         class="luxury-model-image"
+                         onerror="handleImageError(this)">
+                    ${!isLast ? '<div class="luxury-model-separator"></div>' : ''}
+                </div>
+            `;
+        }).join('');
+
+        luxuryModelsSection.style.display = 'block';
+    }
+
     function renderProducts() {
         const allProducts = getProducts();
         const brandProducts = allProducts.filter(product => 
@@ -71,6 +117,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             brandLogo.style.display = 'none';
         }
+        
+        // Render luxury models section
+        renderLuxuryModels(decodedBrandName);
         
         // Update title with product count for better promotion
         const productCount = brandProducts.length;
