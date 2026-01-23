@@ -102,11 +102,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             return `
                 <div class="luxury-model-item">
-                    <img src="${getProxiedImageUrl(model.image)}" 
-                         alt="${model.alt}" 
-                         class="${className}"
-                         ${clipPath ? `style="clip-path: ${clipPath};"` : ''}
-                         onerror="handleImageError(this)">
+                    <div class="luxury-model-image-wrapper">
+                        <img src="${getProxiedImageUrl(model.image)}" 
+                             alt="${model.alt}" 
+                             class="${className}"
+                             ${clipPath ? `style="clip-path: ${clipPath};"` : ''}
+                             onerror="handleImageError(this)">
+                        <div class="luxury-model-name">${model.alt}</div>
+                    </div>
                 </div>
             `;
         }).join('');

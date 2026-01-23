@@ -532,12 +532,19 @@ body {
     position: relative;
     flex: 1;
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
     background: transparent;
 }
 
+.luxury-model-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
 .luxury-model-image {
-    width: calc(100% + 6px);
+    width: calc(100% + 20px);
     height: 400px;
     object-fit: cover;
     display: block;
@@ -546,19 +553,38 @@ body {
     background: transparent;
 }
 
+.luxury-model-name {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-align: center;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
 .luxury-model-first {
-    margin-right: -4px;
+    margin-right: -10px;
     z-index: 1;
 }
 
 .luxury-model-middle {
-    margin-left: -4px;
-    margin-right: -4px;
+    margin-left: -10px;
+    margin-right: -10px;
     z-index: 1;
 }
 
 .luxury-model-last {
-    margin-left: -4px;
+    margin-left: -10px;
     z-index: 1;
 }
 
@@ -599,9 +625,26 @@ body {
         margin: 0;
     }
     
+    .luxury-model-image-wrapper {
+        height: 250px;
+    }
+    
     .luxury-model-image {
         height: 250px;
+        width: calc(100% + 10px);
         clip-path: none !important;
+    }
+    
+    .luxury-model-name {
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        bottom: 1rem;
+    }
+    
+    .luxury-model-first,
+    .luxury-model-middle,
+    .luxury-model-last {
+        margin: 0;
     }
 }
 
@@ -620,9 +663,26 @@ body {
         margin: 0;
     }
     
+    .luxury-model-image-wrapper {
+        height: 200px;
+    }
+    
     .luxury-model-image {
         height: 200px;
+        width: 100%;
         clip-path: none !important;
+    }
+    
+    .luxury-model-name {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.875rem;
+        bottom: 0.75rem;
+    }
+    
+    .luxury-model-first,
+    .luxury-model-middle,
+    .luxury-model-last {
+        margin: 0;
     }
 }
 
