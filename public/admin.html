@@ -264,7 +264,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 AndecoMarine.shop. All rights reserved.</p>
+            <p>&copy; <span id="currentYear"></span> AndecoMarine.shop. All rights reserved.</p>
         </div>
     </footer>
 
@@ -364,6 +364,13 @@
                     document.body.appendChild(script3);
                 }
             }, 2000);
+        }
+    </script>
+    <script>
+        // Set current year in footer
+        const yearElement = document.getElementById('currentYear');
+        if (yearElement) {
+            yearElement.textContent = new Date().getFullYear();
         }
     </script>
 </body>
