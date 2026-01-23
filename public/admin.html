@@ -294,6 +294,11 @@
             dataScript.onload = () => {
                 // Wait for data initialization
                 const waitForData = () => {
+                    // Check if admin.js is already loaded
+                    if (document.querySelector('script[src="js/admin.js"]')) {
+                        return; // Already loaded, don't load again
+                    }
+                    
                     // Check if functions are available
                     if (typeof getProducts === 'function' && typeof getBrands === 'function') {
                         const script3 = document.createElement('script');
