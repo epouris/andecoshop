@@ -21,7 +21,7 @@ function renderBrandsDropdown() {
     const brandArray = Object.values(brands).sort((a, b) => a.name.localeCompare(b.name));
     
     if (brandArray.length === 0) {
-        brandsMenu.innerHTML = '<a href="index.html">No brands available</a>';
+        brandsMenu.innerHTML = '<a href="brands.html">No brands available</a>';
         return;
     }
 
