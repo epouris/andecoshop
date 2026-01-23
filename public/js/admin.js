@@ -95,6 +95,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderProductsTable() {
+        if (typeof getProducts !== 'function' || typeof getBrands !== 'function') {
+            console.error('getProducts or getBrands not available');
+            return;
+        }
         const products = getProducts();
         const brands = getBrands();
         
@@ -199,6 +203,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function populateBrandDropdown() {
         const brandSelect = document.getElementById('productCategory');
+        if (typeof getBrands !== 'function' || typeof getProducts !== 'function') {
+            console.error('getBrands or getProducts not available');
+            return;
+        }
         const brands = getBrands();
         
         // Clear existing options except the first "Select a brand..." option
@@ -512,6 +520,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let editingBrandId = null;
 
     function renderBrandsTable() {
+        if (typeof getBrands !== 'function' || typeof getProducts !== 'function') {
+            console.error('getBrands or getProducts not available');
+            return;
+        }
         const brands = getBrands();
         const allProducts = getProducts();
         
@@ -775,6 +787,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function renderOrdersTable() {
         if (!ordersTableBody) return;
         
+        if (typeof getOrders !== 'function' || typeof refreshOrders !== 'function') {
+            console.error('getOrders or refreshOrders not available');
+            ordersTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;">Loading orders...</td></tr>';
+            return;
+        }
+        
         try {
             await refreshOrders();
         } catch (error) {
@@ -1017,6 +1035,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.open(pdfUrl, '_blank');
     }
 
-    // Initial render
-    renderProductsTable();
+    // Initial render - make sure functions are available
+    if (typeof getProducts === 'function' && typeof getBrands === 'function') {
+        renderProductsTable();
+    } else {
+        console.error('Data functions not available on initial render');
+        // Try again after a short delay
+        setTimeout(() => {
+            if (typeof getProducts === 'function' && typeof getBrands === 'function') {
+                renderProductsTable();
+            }
+        }, 500);
+    }
 });

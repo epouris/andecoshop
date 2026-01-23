@@ -294,36 +294,31 @@
             dataScript.onload = () => {
                 // Wait for data initialization
                 const waitForData = () => {
-                    if (window.cacheInitialized) {
+                    // Check if functions are available
+                    if (typeof getProducts === 'function' && typeof getBrands === 'function') {
                         const script3 = document.createElement('script');
                         script3.src = 'js/admin.js';
-                        script3.type = 'module';
+                        // Don't use module type - admin.js needs access to global functions
                         document.body.appendChild(script3);
                     } else {
-                        window.addEventListener('dataLoaded', () => {
-                            const script3 = document.createElement('script');
-                            script3.src = 'js/admin.js';
-                            script3.type = 'module';
-                            document.body.appendChild(script3);
-                        }, { once: true });
-                        // Timeout after 5 seconds
-                        setTimeout(() => {
-                            if (!document.querySelector('script[src="js/admin.js"]')) {
-                                const script3 = document.createElement('script');
-                                script3.src = 'js/admin.js';
-                                script3.type = 'module';
-                                document.body.appendChild(script3);
-                            }
-                        }, 5000);
+                        // Wait a bit more for functions to be available
+                        setTimeout(waitForData, 100);
                     }
                 };
                 
-                // Check immediately or wait for event
+                // Wait for data to be initialized
                 if (window.cacheInitialized) {
                     waitForData();
                 } else {
                     window.addEventListener('dataLoaded', waitForData, { once: true });
-                    setTimeout(waitForData, 1000);
+                    // Also try after a short delay
+                    setTimeout(waitForData, 500);
+                    // Fallback timeout
+                    setTimeout(() => {
+                        if (!document.querySelector('script[src="js/admin.js"]')) {
+                            waitForData();
+                        }
+                    }, 5000);
                 }
             };
         }
