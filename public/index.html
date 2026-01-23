@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AndecoMarine.shop - Products</title>
+    <title>AndecoMarine.shop - Premium Brands Collection</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/landing.css">
 </head>
 <body>
-    <header class="header">
+    <header class="header landing-header">
         <div class="container">
             <div class="header-content">
-                <a href="landing.html" class="logo">
+                <a href="index.html" class="logo">
                     <span class="logo-text">AndecoMarine.shop</span>
                 </a>
                 <nav class="nav">
-                    <a href="landing.html" class="nav-link">Home</a>
-                    <a href="index.html" class="nav-link active">Brands</a>
+                    <a href="index.html" class="nav-link active">Home</a>
+                    <a href="brands.html" class="nav-link">Brands</a>
                     <div class="nav-dropdown">
                         <a href="#" class="nav-link" id="brandsDropdown">All Brands</a>
                         <div class="dropdown-menu" id="brandsMenu">
@@ -31,20 +32,342 @@
         </div>
     </header>
 
-    <main class="main">
-        <div class="container">
-            <div class="page-header">
-                <h2>Our Brands</h2>
+    <main class="landing-main">
+        <!-- Hero Slider Section -->
+        <section class="hero-slider-section">
+            <div class="hero-slider" id="heroSlider">
+                <!-- Slide 1 -->
+                <div class="hero-slide active">
+                    <div class="slide-background" style="background-image: url('https://cdn.prod.website-files.com/66fea88084a63f96ada457cc/6926ea1819d4835adab719be_40SRC%20DETAILS%20AND%20PHOTOS%201-6%20(16)-p-2000.jpg');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Premium Brands.<br>Exceptional Quality.</h1>
+                            <p class="hero-subtitle">Discover world-class products from industry-leading brands, crafted with precision and built for excellence.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Explore Our Brands</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">View Collection</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 2 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://sipaboards.com/wp-content/uploads/2026/01/BMWxSipabaords_Electric_SUP_Electric_LifeStyle_homepage-scaled-1-e1768471269939-2048x905.webp');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Innovation Meets<br>Craftsmanship.</h1>
+                            <p class="hero-subtitle">Experience the perfect blend of cutting-edge technology and timeless design in every product we offer.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Shop Now</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 3 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://cdn.prod.website-files.com/66fea88084a63f96ada457cc/6738c8861d04dce6379d97ba_dji_fly_20240122_091446_137_1705912303641_photo-p-2000.jpeg');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Your Trusted<br>Partner.</h1>
+                            <p class="hero-subtitle">Join thousands of satisfied customers who trust us for authentic products and exceptional service.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Get Started</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">Browse Products</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 4 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/6759ddb76357114c82921c08_45SRC%20stern%20background-p-2000.jpeg');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Excellence on<br>Every Journey.</h1>
+                            <p class="hero-subtitle">Premium quality products designed for those who demand the very best in performance and reliability.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Discover More</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">View Products</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 5 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/670aa492a4eb5b2aed150773_OLR_45_SR_239_HiRes-q0u91h47d1pikveu1x993nximgo1t99otaf8opt3a8-p-1600.jpg');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Adventure Awaits.<br>Quality Delivered.</h1>
+                            <p class="hero-subtitle">From the open waters to your next adventure, we bring you products that exceed expectations.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Start Exploring</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">Our Collection</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 6 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://sipaboards.com/wp-content/uploads/2024/12/SipaBoards_Electric_SUP_homepage_Explore_at_Night-scaled.webp');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Explore Beyond<br>Boundaries.</h1>
+                            <p class="hero-subtitle">Experience the freedom of electric-powered adventures, day or night, with cutting-edge technology at your fingertips.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Discover More</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">View Products</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 7 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://sipaboards.com/wp-content/uploads/2024/12/SipaBoards_Electric_SUP_homepage_Easy_Control-scaled.webp');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Effortless Control.<br>Maximum Performance.</h1>
+                            <p class="hero-subtitle">Intuitive design meets powerful performance. Experience the perfect balance of ease and excellence.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Shop Now</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 8 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://sipaboards.com/wp-content/uploads/2024/12/SipaBoards_Electric_SUP_SipaBoards_for_Rentals-2048x1365.webp');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Perfect for Rentals.<br>Built to Last.</h1>
+                            <p class="hero-subtitle">Durable, reliable electric SUPs designed for rental businesses. Experience the quality that keeps customers coming back.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Explore Rentals</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 9 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://sipaboards.com/wp-content/uploads/2024/12/SipaBoards_Electric_SUP_SipaBoards_for_Dealers-2048x1365.webp');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Partner with Us.<br>Become a Dealer.</h1>
+                            <p class="hero-subtitle">Join our network of authorized dealers and offer premium electric SUPs to your customers. Quality products, competitive pricing.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Become a Dealer</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">Contact Us</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 10 -->
+                <div class="hero-slide">
+                    <div class="slide-background" style="background-image: url('https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/6926d31b1dfd4a3c3621cdcf_40SR%20G2%20TOP%20BANNER%20IMG.JPG');"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Discover More.<br>Explore Our Collection.</h1>
+                            <p class="hero-subtitle">Browse our extensive range of premium products and find exactly what you're looking for.</p>
+                            <div class="hero-actions">
+                                <a href="brands.html" class="btn btn-primary btn-large">Explore Now</a>
+                                <a href="#brands" class="btn btn-secondary btn-large">View Collection</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            
+            <!-- Slider Navigation -->
+            <div class="slider-controls">
+                <button class="slider-btn slider-prev" id="sliderPrev" aria-label="Previous slide">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <button class="slider-btn slider-next" id="sliderNext" aria-label="Next slide">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Slider Indicators -->
+            <div class="slider-indicators" id="sliderIndicators">
+                <button class="indicator active" data-slide="0" aria-label="Go to slide 1"></button>
+                <button class="indicator" data-slide="1" aria-label="Go to slide 2"></button>
+                <button class="indicator" data-slide="2" aria-label="Go to slide 3"></button>
+                <button class="indicator" data-slide="3" aria-label="Go to slide 4"></button>
+                <button class="indicator" data-slide="4" aria-label="Go to slide 5"></button>
+                <button class="indicator" data-slide="5" aria-label="Go to slide 6"></button>
+                <button class="indicator" data-slide="6" aria-label="Go to slide 7"></button>
+                <button class="indicator" data-slide="7" aria-label="Go to slide 8"></button>
+                <button class="indicator" data-slide="8" aria-label="Go to slide 9"></button>
+                <button class="indicator" data-slide="9" aria-label="Go to slide 10"></button>
+            </div>
+        </section>
 
-            <div class="brands-grid" id="brandsGrid">
-                <!-- Brands will be loaded here -->
+        <!-- Brand Videos Section -->
+        <section class="videos-section">
+            <div class="container">
+                <div class="videos-grid">
+                    <div class="video-card">
+                        <div class="video-wrapper">
+                            <video autoplay muted loop playsinline class="brand-video">
+                                <source src="https://cdn.prod.website-files.com/66fea88084a63f96ada457cc%2F692f212470d6002f37f09d4e_OLR%20Website%20Video%20%282%29_mp4.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="video-overlay">
+                                <h3 class="video-brand-title">Olympic RIBs</h3>
+                                <p class="video-brand-description">Crafting high-performance RIBs with cutting-edge technology and timeless craftsmanship</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <div class="video-wrapper">
+                            <video autoplay muted loop playsinline class="brand-video">
+                                <source src="https://bmw.sipaboards.com/wp-content/uploads/2025/10/BMWxSipaboards_Horizontal_Final_Version-compressed.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="video-overlay">
+                                <h3 class="video-brand-title">BMW x SipaBoards</h3>
+                                <p class="video-brand-description">An e-SUP for the New Era. A technological marvel that takes the BMW spirit from road to water</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <div class="video-wrapper">
+                            <video autoplay muted loop playsinline class="brand-video">
+                                <source src="https://cdn.prod.website-files.com/66fea88084a63f96ada457cc%2F686d08d7997d846dc17fd946_Sea%20Trial%20Main%20Vid-transcode.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="video-overlay">
+                                <h3 class="video-brand-title">Sea Trial</h3>
+                                <p class="video-brand-description">Experience the thrill of our premium products in action on the open water</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <div class="video-wrapper">
+                            <img src="https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/6921b740386737526df998ac_40SR%20G2%20Thumbnail.jpeg" alt="Featured Content" class="brand-video">
+                            <div class="video-overlay">
+                                <h3 class="video-brand-title">Featured Content</h3>
+                                <p class="video-brand-description">Discover more about our products and services</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <p>No brands found.</p>
+        <!-- Brands Showcase Section -->
+        <section class="brands-showcase" id="brands">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">Our Partners</span>
+                    <h2 class="section-title">World-Class Brands</h2>
+                    <p class="section-description">We collaborate with the most respected names in the industry, bringing you products that represent the pinnacle of design, innovation, and craftsmanship.</p>
+                </div>
+
+                <div class="brands-grid" id="brandsGrid">
+                    <!-- Brands will be loaded here -->
+                </div>
             </div>
-        </div>
+        </section>
+
+        <!-- Values Section -->
+        <section class="values-section">
+            <div class="container">
+                <div class="values-content">
+                    <div class="values-text">
+                        <span class="section-label">Our Commitment</span>
+                        <h2 class="section-title">Built for Excellence</h2>
+                        <p class="values-description">Every product in our collection is carefully selected to meet the highest standards of quality, performance, and reliability. We partner with brands that share our commitment to excellence and customer satisfaction.</p>
+                        <div class="values-stats">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalBrands">0</div>
+                                <div class="stat-label">Premium Brands</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalProducts">0</div>
+                                <div class="stat-label">Quality Products</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">100%</div>
+                                <div class="stat-label">Customer Satisfaction</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">Why Choose Us</span>
+                    <h2 class="section-title">Experience the Difference</h2>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Authentic Products</h3>
+                        <p class="feature-description">Genuine products directly from authorized brand partners, ensuring authenticity and warranty coverage.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Transparent Pricing</h3>
+                        <p class="feature-description">Clear pricing with all costs upfront. All prices exclude 19% VAT (Cyprus regulation) for complete transparency.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Fast Delivery</h3>
+                        <p class="feature-description">Efficient shipping and logistics to get your products to you quickly and safely, wherever you are.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Expert Support</h3>
+                        <p class="feature-description">Dedicated customer service team ready to assist with product selection, technical questions, and after-sales support.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="footer">
@@ -55,6 +378,6 @@
 
     <script src="js/data.js"></script>
     <script src="js/nav.js"></script>
-    <script src="js/index.js"></script>
+    <script src="js/landing.js"></script>
 </body>
 </html>
