@@ -81,14 +81,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         ];
 
         luxuryModelsGrid.innerHTML = luxuryModels.map((model, index) => {
+            const isFirst = index === 0;
             const isLast = index === luxuryModels.length - 1;
+            let clipPath = '';
+            let className = 'luxury-model-image';
+            
+            if (!isFirst && !isLast) {
+                // Middle images: diagonal on both sides
+                clipPath = 'polygon(3% 0%, 100% 0%, 97% 100%, 0% 100%)';
+                className += ' luxury-model-middle';
+            } else if (!isFirst) {
+                // Last image: diagonal only on left
+                clipPath = 'polygon(3% 0%, 100% 0%, 100% 100%, 0% 100%)';
+                className += ' luxury-model-last';
+            } else if (!isLast) {
+                // First image: diagonal only on right
+                clipPath = 'polygon(0% 0%, 97% 0%, 100% 100%, 0% 100%)';
+                className += ' luxury-model-first';
+            }
+            
             return `
                 <div class="luxury-model-item">
                     <img src="${getProxiedImageUrl(model.image)}" 
                          alt="${model.alt}" 
-                         class="luxury-model-image"
+                         class="${className}"
+                         ${clipPath ? `style="clip-path: ${clipPath};"` : ''}
                          onerror="handleImageError(this)">
-                    ${!isLast ? '<div class="luxury-model-separator"></div>' : ''}
                 </div>
             `;
         }).join('');
