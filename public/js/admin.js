@@ -390,6 +390,22 @@
                     document.getElementById('productImages').value = '';
                 }
                 
+                // Handle PDF photo
+                const pdfPhotoInput = document.getElementById('productPdfPhoto');
+                const pdfPhotoPreview = document.getElementById('pdfPhotoPreview');
+                const pdfPhotoPreviewImg = document.getElementById('pdfPhotoPreviewImg');
+                const removePdfPhotoBtn = document.getElementById('removePdfPhoto');
+                
+                if (product.pdfPhoto) {
+                    pdfPhotoPreviewImg.src = product.pdfPhoto;
+                    pdfPhotoPreview.style.display = 'block';
+                    // Store the current PDF photo in a data attribute
+                    pdfPhotoInput.dataset.currentPhoto = product.pdfPhoto;
+                } else {
+                    pdfPhotoPreview.style.display = 'none';
+                    pdfPhotoInput.dataset.currentPhoto = '';
+                }
+                
                 // Handle options
                 if (product.options && Array.isArray(product.options)) {
                     product.options.forEach(option => {
@@ -405,6 +421,9 @@
             productForm.reset();
             optionsContainer.innerHTML = '';
             optionCounter = 0;
+            // Reset PDF photo preview
+            document.getElementById('pdfPhotoPreview').style.display = 'none';
+            document.getElementById('productPdfPhoto').dataset.currentPhoto = '';
         }
 
         async function editProduct(id) {
@@ -519,6 +538,20 @@
                     }
                 });
                 
+                // Handle PDF photo - get from file input or existing data
+                let pdfPhoto = document.getElementById('productPdfPhoto').dataset.currentPhoto || null;
+                const pdfPhotoFile = document.getElementById('productPdfPhoto').files[0];
+                
+                if (pdfPhotoFile) {
+                    // Convert file to base64
+                    pdfPhoto = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(pdfPhotoFile);
+                    });
+                }
+                
                 const product = {
                     name: document.getElementById('productName').value,
                     category: document.getElementById('productCategory').value,
@@ -528,7 +561,8 @@
                     standardEquipment,
                     specs,
                     images,
-                    options
+                    options,
+                    pdfPhoto: pdfPhoto || null
                 };
                 
                 if (editingProductId) {
@@ -546,6 +580,36 @@
         });
 
         addProductBtn.addEventListener('click', () => openModal());
+        
+        // Handle PDF photo file upload
+        const pdfPhotoInput = document.getElementById('productPdfPhoto');
+        const pdfPhotoPreview = document.getElementById('pdfPhotoPreview');
+        const pdfPhotoPreviewImg = document.getElementById('pdfPhotoPreviewImg');
+        const removePdfPhotoBtn = document.getElementById('removePdfPhoto');
+        
+        if (pdfPhotoInput) {
+            pdfPhotoInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        pdfPhotoPreviewImg.src = event.target.result;
+                        pdfPhotoPreview.style.display = 'block';
+                        pdfPhotoInput.dataset.currentPhoto = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        if (removePdfPhotoBtn) {
+            removePdfPhotoBtn.addEventListener('click', () => {
+                pdfPhotoInput.value = '';
+                pdfPhotoPreview.style.display = 'none';
+                pdfPhotoPreviewImg.src = '';
+                pdfPhotoInput.dataset.currentPhoto = '';
+            });
+        }
         closeModalBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
         addOptionBtn.addEventListener('click', () => addOptionToForm());

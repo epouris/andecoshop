@@ -446,6 +446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     city: document.getElementById('orderCity').value
                 },
                 productImages: product.images || [],
+                productPdfPhoto: product.pdfPhoto || null,
                 productDescription: product.description,
                 productSpecs: product.specs || {},
                 productStandardEquipment: product.standardEquipment || []
@@ -625,8 +626,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
         
-        // Add product image if available
-        const productImage = order.productImages && order.productImages.length > 0 ? order.productImages[0] : null;
+        // Add product image if available - prefer PDF photo, then first product image
+        const productImage = order.productPdfPhoto || (order.productImages && order.productImages.length > 0 ? order.productImages[0] : null);
         let productImageHeight = 0;
         if (productImage) {
             // Add product image on the right side

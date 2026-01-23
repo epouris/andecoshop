@@ -44,6 +44,7 @@ async function initializeDatabase() {
         images TEXT[],
         options JSONB,
         display_order INTEGER DEFAULT 0,
+        pdf_photo TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -75,6 +76,7 @@ async function initializeDatabase() {
         total_incl_vat DECIMAL(10, 2),
         customer_info JSONB NOT NULL,
         product_images TEXT[],
+        product_pdf_photo TEXT,
         product_description TEXT,
         product_specs JSONB,
         product_standard_equipment JSONB,
@@ -176,6 +178,46 @@ async function initializeDatabase() {
       console.log('display_order migration check completed (or not needed)');
     }
     
+    // Add pdf_photo column if it doesn't exist
+    try {
+      const pdfPhotoCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'products' AND column_name = 'pdf_photo'
+      `);
+      
+      if (pdfPhotoCheck.rows.length === 0) {
+        console.log('Adding pdf_photo column to products table...');
+        await pool.query(`
+          ALTER TABLE products 
+          ADD COLUMN pdf_photo TEXT
+        `);
+        console.log('✓ pdf_photo column added');
+      }
+    } catch (migrationError) {
+      console.log('pdf_photo migration check completed (or not needed)');
+    }
+    
+    // Add product_pdf_photo column to orders table if it doesn't exist
+    try {
+      const orderPdfPhotoCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'orders' AND column_name = 'product_pdf_photo'
+      `);
+      
+      if (orderPdfPhotoCheck.rows.length === 0) {
+        console.log('Adding product_pdf_photo column to orders table...');
+        await pool.query(`
+          ALTER TABLE orders 
+          ADD COLUMN product_pdf_photo TEXT
+        `);
+        console.log('✓ product_pdf_photo column added to orders');
+      }
+    } catch (migrationError) {
+      console.log('orders.product_pdf_photo migration check completed (or not needed)');
+    }
+    
     // After tables are created, initialize admin user
     if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
       try {
@@ -257,7 +299,8 @@ app.get('/api/products', async (req, res) => {
       specs: row.specs || {},
       images: row.images || [],
       options: row.options || [],
-      displayOrder: row.display_order || 0
+      displayOrder: row.display_order || 0,
+      pdfPhoto: row.pdf_photo || null
     }));
     res.json(products);
   } catch (error) {
@@ -286,7 +329,8 @@ app.get('/api/products/:id', async (req, res) => {
       specs: row.specs || {},
       images: row.images || [],
       options: row.options || [],
-      displayOrder: row.display_order || 0
+      displayOrder: row.display_order || 0,
+      pdfPhoto: row.pdf_photo || null
     };
     res.json(product);
   } catch (error) {
@@ -347,9 +391,9 @@ app.post('/api/orders', async (req, res) => {
       INSERT INTO orders (
         order_number, product_id, product_name, product_brand, product_price,
         selected_options, price_breakdown, total_excl_vat, total_incl_vat,
-        customer_info, product_images, product_description, product_specs,
+        customer_info, product_images, product_pdf_photo, product_description, product_specs,
         product_standard_equipment, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING *
     `, [
       orderNumber,
@@ -363,6 +407,7 @@ app.post('/api/orders', async (req, res) => {
       order.totalInclVAT,
       JSON.stringify(order.customerInfo),
       order.productImages || [],
+      order.productPdfPhoto || null,
       order.productDescription,
       JSON.stringify(order.productSpecs || {}),
       JSON.stringify(order.productStandardEquipment || []),
@@ -384,6 +429,7 @@ app.post('/api/orders', async (req, res) => {
       totalInclVAT: row.total_incl_vat ? parseFloat(row.total_incl_vat) : 0,
       customerInfo: typeof row.customer_info === 'string' ? JSON.parse(row.customer_info) : (row.customer_info || {}),
       productImages: row.product_images || [],
+      productPdfPhoto: row.product_pdf_photo || null,
       productDescription: row.product_description,
       productSpecs: typeof row.product_specs === 'string' ? JSON.parse(row.product_specs) : (row.product_specs || {}),
       productStandardEquipment: typeof row.product_standard_equipment === 'string' ? JSON.parse(row.product_standard_equipment) : (row.product_standard_equipment || []),
@@ -557,8 +603,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
     const newDisplayOrder = (maxOrderResult.rows[0].max_order || 0) + 1;
     
     const result = await pool.query(`
-      INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options, display_order)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options, display_order, pdf_photo)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `, [
       product.name,
@@ -570,7 +616,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       JSON.stringify(product.specs || {}),
       product.images || [],
       JSON.stringify(product.options || []),
-      product.displayOrder || newDisplayOrder
+      product.displayOrder || newDisplayOrder,
+      product.pdfPhoto || null
     ]);
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -586,8 +633,8 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       UPDATE products 
       SET name = $1, category = $2, price = $3, stock = $4, description = $5,
           standard_equipment = $6, specs = $7, images = $8, options = $9,
-          display_order = $10, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $11
+          display_order = $10, pdf_photo = $11, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $12
       RETURNING *
     `, [
       product.name,
@@ -600,6 +647,7 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       product.images || [],
       JSON.stringify(product.options || []),
       product.displayOrder !== undefined ? product.displayOrder : (await pool.query('SELECT display_order FROM products WHERE id = $1', [req.params.id])).rows[0]?.display_order || 0,
+      product.pdfPhoto !== undefined ? product.pdfPhoto : (await pool.query('SELECT pdf_photo FROM products WHERE id = $1', [req.params.id])).rows[0]?.pdf_photo || null,
       req.params.id
     ]);
     if (result.rows.length === 0) {
