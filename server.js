@@ -458,7 +458,7 @@ app.post('/api/orders', async (req, res) => {
       order.totalInclVAT,
       JSON.stringify(order.customerInfo),
       order.productImages || [],
-      order.productPdfPhoto || null,
+      null, // product_pdf_photo - no longer used, set to null
       order.productDescription,
       JSON.stringify(order.productSpecs || {}),
       JSON.stringify(order.productStandardEquipment || []),
@@ -668,7 +668,7 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       product.images || [],
       JSON.stringify(product.options || []),
       product.displayOrder || newDisplayOrder,
-      product.pdfPhoto || null
+      null // pdf_photo - no longer used, set to null
     ]);
     
     // Convert database format to frontend format
@@ -701,19 +701,13 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
     
     // Get current product values if needed
     let displayOrder = product.displayOrder;
-    let pdfPhoto = product.pdfPhoto;
     
-    if (displayOrder === undefined || pdfPhoto === undefined) {
-      const currentProduct = await pool.query('SELECT display_order, pdf_photo FROM products WHERE id = $1', [req.params.id]);
+    if (displayOrder === undefined) {
+      const currentProduct = await pool.query('SELECT display_order FROM products WHERE id = $1', [req.params.id]);
       if (currentProduct.rows.length === 0) {
         return res.status(404).json({ error: 'Product not found' });
       }
-      if (displayOrder === undefined) {
-        displayOrder = currentProduct.rows[0].display_order || 0;
-      }
-      if (pdfPhoto === undefined) {
-        pdfPhoto = currentProduct.rows[0].pdf_photo || null;
-      }
+      displayOrder = currentProduct.rows[0].display_order || 0;
     }
     
     const result = await pool.query(`
@@ -734,7 +728,7 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       product.images || [],
       JSON.stringify(product.options || []),
       displayOrder,
-      pdfPhoto,
+      null, // pdf_photo - no longer used, set to null
       req.params.id
     ]);
     if (result.rows.length === 0) {

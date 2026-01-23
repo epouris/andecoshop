@@ -406,22 +406,6 @@
                     document.getElementById('productImages').value = '';
                 }
                 
-                // Handle PDF photo
-                const pdfPhotoInput = document.getElementById('productPdfPhoto');
-                const pdfPhotoPreview = document.getElementById('pdfPhotoPreview');
-                const pdfPhotoPreviewImg = document.getElementById('pdfPhotoPreviewImg');
-                const removePdfPhotoBtn = document.getElementById('removePdfPhoto');
-                
-                if (product.pdfPhoto) {
-                    pdfPhotoPreviewImg.src = product.pdfPhoto;
-                    pdfPhotoPreview.style.display = 'block';
-                    // Store the current PDF photo in a data attribute
-                    pdfPhotoInput.dataset.currentPhoto = product.pdfPhoto;
-                } else {
-                    pdfPhotoPreview.style.display = 'none';
-                    pdfPhotoInput.dataset.currentPhoto = '';
-                }
-                
                 // Handle options
                 if (product.options && Array.isArray(product.options)) {
                     product.options.forEach(option => {
@@ -437,9 +421,6 @@
             productForm.reset();
             optionsContainer.innerHTML = '';
             optionCounter = 0;
-            // Reset PDF photo preview
-            document.getElementById('pdfPhotoPreview').style.display = 'none';
-            document.getElementById('productPdfPhoto').dataset.currentPhoto = '';
         }
 
         async function editProduct(id) {
@@ -554,57 +535,6 @@
                     }
                 });
                 
-                // Handle PDF photo - get from file input or existing data
-                let pdfPhoto = document.getElementById('productPdfPhoto').dataset.currentPhoto || null;
-                const pdfPhotoFile = document.getElementById('productPdfPhoto').files[0];
-                
-                if (pdfPhotoFile) {
-                    // Compress and convert file to base64
-                    pdfPhoto = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            const img = new Image();
-                            img.onload = () => {
-                                // Create canvas to resize/compress
-                                const canvas = document.createElement('canvas');
-                                const maxWidth = 1200; // Max width for PDF
-                                const maxHeight = 1200; // Max height for PDF
-                                
-                                let width = img.width;
-                                let height = img.height;
-                                
-                                // Calculate new dimensions maintaining aspect ratio
-                                if (width > height) {
-                                    if (width > maxWidth) {
-                                        height = (height * maxWidth) / width;
-                                        width = maxWidth;
-                                    }
-                                } else {
-                                    if (height > maxHeight) {
-                                        width = (width * maxHeight) / height;
-                                        height = maxHeight;
-                                    }
-                                }
-                                
-                                canvas.width = width;
-                                canvas.height = height;
-                                
-                                // Draw and compress
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0, width, height);
-                                
-                                // Convert to base64 with quality compression (0.8 = 80% quality)
-                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                                resolve(compressedBase64);
-                            };
-                            img.onerror = reject;
-                            img.src = e.target.result;
-                        };
-                        reader.onerror = reject;
-                        reader.readAsDataURL(pdfPhotoFile);
-                    });
-                }
-                
                 const product = {
                     name: document.getElementById('productName').value,
                     category: document.getElementById('productCategory').value,
@@ -614,8 +544,7 @@
                     standardEquipment,
                     specs,
                     images,
-                    options,
-                    pdfPhoto: pdfPhoto || null
+                    options
                 };
                 
                 if (editingProductId) {
@@ -635,34 +564,6 @@
         addProductBtn.addEventListener('click', () => openModal());
         
         // Handle PDF photo file upload
-        const pdfPhotoInput = document.getElementById('productPdfPhoto');
-        const pdfPhotoPreview = document.getElementById('pdfPhotoPreview');
-        const pdfPhotoPreviewImg = document.getElementById('pdfPhotoPreviewImg');
-        const removePdfPhotoBtn = document.getElementById('removePdfPhoto');
-        
-        if (pdfPhotoInput) {
-            pdfPhotoInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        pdfPhotoPreviewImg.src = event.target.result;
-                        pdfPhotoPreview.style.display = 'block';
-                        pdfPhotoInput.dataset.currentPhoto = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-        
-        if (removePdfPhotoBtn) {
-            removePdfPhotoBtn.addEventListener('click', () => {
-                pdfPhotoInput.value = '';
-                pdfPhotoPreview.style.display = 'none';
-                pdfPhotoPreviewImg.src = '';
-                pdfPhotoInput.dataset.currentPhoto = '';
-            });
-        }
         closeModalBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
         addOptionBtn.addEventListener('click', () => addOptionToForm());
@@ -960,6 +861,25 @@
         };
 
         async function generateOrderPDFForAdmin(order) {
+            // Ensure order has required structure
+            if (!order) {
+                throw new Error('Order object is undefined');
+            }
+            
+            // Handle both camelCase and snake_case formats
+            if (!order.customerInfo && order.customer_info) {
+                // Convert snake_case to camelCase if needed
+                order.customerInfo = typeof order.customer_info === 'string' 
+                    ? JSON.parse(order.customer_info) 
+                    : order.customer_info;
+            }
+            
+            // Ensure customerInfo exists
+            if (!order.customerInfo) {
+                console.warn('customerInfo is missing, using empty object');
+                order.customerInfo = {};
+            }
+            
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
@@ -1064,8 +984,6 @@
                 month: 'long', 
                 day: 'numeric' 
             })}`, 20, yPos);
-            yPos += 7;
-            doc.text(`Status: ${order.status.toUpperCase()}`, 20, yPos);
             yPos += 15;
             
             // Customer Information
@@ -1095,8 +1013,8 @@
             doc.setFontSize(11);
             doc.setFont('helvetica', 'normal');
             
-            // Add product image if available - prefer PDF photo, then first product image
-            const rawProductImage = order.productPdfPhoto || (order.productImages && order.productImages.length > 0 ? order.productImages[0] : null);
+            // Add product image if available - use first product image
+            const rawProductImage = order.productImages && order.productImages.length > 0 ? order.productImages[0] : null;
             const productImage = rawProductImage ? getProxiedImageUrl(rawProductImage) : null;
             let productImageHeight = 0;
             if (productImage) {
@@ -1187,7 +1105,7 @@
             doc.setFontSize(8);
             doc.setFont('helvetica', 'italic');
             doc.setTextColor(100, 100, 100);
-            doc.text('AndecoMarine.shop - Order Confirmation', 105, yPos, { align: 'center' });
+            doc.text('Thank you for your order! We will contact you soon.', 105, yPos, { align: 'center' });
             
             // Save PDF (same as client version)
             doc.save(`Order-${order.orderNumber}.pdf`);
