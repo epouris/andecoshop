@@ -64,19 +64,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         const luxuryModels = [
             {
                 image: 'https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/6921b536c89775bca22a0aaf_E1F31112-85FC-49F5-A3F6-E9805C752F00_1_201_a-p-500.jpeg',
-                alt: 'Luxury Model 1'
+                alt: '40SRC'
             },
             {
                 image: 'https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/674eced21ca3b15ecca46c0d_45SRC%20top--p-500.jpg',
-                alt: '45SRC Top'
+                alt: '45SRC'
             },
             {
                 image: 'https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/674ecee680b693672fb5ad91_45SRC%20Stern%20top--p-500.jpg',
-                alt: '45SRC Stern Top'
+                alt: '45SRC Stern'
             },
             {
                 image: 'https://cdn.prod.website-files.com/66fea88084a63f96ada4583c/6921b740386737526df998ac_40SR%20G2%20Thumbnail-p-500.jpeg',
-                alt: '40SR G2'
+                alt: '40SR'
             }
         ];
 
@@ -88,15 +88,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (!isFirst && !isLast) {
                 // Middle images: diagonal on both sides
-                clipPath = 'polygon(3% 0%, 100% 0%, 97% 100%, 0% 100%)';
+                clipPath = 'polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%)';
                 className += ' luxury-model-middle';
             } else if (!isFirst) {
                 // Last image: diagonal only on left
-                clipPath = 'polygon(3% 0%, 100% 0%, 100% 100%, 0% 100%)';
+                clipPath = 'polygon(2% 0%, 100% 0%, 100% 100%, 0% 100%)';
                 className += ' luxury-model-last';
             } else if (!isLast) {
                 // First image: diagonal only on right
-                clipPath = 'polygon(0% 0%, 97% 0%, 100% 100%, 0% 100%)';
+                clipPath = 'polygon(0% 0%, 98% 0%, 100% 100%, 0% 100%)';
                 className += ' luxury-model-first';
             }
             

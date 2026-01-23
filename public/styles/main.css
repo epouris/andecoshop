@@ -533,28 +533,33 @@ body {
     flex: 1;
     min-width: 0;
     overflow: hidden;
+    background: transparent;
 }
 
 .luxury-model-image {
-    width: 100%;
+    width: calc(100% + 6px);
     height: 400px;
     object-fit: cover;
     display: block;
     transition: transform 0.3s ease;
     position: relative;
+    background: transparent;
 }
 
 .luxury-model-first {
-    margin-right: -2px;
+    margin-right: -4px;
+    z-index: 1;
 }
 
 .luxury-model-middle {
-    margin-left: -2px;
-    margin-right: -2px;
+    margin-left: -4px;
+    margin-right: -4px;
+    z-index: 1;
 }
 
 .luxury-model-last {
-    margin-left: -2px;
+    margin-left: -4px;
+    z-index: 1;
 }
 
 .luxury-model-item:hover .luxury-model-image {
