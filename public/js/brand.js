@@ -13,7 +13,6 @@ window.handleImageError = function(img) {
 document.addEventListener('DOMContentLoaded', async () => {
     const productsGrid = document.getElementById('productsGrid');
     const emptyState = document.getElementById('emptyState');
-    const brandTitle = document.getElementById('brandTitle');
     const urlParams = new URLSearchParams(window.location.search);
     const brandName = urlParams.get('brand');
 
@@ -141,9 +140,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Render luxury models section
         renderLuxuryModels(decodedBrandName);
-        
-        // Update title without product count
-        brandTitle.textContent = decodedBrandName;
 
         if (brandProducts.length === 0) {
             productsGrid.style.display = 'none';
