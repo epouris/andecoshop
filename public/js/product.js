@@ -470,6 +470,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function generateOrderPDF(order) {
+        // Debug: Log the order object to see its structure
+        console.log('Order object for PDF:', order);
+        
+        // Ensure order has required structure
+        if (!order) {
+            throw new Error('Order object is undefined');
+        }
+        
+        // Handle both camelCase and snake_case formats
+        if (!order.customerInfo && order.customer_info) {
+            // Convert snake_case to camelCase if needed
+            order.customerInfo = typeof order.customer_info === 'string' 
+                ? JSON.parse(order.customer_info) 
+                : order.customer_info;
+        }
+        
+        // Ensure customerInfo exists
+        if (!order.customerInfo) {
+            console.warn('customerInfo is missing, using empty object');
+            order.customerInfo = {};
+        }
+        
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
