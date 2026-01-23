@@ -205,31 +205,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (imageCount === 1) {
                 imageGrid = `
                     <div class="brand-image-split single">
-                        <img src="${images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
+                        <img src="${getProxiedImageUrl(images[0])}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
                     </div>
                 `;
             } else if (imageCount === 2) {
                 imageGrid = `
                     <div class="brand-image-split two">
-                        <img src="${images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
-                        <img src="${images[1] || images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
+                        <img src="${getProxiedImageUrl(images[0])}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
+                        <img src="${getProxiedImageUrl(images[1] || images[0])}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
                     </div>
                 `;
             } else if (imageCount === 3) {
                 imageGrid = `
                     <div class="brand-image-split three">
-                        <img src="${images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
-                        <img src="${images[1] || images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
+                        <img src="${getProxiedImageUrl(images[0])}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
+                        <img src="${getProxiedImageUrl(images[1] || images[0])}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
                         <img src="${images[2] || images[0]}" alt="${brand.name}" onerror="handleImageError(this)">
                     </div>
                 `;
             } else {
                 imageGrid = `
                     <div class="brand-image-split four">
-                        <img src="${images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
-                        <img src="${images[1] || images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
+                        <img src="${getProxiedImageUrl(images[0])}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
+                        <img src="${getProxiedImageUrl(images[1] || images[0])}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
                         <img src="${images[2] || images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
-                        <img src="${images[3] || images[0]}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
+                        <img src="${getProxiedImageUrl(images[3] || images[0])}" alt="${brand.name}" onerror="handleImageErrorLanding(this)">
                     </div>
                 `;
             }
