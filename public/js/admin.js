@@ -1,16 +1,25 @@
 // Create a data URI placeholder image for admin table (defined globally)
-const ADMIN_PLACEHOLDER_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23f1f5f9" width="100" height="100"/%3E%3Ctext fill="%2394a3b8" font-family="sans-serif" font-size="12" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
+// Check if already declared to prevent duplicate declaration errors
+if (typeof ADMIN_PLACEHOLDER_IMAGE === 'undefined') {
+    var ADMIN_PLACEHOLDER_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23f1f5f9" width="100" height="100"/%3E%3Ctext fill="%2394a3b8" font-family="sans-serif" font-size="12" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
+}
 
 // Make function globally accessible for inline onerror handlers
-window.handleAdminImageError = function(img) {
-    if (img.src !== ADMIN_PLACEHOLDER_IMAGE) {
-        img.src = ADMIN_PLACEHOLDER_IMAGE;
-        img.onerror = null; // Prevent infinite loop
-    }
-};
+if (typeof window.handleAdminImageError === 'undefined') {
+    window.handleAdminImageError = function(img) {
+        if (img.src !== ADMIN_PLACEHOLDER_IMAGE) {
+            img.src = ADMIN_PLACEHOLDER_IMAGE;
+            img.onerror = null; // Prevent infinite loop
+        }
+    };
+}
 
 // Admin portal functionality
-document.addEventListener('DOMContentLoaded', async () => {
+// Prevent multiple initializations
+if (!window.adminInitialized) {
+    window.adminInitialized = true;
+    
+    document.addEventListener('DOMContentLoaded', async () => {
     // Wait for data to be initialized from database
     await new Promise((resolve) => {
         if (window.cacheInitialized) {
@@ -1090,4 +1099,5 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }, 500);
     }
-});
+    });
+}
