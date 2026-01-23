@@ -249,6 +249,7 @@
                         <td>
                             <div class="table-actions">
                                 <button class="btn btn-secondary btn-small" data-edit-product="${product.id}">Edit</button>
+                                <button class="btn btn-primary btn-small" data-duplicate-product="${product.id}">Duplicate</button>
                                 <button class="btn btn-danger btn-small" data-delete-product="${product.id}">Delete</button>
                             </div>
                         </td>
@@ -256,8 +257,10 @@
                     
                     // Use event delegation instead of inline onclick
                     const editBtn = tr.querySelector(`[data-edit-product="${product.id}"]`);
+                    const duplicateBtn = tr.querySelector(`[data-duplicate-product="${product.id}"]`);
                     const deleteBtn = tr.querySelector(`[data-delete-product="${product.id}"]`);
                     editBtn.addEventListener('click', () => editProduct(product.id));
+                    duplicateBtn.addEventListener('click', () => duplicateProduct(product.id));
                     deleteBtn.addEventListener('click', () => {
                         if (confirm('Are you sure you want to delete this product?')) {
                             (async () => {
@@ -390,6 +393,40 @@
             const product = getProductById(id);
             if (product) {
                 openModal(product);
+            }
+        }
+
+        async function duplicateProduct(id) {
+            const product = getProductById(id);
+            if (!product) {
+                alert('Product not found');
+                return;
+            }
+
+            try {
+                // Create a copy of the product without the id
+                const productCopy = {
+                    name: product.name + ' (Copy)',
+                    category: product.category || '',
+                    price: product.price || 0,
+                    stock: product.stock || 0,
+                    description: product.description || '',
+                    standardEquipment: product.standardEquipment ? JSON.parse(JSON.stringify(product.standardEquipment)) : [],
+                    specs: product.specs ? JSON.parse(JSON.stringify(product.specs)) : {},
+                    images: product.images ? [...product.images] : [],
+                    options: product.options ? JSON.parse(JSON.stringify(product.options)) : []
+                };
+
+                // Create the new product
+                await addProduct(productCopy);
+                await refreshProducts();
+                renderProductsTable();
+                
+                // Show success message
+                alert('Product duplicated successfully!');
+            } catch (error) {
+                console.error('Error duplicating product:', error);
+                alert('Error duplicating product: ' + error.message);
             }
         }
 
