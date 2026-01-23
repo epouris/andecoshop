@@ -380,7 +380,27 @@ app.post('/api/admin/login', async (req, res) => {
 app.get('/api/admin/orders', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY date DESC');
-    res.json(result.rows);
+    // Convert database format (snake_case) to frontend format (camelCase)
+    const orders = result.rows.map(row => ({
+      id: row.id.toString(),
+      orderNumber: row.order_number,
+      productId: row.product_id ? row.product_id.toString() : null,
+      productName: row.product_name,
+      productBrand: row.product_brand,
+      productPrice: row.product_price ? parseFloat(row.product_price) : null,
+      selectedOptions: row.selected_options || {},
+      priceBreakdown: row.price_breakdown || [],
+      totalExclVAT: row.total_excl_vat ? parseFloat(row.total_excl_vat) : 0,
+      totalInclVAT: row.total_incl_vat ? parseFloat(row.total_incl_vat) : 0,
+      customerInfo: row.customer_info || {},
+      productImages: row.product_images || [],
+      productDescription: row.product_description,
+      productSpecs: row.product_specs || {},
+      productStandardEquipment: row.product_standard_equipment || [],
+      status: row.status || 'pending',
+      date: row.date || row.created_at
+    }));
+    res.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).json({ error: 'Failed to fetch orders' });
@@ -394,7 +414,28 @@ app.get('/api/admin/orders/:id', authenticateAdmin, async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    res.json(result.rows[0]);
+    const row = result.rows[0];
+    // Convert database format (snake_case) to frontend format (camelCase)
+    const order = {
+      id: row.id.toString(),
+      orderNumber: row.order_number,
+      productId: row.product_id ? row.product_id.toString() : null,
+      productName: row.product_name,
+      productBrand: row.product_brand,
+      productPrice: row.product_price ? parseFloat(row.product_price) : null,
+      selectedOptions: row.selected_options || {},
+      priceBreakdown: row.price_breakdown || [],
+      totalExclVAT: row.total_excl_vat ? parseFloat(row.total_excl_vat) : 0,
+      totalInclVAT: row.total_incl_vat ? parseFloat(row.total_incl_vat) : 0,
+      customerInfo: row.customer_info || {},
+      productImages: row.product_images || [],
+      productDescription: row.product_description,
+      productSpecs: row.product_specs || {},
+      productStandardEquipment: row.product_standard_equipment || [],
+      status: row.status || 'pending',
+      date: row.date || row.created_at
+    };
+    res.json(order);
   } catch (error) {
     console.error('Error fetching order:', error);
     res.status(500).json({ error: 'Failed to fetch order' });
@@ -412,7 +453,28 @@ app.patch('/api/admin/orders/:id/status', authenticateAdmin, async (req, res) =>
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    res.json(result.rows[0]);
+    const row = result.rows[0];
+    // Convert database format (snake_case) to frontend format (camelCase)
+    const order = {
+      id: row.id.toString(),
+      orderNumber: row.order_number,
+      productId: row.product_id ? row.product_id.toString() : null,
+      productName: row.product_name,
+      productBrand: row.product_brand,
+      productPrice: row.product_price ? parseFloat(row.product_price) : null,
+      selectedOptions: row.selected_options || {},
+      priceBreakdown: row.price_breakdown || [],
+      totalExclVAT: row.total_excl_vat ? parseFloat(row.total_excl_vat) : 0,
+      totalInclVAT: row.total_incl_vat ? parseFloat(row.total_incl_vat) : 0,
+      customerInfo: row.customer_info || {},
+      productImages: row.product_images || [],
+      productDescription: row.product_description,
+      productSpecs: row.product_specs || {},
+      productStandardEquipment: row.product_standard_equipment || [],
+      status: row.status || 'pending',
+      date: row.date || row.created_at
+    };
+    res.json(order);
   } catch (error) {
     console.error('Error updating order:', error);
     res.status(500).json({ error: 'Failed to update order' });

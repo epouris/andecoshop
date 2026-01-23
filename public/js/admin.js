@@ -21,14 +21,25 @@
     };
 
     // Wait for DOM and data to be ready
+    let adminStarted = false;
+    
     function initAdmin() {
         console.log('initAdmin called');
+        
+        // Prevent multiple starts
+        if (adminStarted) {
+            console.log('Admin already started, skipping');
+            return;
+        }
         
         // Wait for data to be initialized from database
         const waitForData = () => {
             if (window.cacheInitialized && typeof getProducts === 'function' && typeof getBrands === 'function') {
                 console.log('Data ready, starting admin...');
-                startAdmin();
+                if (!adminStarted) {
+                    adminStarted = true;
+                    startAdmin();
+                }
             } else {
                 console.log('Waiting for data...', {
                     cacheInitialized: window.cacheInitialized,
@@ -52,7 +63,8 @@
         // Also listen for dataLoaded event
         window.addEventListener('dataLoaded', () => {
             console.log('dataLoaded event received in admin.js');
-            if (typeof getProducts === 'function' && typeof getBrands === 'function') {
+            if (typeof getProducts === 'function' && typeof getBrands === 'function' && !adminStarted) {
+                adminStarted = true;
                 startAdmin();
             }
         }, { once: true });
@@ -720,7 +732,7 @@
                         <td>${order.customerInfo?.email || 'N/A'}</td>
                         <td>${order.customerInfo?.phone || 'N/A'}</td>
                         <td>${order.productName}</td>
-                        <td>€${order.totalInclVAT.toFixed(2)}</td>
+                        <td>€${(order.totalInclVAT || 0).toFixed(2)}</td>
                         <td><span class="status-badge ${statusClass}">${order.status}</span></td>
                         <td>
                             <div class="table-actions">
