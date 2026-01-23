@@ -142,13 +142,24 @@ function initHeroSlider() {
 }
 
 // Landing page functionality
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Initialize hero slider
     initHeroSlider();
     
     const brandsGrid = document.getElementById('brandsGrid');
     
     if (!brandsGrid) return;
+
+    // Wait for data to be initialized from database
+    await new Promise((resolve) => {
+        if (window.cacheInitialized) {
+            resolve();
+        } else {
+            window.addEventListener('dataLoaded', resolve, { once: true });
+            // Timeout after 5 seconds
+            setTimeout(resolve, 5000);
+        }
+    });
 
     function getAllBrands() {
         const allProducts = getProducts();
