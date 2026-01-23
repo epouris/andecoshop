@@ -369,7 +369,29 @@ app.post('/api/orders', async (req, res) => {
       'pending'
     ]);
     
-    res.status(201).json(result.rows[0]);
+    // Convert database format (snake_case) to frontend format (camelCase)
+    const row = result.rows[0];
+    const orderResponse = {
+      id: row.id.toString(),
+      orderNumber: row.order_number,
+      productId: row.product_id ? row.product_id.toString() : null,
+      productName: row.product_name,
+      productBrand: row.product_brand,
+      productPrice: row.product_price ? parseFloat(row.product_price) : null,
+      selectedOptions: typeof row.selected_options === 'string' ? JSON.parse(row.selected_options) : (row.selected_options || {}),
+      priceBreakdown: typeof row.price_breakdown === 'string' ? JSON.parse(row.price_breakdown) : (row.price_breakdown || []),
+      totalExclVAT: row.total_excl_vat ? parseFloat(row.total_excl_vat) : 0,
+      totalInclVAT: row.total_incl_vat ? parseFloat(row.total_incl_vat) : 0,
+      customerInfo: typeof row.customer_info === 'string' ? JSON.parse(row.customer_info) : (row.customer_info || {}),
+      productImages: row.product_images || [],
+      productDescription: row.product_description,
+      productSpecs: typeof row.product_specs === 'string' ? JSON.parse(row.product_specs) : (row.product_specs || {}),
+      productStandardEquipment: typeof row.product_standard_equipment === 'string' ? JSON.parse(row.product_standard_equipment) : (row.product_standard_equipment || []),
+      status: row.status || 'pending',
+      date: row.date || row.created_at
+    };
+    
+    res.status(201).json(orderResponse);
   } catch (error) {
     console.error('Error creating order:', error);
     res.status(500).json({ error: 'Failed to create order' });

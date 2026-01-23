@@ -583,13 +583,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         yPos += 8;
         doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Name: ${order.customerInfo.fullName}`, 20, yPos);
+        
+        // Safely access customerInfo with fallbacks
+        const customerInfo = order.customerInfo || {};
+        doc.text(`Name: ${customerInfo.fullName || 'N/A'}`, 20, yPos);
         yPos += 6;
-        doc.text(`Email: ${order.customerInfo.email}`, 20, yPos);
+        doc.text(`Email: ${customerInfo.email || 'N/A'}`, 20, yPos);
         yPos += 6;
-        doc.text(`Phone: ${order.customerInfo.phone}`, 20, yPos);
+        doc.text(`Phone: ${customerInfo.phone || 'N/A'}`, 20, yPos);
         yPos += 6;
-        doc.text(`City: ${order.customerInfo.city}`, 20, yPos);
+        doc.text(`City: ${customerInfo.city || 'N/A'}`, 20, yPos);
         yPos += 12;
         
         // Product Information
