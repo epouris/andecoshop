@@ -43,6 +43,7 @@ async function initializeDatabase() {
         specs JSONB,
         images TEXT[],
         options JSONB,
+        display_order INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -148,6 +149,33 @@ async function initializeDatabase() {
       console.log('Schema migration check completed (or not needed)');
     }
     
+    // Add display_order column if it doesn't exist
+    try {
+      const displayOrderCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'products' AND column_name = 'display_order'
+      `);
+      
+      if (displayOrderCheck.rows.length === 0) {
+        console.log('Adding display_order column to products table...');
+        await pool.query(`
+          ALTER TABLE products 
+          ADD COLUMN display_order INTEGER DEFAULT 0
+        `);
+        
+        // Set display_order for existing products based on their id (so they maintain current order)
+        await pool.query(`
+          UPDATE products 
+          SET display_order = id::INTEGER 
+          WHERE display_order = 0
+        `);
+        console.log('✓ display_order column added and initialized');
+      }
+    } catch (migrationError) {
+      console.log('display_order migration check completed (or not needed)');
+    }
+    
     // After tables are created, initialize admin user
     if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
       try {
@@ -216,7 +244,7 @@ const authenticateAdmin = async (req, res, next) => {
 // Get all products
 app.get('/api/products', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
+    const result = await pool.query('SELECT * FROM products ORDER BY display_order ASC, id ASC');
     // Convert database format to frontend format
     const products = result.rows.map(row => ({
       id: row.id.toString(),
@@ -228,7 +256,8 @@ app.get('/api/products', async (req, res) => {
       standardEquipment: row.standard_equipment || [],
       specs: row.specs || {},
       images: row.images || [],
-      options: row.options || []
+      options: row.options || [],
+      displayOrder: row.display_order || 0
     }));
     res.json(products);
   } catch (error) {
@@ -256,7 +285,8 @@ app.get('/api/products/:id', async (req, res) => {
       standardEquipment: row.standard_equipment || [],
       specs: row.specs || {},
       images: row.images || [],
-      options: row.options || []
+      options: row.options || [],
+      displayOrder: row.display_order || 0
     };
     res.json(product);
   } catch (error) {
@@ -499,9 +529,14 @@ app.delete('/api/admin/orders/:id', authenticateAdmin, async (req, res) => {
 app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
   try {
     const product = req.body;
+    
+    // Get the highest display_order and add 1 for new product
+    const maxOrderResult = await pool.query('SELECT COALESCE(MAX(display_order), 0) as max_order FROM products');
+    const newDisplayOrder = (maxOrderResult.rows[0].max_order || 0) + 1;
+    
     const result = await pool.query(`
-      INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options, display_order)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
     `, [
       product.name,
@@ -512,7 +547,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       JSON.stringify(product.standardEquipment || []),
       JSON.stringify(product.specs || {}),
       product.images || [],
-      JSON.stringify(product.options || [])
+      JSON.stringify(product.options || []),
+      product.displayOrder || newDisplayOrder
     ]);
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -528,8 +564,8 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       UPDATE products 
       SET name = $1, category = $2, price = $3, stock = $4, description = $5,
           standard_equipment = $6, specs = $7, images = $8, options = $9,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = $10
+          display_order = $10, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $11
       RETURNING *
     `, [
       product.name,
@@ -541,6 +577,7 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       JSON.stringify(product.specs || {}),
       product.images || [],
       JSON.stringify(product.options || []),
+      product.displayOrder !== undefined ? product.displayOrder : (await pool.query('SELECT display_order FROM products WHERE id = $1', [req.params.id])).rows[0]?.display_order || 0,
       req.params.id
     ]);
     if (result.rows.length === 0) {
@@ -563,6 +600,66 @@ app.delete('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
+// Update product order (admin only)
+app.patch('/api/admin/products/:id/order', authenticateAdmin, async (req, res) => {
+  try {
+    const { direction } = req.body; // 'up' or 'down'
+    const productId = req.params.id;
+    
+    // Get current product
+    const currentProduct = await pool.query('SELECT display_order FROM products WHERE id = $1', [productId]);
+    if (currentProduct.rows.length === 0) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    const currentOrder = currentProduct.rows[0].display_order;
+    let newOrder;
+    
+    if (direction === 'up') {
+      // Find the product with the next lower order
+      const swapProduct = await pool.query(
+        'SELECT id, display_order FROM products WHERE display_order < $1 ORDER BY display_order DESC LIMIT 1',
+        [currentOrder]
+      );
+      
+      if (swapProduct.rows.length === 0) {
+        return res.json({ message: 'Product is already at the top' });
+      }
+      
+      newOrder = swapProduct.rows[0].display_order;
+      const swapId = swapProduct.rows[0].id;
+      
+      // Swap orders
+      await pool.query('UPDATE products SET display_order = $1 WHERE id = $2', [newOrder, productId]);
+      await pool.query('UPDATE products SET display_order = $2 WHERE id = $1', [swapId, currentOrder]);
+    } else if (direction === 'down') {
+      // Find the product with the next higher order
+      const swapProduct = await pool.query(
+        'SELECT id, display_order FROM products WHERE display_order > $1 ORDER BY display_order ASC LIMIT 1',
+        [currentOrder]
+      );
+      
+      if (swapProduct.rows.length === 0) {
+        return res.json({ message: 'Product is already at the bottom' });
+      }
+      
+      newOrder = swapProduct.rows[0].display_order;
+      const swapId = swapProduct.rows[0].id;
+      
+      // Swap orders
+      await pool.query('UPDATE products SET display_order = $1 WHERE id = $2', [newOrder, productId]);
+      await pool.query('UPDATE products SET display_order = $2 WHERE id = $1', [swapId, currentOrder]);
+    } else {
+      return res.status(400).json({ error: 'Invalid direction. Use "up" or "down"' });
+    }
+    
+    res.json({ message: 'Product order updated successfully' });
+  } catch (error) {
+    console.error('Error updating product order:', error);
+    res.status(500).json({ error: 'Failed to update product order' });
   }
 });
 

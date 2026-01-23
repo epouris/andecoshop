@@ -174,16 +174,27 @@
             const products = getProducts();
             const brands = getBrands();
             
-            console.log('Rendering products table:', products.length, 'products,', brands.length, 'brands');
+            // Sort products by displayOrder (already sorted by API, but ensure it here too)
+            const sortedProducts = [...products].sort((a, b) => {
+                const orderA = a.displayOrder || 0;
+                const orderB = b.displayOrder || 0;
+                if (orderA !== orderB) {
+                    return orderA - orderB;
+                }
+                // If same order, sort by id as fallback
+                return parseInt(a.id) - parseInt(b.id);
+            });
             
-            if (products.length === 0) {
+            console.log('Rendering products table:', sortedProducts.length, 'products,', brands.length, 'brands');
+            
+            if (sortedProducts.length === 0) {
                 productsTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No products found. Click "Add New Product" to get started.</td></tr>';
                 return;
             }
             
             // Group products by brand
             const productsByBrand = {};
-            products.forEach(product => {
+            sortedProducts.forEach(product => {
                 const brand = product.category || 'No Brand';
                 if (!productsByBrand[brand]) {
                     productsByBrand[brand] = [];
@@ -248,6 +259,8 @@
                         <td>${product.stock}</td>
                         <td>
                             <div class="table-actions">
+                                <button class="btn btn-order btn-small" data-move-up="${product.id}" title="Move up">↑</button>
+                                <button class="btn btn-order btn-small" data-move-down="${product.id}" title="Move down">↓</button>
                                 <button class="btn btn-secondary btn-small" data-edit-product="${product.id}">Edit</button>
                                 <button class="btn btn-primary btn-small" data-duplicate-product="${product.id}">Duplicate</button>
                                 <button class="btn btn-danger btn-small" data-delete-product="${product.id}">Delete</button>
@@ -256,9 +269,14 @@
                     `;
                     
                     // Use event delegation instead of inline onclick
+                    const moveUpBtn = tr.querySelector(`[data-move-up="${product.id}"]`);
+                    const moveDownBtn = tr.querySelector(`[data-move-down="${product.id}"]`);
                     const editBtn = tr.querySelector(`[data-edit-product="${product.id}"]`);
                     const duplicateBtn = tr.querySelector(`[data-duplicate-product="${product.id}"]`);
                     const deleteBtn = tr.querySelector(`[data-delete-product="${product.id}"]`);
+                    
+                    moveUpBtn.addEventListener('click', () => moveProductOrder(product.id, 'up'));
+                    moveDownBtn.addEventListener('click', () => moveProductOrder(product.id, 'down'));
                     editBtn.addEventListener('click', () => editProduct(product.id));
                     duplicateBtn.addEventListener('click', () => duplicateProduct(product.id));
                     deleteBtn.addEventListener('click', () => {
@@ -427,6 +445,20 @@
             } catch (error) {
                 console.error('Error duplicating product:', error);
                 alert('Error duplicating product: ' + error.message);
+            }
+        }
+
+        async function moveProductOrder(productId, direction) {
+            try {
+                const api = await import('./api.js');
+                await api.updateProductOrder(productId, direction);
+                await refreshProducts();
+                renderProductsTable();
+            } catch (error) {
+                console.error('Error moving product order:', error);
+                if (error.message && !error.message.includes('already at')) {
+                    alert('Error moving product: ' + error.message);
+                }
             }
         }
 

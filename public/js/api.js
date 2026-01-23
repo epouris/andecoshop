@@ -197,6 +197,18 @@ export async function deleteProduct(id) {
   }
 }
 
+export async function updateProductOrder(id, direction) {
+  try {
+    return await apiCall(`/admin/products/${id}/order`, {
+      method: 'PATCH',
+      body: { direction },
+    });
+  } catch (error) {
+    console.error('Error updating product order:', error);
+    throw error;
+  }
+}
+
 export async function createBrand(brand) {
   try {
     return await apiCall('/admin/brands', {
