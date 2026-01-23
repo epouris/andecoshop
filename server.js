@@ -49,6 +49,7 @@ async function initializeDatabase() {
         options JSONB,
         display_order INTEGER DEFAULT 0,
         pdf_photo TEXT,
+        specs_columns INTEGER DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -222,6 +223,27 @@ async function initializeDatabase() {
       console.log('orders.product_pdf_photo migration check completed (or not needed)');
     }
     
+    // Add specs_columns column to products table if it doesn't exist
+    try {
+      const specsColumnsCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'products' AND column_name = 'specs_columns'
+      `);
+      
+      if (specsColumnsCheck.rows.length === 0) {
+        console.log('Adding specs_columns column to products table...');
+        await pool.query(`
+          ALTER TABLE products
+          ADD COLUMN specs_columns INTEGER DEFAULT 1
+        `);
+        console.log('✓ specs_columns column added');
+      }
+      console.log('specs_columns migration check completed (or not needed)');
+    } catch (error) {
+      console.error('Error checking specs_columns column:', error);
+    }
+    
     // After tables are created, initialize admin user
     if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
       try {
@@ -351,7 +373,8 @@ app.get('/api/products', async (req, res) => {
       images: row.images || [],
       options: row.options || [],
       displayOrder: row.display_order || 0,
-      pdfPhoto: row.pdf_photo || null
+      pdfPhoto: row.pdf_photo || null,
+      specsColumns: row.specs_columns || 1
     }));
     res.json(products);
   } catch (error) {
@@ -381,7 +404,8 @@ app.get('/api/products/:id', async (req, res) => {
       images: row.images || [],
       options: row.options || [],
       displayOrder: row.display_order || 0,
-      pdfPhoto: row.pdf_photo || null
+      pdfPhoto: row.pdf_photo || null,
+      specsColumns: row.specs_columns || 1
     };
     res.json(product);
   } catch (error) {
@@ -654,8 +678,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
     const newDisplayOrder = (maxOrderResult.rows[0].max_order || 0) + 1;
     
     const result = await pool.query(`
-      INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options, display_order, pdf_photo)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options, display_order, pdf_photo, specs_columns)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `, [
       product.name,
@@ -668,7 +692,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       product.images || [],
       JSON.stringify(product.options || []),
       product.displayOrder || newDisplayOrder,
-      null // pdf_photo - no longer used, set to null
+      null, // pdf_photo - no longer used, set to null
+      product.specsColumns || 1
     ]);
     
     // Convert database format to frontend format
@@ -685,7 +710,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       images: row.images || [],
       options: typeof row.options === 'string' ? JSON.parse(row.options) : (row.options || []),
       displayOrder: row.display_order || 0,
-      pdfPhoto: row.pdf_photo || null
+      pdfPhoto: row.pdf_photo || null,
+      specsColumns: row.specs_columns || 1
     };
     
     res.status(201).json(productResponse);
@@ -714,8 +740,8 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       UPDATE products 
       SET name = $1, category = $2, price = $3, stock = $4, description = $5,
           standard_equipment = $6, specs = $7, images = $8, options = $9,
-          display_order = $10, pdf_photo = $11, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $12
+          display_order = $10, pdf_photo = $11, specs_columns = $12, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $13
       RETURNING *
     `, [
       product.name,
@@ -729,6 +755,7 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       JSON.stringify(product.options || []),
       displayOrder,
       null, // pdf_photo - no longer used, set to null
+      product.specsColumns || 1,
       req.params.id
     ]);
     if (result.rows.length === 0) {
@@ -749,7 +776,8 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       images: row.images || [],
       options: typeof row.options === 'string' ? JSON.parse(row.options) : (row.options || []),
       displayOrder: row.display_order || 0,
-      pdfPhoto: row.pdf_photo || null
+      pdfPhoto: row.pdf_photo || null,
+      specsColumns: row.specs_columns || 1
     };
     
     res.json(productResponse);

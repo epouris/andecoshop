@@ -399,6 +399,9 @@
                     document.getElementById('productSpecs').value = '';
                 }
                 
+                // Handle specs columns
+                document.getElementById('productSpecsColumns').value = product.specsColumns || 1;
+                
                 // Handle images
                 if (product.images && Array.isArray(product.images)) {
                     document.getElementById('productImages').value = product.images.join(', ');
@@ -544,7 +547,8 @@
                     standardEquipment,
                     specs,
                     images,
-                    options
+                    options,
+                    specsColumns: parseInt(document.getElementById('productSpecsColumns').value) || 1
                 };
                 
                 if (editingProductId) {

@@ -147,12 +147,48 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        const specsHtml = product.specs ? Object.entries(product.specs).map(([key, value]) => `
-            <tr>
-                <td>${key}</td>
-                <td>${value}</td>
-            </tr>
-        `).join('') : '';
+        // Determine specs layout (1 or 2 columns)
+        const specsColumns = product.specsColumns || 1;
+        const specsEntries = product.specs ? Object.entries(product.specs) : [];
+        
+        let specsHtml = '';
+        if (specsColumns === 2) {
+            // Two-column layout: split entries into two columns
+            const midPoint = Math.ceil(specsEntries.length / 2);
+            const leftColumn = specsEntries.slice(0, midPoint);
+            const rightColumn = specsEntries.slice(midPoint);
+            
+            specsHtml = '<tr>';
+            specsHtml += '<td style="width: 50%; vertical-align: top; padding-right: 1rem;">';
+            specsHtml += '<table style="width: 100%; border-collapse: collapse;">';
+            specsHtml += leftColumn.map(([key, value]) => `
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 0.75rem 0; font-weight: 600; width: 40%;">${key}</td>
+                    <td style="padding: 0.75rem 0; color: var(--text-light);">${value}</td>
+                </tr>
+            `).join('');
+            specsHtml += '</table>';
+            specsHtml += '</td>';
+            specsHtml += '<td style="width: 50%; vertical-align: top; padding-left: 1rem;">';
+            specsHtml += '<table style="width: 100%; border-collapse: collapse;">';
+            specsHtml += rightColumn.map(([key, value]) => `
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 0.75rem 0; font-weight: 600; width: 40%;">${key}</td>
+                    <td style="padding: 0.75rem 0; color: var(--text-light);">${value}</td>
+                </tr>
+            `).join('');
+            specsHtml += '</table>';
+            specsHtml += '</td>';
+            specsHtml += '</tr>';
+        } else {
+            // Single-column layout (default)
+            specsHtml = specsEntries.map(([key, value]) => `
+                <tr>
+                    <td>${key}</td>
+                    <td>${value}</td>
+                </tr>
+            `).join('');
+        }
 
         const optionsHtml = hasOptions ? product.options.map(option => {
             const optionId = option.name.replace(/\s+/g, '-').toLowerCase();
