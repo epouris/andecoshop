@@ -22,25 +22,36 @@
 
     // Wait for DOM and data to be ready
     function initAdmin() {
+        console.log('initAdmin called');
+        
         // Wait for data to be initialized from database
         const waitForData = () => {
             if (window.cacheInitialized && typeof getProducts === 'function' && typeof getBrands === 'function') {
+                console.log('Data ready, starting admin...');
                 startAdmin();
             } else {
+                console.log('Waiting for data...', {
+                    cacheInitialized: window.cacheInitialized,
+                    getProducts: typeof getProducts,
+                    getBrands: typeof getBrands
+                });
                 setTimeout(waitForData, 100);
             }
         };
         
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
+                console.log('DOMContentLoaded fired');
                 waitForData();
             });
         } else {
+            console.log('DOM already ready');
             waitForData();
         }
         
         // Also listen for dataLoaded event
         window.addEventListener('dataLoaded', () => {
+            console.log('dataLoaded event received in admin.js');
             if (typeof getProducts === 'function' && typeof getBrands === 'function') {
                 startAdmin();
             }
@@ -48,6 +59,8 @@
     }
     
     function startAdmin() {
+        console.log('startAdmin called - initializing admin functionality');
+        
         const productsTableBody = document.getElementById('productsTableBody');
         const productModal = document.getElementById('productModal');
         const productForm = document.getElementById('productForm');
@@ -59,9 +72,15 @@
         const modalTitle = document.getElementById('modalTitle');
 
         if (!productsTableBody || !productModal || !productForm) {
-            console.error('Required admin page elements not found');
+            console.error('Required admin page elements not found', {
+                productsTableBody: !!productsTableBody,
+                productModal: !!productModal,
+                productForm: !!productForm
+            });
             return;
         }
+        
+        console.log('All required elements found, proceeding with initialization');
 
         let editingProductId = null;
         let optionCounter = 0;
@@ -971,19 +990,28 @@
         }
 
         // Initial render - make sure functions are available
+        console.log('Attempting initial render...');
         if (typeof getProducts === 'function' && typeof getBrands === 'function') {
+            console.log('Functions available, rendering products table');
             renderProductsTable();
         } else {
-            console.error('Data functions not available on initial render');
+            console.error('Data functions not available on initial render', {
+                getProducts: typeof getProducts,
+                getBrands: typeof getBrands
+            });
             // Try again after a short delay
             setTimeout(() => {
                 if (typeof getProducts === 'function' && typeof getBrands === 'function') {
+                    console.log('Functions now available, rendering products table');
                     renderProductsTable();
+                } else {
+                    console.error('Functions still not available after delay');
                 }
             }, 500);
         }
     }
     
     // Start initialization
+    console.log('Admin.js loaded, starting initialization...');
     initAdmin();
 })();

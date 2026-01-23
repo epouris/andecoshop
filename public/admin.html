@@ -292,40 +292,71 @@
             
             // Load admin.js after data is initialized
             dataScript.onload = () => {
+                console.log('data.js loaded, waiting for data initialization...');
+                
                 // Wait for data initialization
                 const waitForData = () => {
                     // Check if admin.js is already loaded
-                    if (document.querySelector('script[src="js/admin.js"]')) {
+                    if (document.querySelector('script[src*="admin.js"]')) {
+                        console.log('admin.js already loaded, skipping');
                         return; // Already loaded, don't load again
                     }
                     
                     // Check if functions are available
                     if (typeof getProducts === 'function' && typeof getBrands === 'function') {
+                        console.log('Functions available, loading admin.js...');
                         const script3 = document.createElement('script');
-                        script3.src = 'js/admin.js';
+                        // Add cache busting
+                        script3.src = 'js/admin.js?v=' + Date.now();
+                        script3.onload = () => console.log('admin.js loaded successfully');
+                        script3.onerror = (e) => console.error('Error loading admin.js:', e);
                         // Don't use module type - admin.js needs access to global functions
                         document.body.appendChild(script3);
                     } else {
+                        console.log('Functions not available yet, waiting...', {
+                            getProducts: typeof getProducts,
+                            getBrands: typeof getBrands,
+                            cacheInitialized: window.cacheInitialized
+                        });
                         // Wait a bit more for functions to be available
                         setTimeout(waitForData, 100);
                     }
                 };
                 
                 // Wait for data to be initialized
-                if (window.cacheInitialized) {
+                if (window.cacheInitialized && typeof getProducts === 'function') {
+                    console.log('Data already initialized, loading admin.js immediately');
                     waitForData();
                 } else {
-                    window.addEventListener('dataLoaded', waitForData, { once: true });
+                    console.log('Waiting for dataLoaded event...');
+                    window.addEventListener('dataLoaded', () => {
+                        console.log('dataLoaded event received');
+                        waitForData();
+                    }, { once: true });
                     // Also try after a short delay
-                    setTimeout(waitForData, 500);
+                    setTimeout(() => {
+                        console.log('Timeout check - cacheInitialized:', window.cacheInitialized);
+                        waitForData();
+                    }, 500);
                     // Fallback timeout
                     setTimeout(() => {
-                        if (!document.querySelector('script[src="js/admin.js"]')) {
+                        if (!document.querySelector('script[src*="admin.js"]')) {
+                            console.log('Fallback timeout - forcing admin.js load');
                             waitForData();
                         }
                     }, 5000);
                 }
             };
+            
+            // Also handle if data.js loads but onload doesn't fire
+            setTimeout(() => {
+                if (!document.querySelector('script[src*="admin.js"]') && typeof getProducts === 'function') {
+                    console.log('Fallback: Loading admin.js after timeout');
+                    const script3 = document.createElement('script');
+                    script3.src = 'js/admin.js?v=' + Date.now();
+                    document.body.appendChild(script3);
+                }
+            }, 2000);
         }
     </script>
 </body>
