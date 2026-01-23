@@ -536,9 +536,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 // Detect format from URL
                 let detectedFormat = 'PNG'; // default
-                if (lowerSrc.includes('.jpg') || lowerSrc.includes('.jpeg')) {
+                if (lowerSrc.includes('.jpg') || lowerSrc.includes('.jpeg') || lowerSrc.startsWith('data:image/jpeg') || lowerSrc.startsWith('data:image/jpg')) {
                     detectedFormat = 'JPEG';
-                } else if (lowerSrc.includes('.png')) {
+                } else if (lowerSrc.includes('.png') || lowerSrc.startsWith('data:image/png')) {
                     detectedFormat = 'PNG';
                 }
                 
