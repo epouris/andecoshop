@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="brand-image-container">
                         ${hasLogo ? `
                             <div class="brand-logo-container">
-                                <img src="${brand.logo}" alt="${brand.name} Logo" class="brand-logo-main" data-fallback-images='${JSON.stringify(images)}'>
+                                <img src="${getProxiedImageUrl(brand.logo)}" alt="${brand.name} Logo" class="brand-logo-main" data-fallback-images='${JSON.stringify(images.map(img => getProxiedImageUrl(img)))}'>
                             </div>
                         ` : imageGrid}
                         ${!hasLogo ? `

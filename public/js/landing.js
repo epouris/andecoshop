@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         brandsGrid.innerHTML = brands.map(brand => {
-            const images = brand.images.length > 0 ? brand.images : [PLACEHOLDER_IMAGE_LANDING];
+            const images = brand.images.length > 0 ? brand.images.map(img => getProxiedImageUrl(img)) : [PLACEHOLDER_IMAGE_LANDING];
             const imageCount = Math.min(images.length, 4);
             
             // Create split image grid based on number of images
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="brand-image-container">
                         ${hasLogo ? `
                             <div class="brand-logo-container">
-                                <img src="${brand.logo}" alt="${brand.name} Logo" class="brand-logo-main" data-fallback-images='${JSON.stringify(images)}'>
+                                <img src="${getProxiedImageUrl(brand.logo)}" alt="${brand.name} Logo" class="brand-logo-main" data-fallback-images='${JSON.stringify(images.map(img => getProxiedImageUrl(img)))}'>
                             </div>
                         ` : imageGrid}
                     </div>
