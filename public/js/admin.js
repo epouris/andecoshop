@@ -943,9 +943,75 @@
             }
         };
 
-        function generateOrderPDFForAdmin(order) {
+        async function generateOrderPDFForAdmin(order) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
+            
+            // Helper function to load image and get dimensions
+            function loadImage(src) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => resolve(img);
+                    img.onerror = reject;
+                    img.src = src;
+                });
+            }
+            
+            // Helper function to calculate dimensions maintaining aspect ratio
+            function calculateDimensions(imgWidth, imgHeight, maxWidth, maxHeight) {
+                const aspectRatio = imgWidth / imgHeight;
+                let width = maxWidth;
+                let height = maxWidth / aspectRatio;
+                
+                // If height exceeds max, scale by height instead
+                if (height > maxHeight) {
+                    height = maxHeight;
+                    width = maxHeight * aspectRatio;
+                }
+                
+                return { width, height };
+            }
+            
+            // Helper function to add image with format detection and aspect ratio preservation
+            async function addImageToPDF(doc, imgSrc, x, y, maxWidth, maxHeight) {
+                if (!imgSrc) return false;
+                
+                try {
+                    // Load image to get dimensions
+                    const img = await loadImage(imgSrc);
+                    const { width, height } = calculateDimensions(img.width, img.height, maxWidth, maxHeight);
+                    
+                    // Try to detect image format from URL or use common formats
+                    const formats = ['PNG', 'JPEG', 'JPG'];
+                    const lowerSrc = imgSrc.toLowerCase();
+                    
+                    // Detect format from URL
+                    let detectedFormat = 'PNG'; // default
+                    if (lowerSrc.includes('.jpg') || lowerSrc.includes('.jpeg') || lowerSrc.startsWith('data:image/jpeg') || lowerSrc.startsWith('data:image/jpg')) {
+                        detectedFormat = 'JPEG';
+                    } else if (lowerSrc.includes('.png') || lowerSrc.startsWith('data:image/png')) {
+                        detectedFormat = 'PNG';
+                    }
+                    
+                    // Try detected format first, then others
+                    const formatsToTry = [detectedFormat, ...formats.filter(f => f !== detectedFormat)];
+                    
+                    for (const format of formatsToTry) {
+                        try {
+                            doc.addImage(imgSrc, format, x, y, width, height);
+                            return { success: true, height };
+                        } catch (e) {
+                            // Try next format
+                            continue;
+                        }
+                    }
+                    return { success: false, height: 0 };
+                } catch (e) {
+                    // If image fails to load, return false
+                    return { success: false, height: 0 };
+                }
+            }
             
             // Get brand logo if available
             const brand = getBrandByName(order.productBrand);
@@ -956,20 +1022,12 @@
             
             // Header with logos
             if (shopLogo) {
-                try {
-                    doc.addImage(shopLogo, 'PNG', 20, yPos, 40, 15);
-                } catch (e) {
-                    // If logo fails, just continue
-                }
+                const result = await addImageToPDF(doc, shopLogo, 20, yPos, 40, 15);
             }
             
             // Add brand logo if available
             if (brandLogo) {
-                try {
-                    doc.addImage(brandLogo, 'PNG', 150, yPos, 40, 15);
-                } catch (e) {
-                    // If logo fails, just continue
-                }
+                const result = await addImageToPDF(doc, brandLogo, 150, yPos, 40, 15);
             }
             
             yPos += 25;
@@ -1001,13 +1059,16 @@
             yPos += 8;
             doc.setFontSize(11);
             doc.setFont('helvetica', 'normal');
-            doc.text(`Name: ${order.customerInfo.fullName}`, 20, yPos);
+            
+            // Safely access customerInfo with fallbacks
+            const customerInfo = order.customerInfo || {};
+            doc.text(`Name: ${customerInfo.fullName || 'N/A'}`, 20, yPos);
             yPos += 6;
-            doc.text(`Email: ${order.customerInfo.email}`, 20, yPos);
+            doc.text(`Email: ${customerInfo.email || 'N/A'}`, 20, yPos);
             yPos += 6;
-            doc.text(`Phone: ${order.customerInfo.phone}`, 20, yPos);
+            doc.text(`Phone: ${customerInfo.phone || 'N/A'}`, 20, yPos);
             yPos += 6;
-            doc.text(`City: ${order.customerInfo.city}`, 20, yPos);
+            doc.text(`City: ${customerInfo.city || 'N/A'}`, 20, yPos);
             yPos += 12;
             
             // Product Information
@@ -1017,10 +1078,28 @@
             yPos += 8;
             doc.setFontSize(11);
             doc.setFont('helvetica', 'normal');
+            
+            // Add product image if available - prefer PDF photo, then first product image
+            const productImage = order.productPdfPhoto || (order.productImages && order.productImages.length > 0 ? order.productImages[0] : null);
+            let productImageHeight = 0;
+            if (productImage) {
+                // Add product image on the right side
+                const result = await addImageToPDF(doc, productImage, 150, yPos - 5, 40, 40);
+                if (result && result.success) {
+                    productImageHeight = result.height;
+                }
+            }
+            
             doc.text(`Product: ${order.productName}`, 20, yPos);
             yPos += 6;
             doc.text(`Brand: ${order.productBrand}`, 20, yPos);
-            yPos += 10;
+            
+            // Adjust yPos if product image was added
+            if (productImage && productImageHeight > 0) {
+                yPos = Math.max(yPos + 4, yPos - 5 + productImageHeight + 5);
+            } else {
+                yPos += 10;
+            }
             
             // Selected Options
             if (Object.keys(order.selectedOptions).length > 0) {
@@ -1093,16 +1172,20 @@
             doc.setTextColor(100, 100, 100);
             doc.text('AndecoMarine.shop - Order Confirmation', 105, yPos, { align: 'center' });
             
-            const pdfBlob = doc.output('blob');
-            const pdfUrl = URL.createObjectURL(pdfBlob);
-            window.open(pdfUrl, '_blank');
+            // Save PDF (same as client version)
+            doc.save(`Order-${order.orderNumber}.pdf`);
         }
 
-        window.generateOrderPDFForAdminFunc = function(orderId) {
+        window.generateOrderPDFForAdminFunc = async function(orderId) {
             const orders = getOrders();
             const order = orders.find(o => o.id == orderId);
             if (order) {
-                generateOrderPDFForAdmin(order);
+                try {
+                    await generateOrderPDFForAdmin(order);
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                    alert('Error generating PDF: ' + error.message);
+                }
             }
         };
 
