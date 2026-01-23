@@ -502,15 +502,6 @@ body {
     padding: 2.5rem 0;
 }
 
-.luxury-models-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-color);
-    margin: 0 0 2rem 0;
-    text-align: center;
-    letter-spacing: -0.02em;
-}
-
 .luxury-models-grid {
     display: flex;
     align-items: stretch;
@@ -610,11 +601,6 @@ body {
         padding: 1.5rem 0;
     }
     
-    .luxury-models-title {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
     .luxury-models-grid {
         padding: 1rem 0;
         gap: 0;
@@ -649,10 +635,6 @@ body {
 }
 
 @media (max-width: 480px) {
-    .luxury-models-title {
-        font-size: 1.25rem;
-    }
-    
     .luxury-models-grid {
         padding: 0.75rem 0;
         gap: 0;

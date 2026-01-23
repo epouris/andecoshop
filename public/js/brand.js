@@ -142,9 +142,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Render luxury models section
         renderLuxuryModels(decodedBrandName);
         
-        // Update title with product count for better promotion
-        const productCount = brandProducts.length;
-        brandTitle.textContent = `${decodedBrandName}${productCount > 0 ? ` - ${productCount} ${productCount === 1 ? 'Product' : 'Products'}` : ''}`;
+        // Update title without product count
+        brandTitle.textContent = decodedBrandName;
 
         if (brandProducts.length === 0) {
             productsGrid.style.display = 'none';
