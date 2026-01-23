@@ -283,6 +283,11 @@
             dataScript.src = 'js/data.js';
             document.body.appendChild(dataScript);
             
+            // Load image-proxy.js
+            const imageProxyScript = document.createElement('script');
+            imageProxyScript.src = 'js/image-proxy.js';
+            document.body.appendChild(imageProxyScript);
+            
             // Load api.js
             const script1 = document.createElement('script');
             script1.src = 'js/api.js';
