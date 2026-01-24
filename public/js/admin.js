@@ -1139,6 +1139,34 @@
         }
 
         let isPollingNotifications = false;
+        let pollingIntervalId = null;
+        let sseConnected = false;
+
+        const recomputeBadges = () => {
+            const orders = typeof getOrders === 'function' ? getOrders() : [];
+            const queries = typeof getQueries === 'function' ? getQueries() : [];
+
+            const newOrdersCount = orders.filter(order => {
+                const ts = parseDateTs(order.date || order.createdAt || order.created_at);
+                return ts > lastSeenOrdersTs;
+            }).length;
+
+            const newQueriesCount = queries.filter(query => {
+                const ts = parseDateTs(query.createdAt || query.created_at);
+                return ts > lastSeenQueriesTs;
+            }).length;
+
+            updateBadge(ordersBadge, newOrdersCount);
+            updateBadge(queriesBadge, newQueriesCount);
+
+            return {
+                newOrdersCount,
+                newQueriesCount,
+                latestOrderTs: getLatestOrderTs(orders),
+                latestQueryTs: getLatestQueryTs(queries)
+            };
+        };
+
         async function pollNotifications() {
             if (isPollingNotifications) return;
             isPollingNotifications = true;
@@ -1152,11 +1180,8 @@
                 }
                 await Promise.all(refreshCalls);
 
-                const orders = typeof getOrders === 'function' ? getOrders() : [];
-                const queries = typeof getQueries === 'function' ? getQueries() : [];
-
                 if (!lastSeenOrdersTs) {
-                    const latestOrderTs = getLatestOrderTs(orders);
+                    const latestOrderTs = getLatestOrderTs(typeof getOrders === 'function' ? getOrders() : []);
                     if (latestOrderTs) {
                         lastSeenOrdersTs = latestOrderTs;
                         localStorage.setItem('admin_last_seen_orders_ts', String(latestOrderTs));
@@ -1165,34 +1190,20 @@
                 }
 
                 if (!lastSeenQueriesTs) {
-                    const latestQueryTs = getLatestQueryTs(queries);
+                    const latestQueryTs = getLatestQueryTs(typeof getQueries === 'function' ? getQueries() : []);
                     if (latestQueryTs) {
                         lastSeenQueriesTs = latestQueryTs;
                         localStorage.setItem('admin_last_seen_queries_ts', String(latestQueryTs));
                         lastNotifiedQueriesTs = latestQueryTs;
                     }
                 }
+                const { newOrdersCount, newQueriesCount, latestOrderTs, latestQueryTs } = recomputeBadges();
 
-                const newOrdersCount = orders.filter(order => {
-                    const ts = parseDateTs(order.date || order.createdAt || order.created_at);
-                    return ts > lastSeenOrdersTs;
-                }).length;
-
-                const newQueriesCount = queries.filter(query => {
-                    const ts = parseDateTs(query.createdAt || query.created_at);
-                    return ts > lastSeenQueriesTs;
-                }).length;
-
-                updateBadge(ordersBadge, newOrdersCount);
-                updateBadge(queriesBadge, newQueriesCount);
-
-                const latestOrderTs = getLatestOrderTs(orders);
                 if (newOrdersCount > 0 && latestOrderTs > lastNotifiedOrdersTs) {
                     showAdminNotification(newOrdersCount === 1 ? 'New order received.' : `New orders received: ${newOrdersCount}.`);
                     lastNotifiedOrdersTs = latestOrderTs;
                 }
 
-                const latestQueryTs = getLatestQueryTs(queries);
                 if (newQueriesCount > 0 && latestQueryTs > lastNotifiedQueriesTs) {
                     showAdminNotification(newQueriesCount === 1 ? 'New query received.' : `New queries received: ${newQueriesCount}.`);
                     lastNotifiedQueriesTs = latestQueryTs;
@@ -1203,6 +1214,77 @@
                 isPollingNotifications = false;
             }
         }
+
+        const startPolling = () => {
+            if (pollingIntervalId) return;
+            pollNotifications();
+            pollingIntervalId = setInterval(pollNotifications, 30000);
+        };
+
+        const stopPolling = () => {
+            if (pollingIntervalId) {
+                clearInterval(pollingIntervalId);
+                pollingIntervalId = null;
+            }
+        };
+
+        const startLiveUpdates = () => {
+            const token = localStorage.getItem('admin_token');
+            if (!token || typeof EventSource === 'undefined') {
+                startPolling();
+                return;
+            }
+
+            const streamUrl = `${window.location.origin}/api/admin/stream?token=${encodeURIComponent(token)}`;
+            const source = new EventSource(streamUrl);
+
+            source.addEventListener('connected', () => {
+                sseConnected = true;
+                stopPolling();
+            });
+
+            source.addEventListener('order', async (event) => {
+                try {
+                    const payload = JSON.parse(event.data);
+                    const payloadTs = parseDateTs(payload?.date || payload?.createdAt || payload?.created_at);
+                    if (payloadTs > lastNotifiedOrdersTs) {
+                        showAdminNotification('New order received.');
+                        lastNotifiedOrdersTs = payloadTs;
+                    }
+                } catch (error) {
+                    console.error('Error parsing order event:', error);
+                }
+
+                if (typeof refreshOrders === 'function') {
+                    await refreshOrders();
+                }
+                recomputeBadges();
+            });
+
+            source.addEventListener('query', async (event) => {
+                try {
+                    const payload = JSON.parse(event.data);
+                    const payloadTs = parseDateTs(payload?.createdAt || payload?.created_at);
+                    if (payloadTs > lastNotifiedQueriesTs) {
+                        showAdminNotification('New query received.');
+                        lastNotifiedQueriesTs = payloadTs;
+                    }
+                } catch (error) {
+                    console.error('Error parsing query event:', error);
+                }
+
+                if (typeof refreshQueries === 'function') {
+                    await refreshQueries();
+                }
+                recomputeBadges();
+            });
+
+            source.onerror = () => {
+                if (!sseConnected) {
+                    startPolling();
+                }
+            };
+        };
 
         window.updateOrderStatusFunc = async function(orderId) {
             const newStatus = prompt('Enter new status (pending, confirmed, completed, cancelled):');
@@ -1581,9 +1663,8 @@
             }, 500);
         }
 
-        // Start notifications polling
-        pollNotifications();
-        setInterval(pollNotifications, 30000);
+        // Start notifications (SSE with polling fallback)
+        startLiveUpdates();
     }
     
     // Start initialization

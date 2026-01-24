@@ -22,6 +22,21 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
+// SSE clients for admin notifications
+const sseClients = new Set();
+
+function sendSseEvent(event, payload) {
+  const data = JSON.stringify(payload || {});
+  sseClients.forEach(res => {
+    try {
+      res.write(`event: ${event}\n`);
+      res.write(`data: ${data}\n\n`);
+    } catch (error) {
+      // Ignore write errors (client likely disconnected)
+    }
+  });
+}
+
 // Test database connection
 pool.query('SELECT NOW()', (err, res) => {
   if (err) {
@@ -319,7 +334,54 @@ const authenticateAdmin = async (req, res, next) => {
   }
 };
 
+async function getAdminByToken(token) {
+  if (!token) return null;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM admin_users WHERE password_hash = $1',
+      [token]
+    );
+    return result.rows[0] || null;
+  } catch (error) {
+    console.error('Admin token lookup error:', error);
+    return null;
+  }
+}
+
 // Public API Routes
+
+// Admin SSE stream for live notifications
+app.get('/api/admin/stream', async (req, res) => {
+  try {
+    const token = req.query.token;
+    const admin = await getAdminByToken(token);
+    if (!admin) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders?.();
+
+    res.write('event: connected\n');
+    res.write('data: {"ok":true}\n\n');
+
+    const keepAlive = setInterval(() => {
+      res.write(':keep-alive\n\n');
+    }, 25000);
+
+    sseClients.add(res);
+
+    req.on('close', () => {
+      clearInterval(keepAlive);
+      sseClients.delete(res);
+    });
+  } catch (error) {
+    console.error('SSE connection error:', error);
+    res.status(500).end();
+  }
+});
 
 // Image proxy endpoint to bypass CORS
 app.get('/api/image-proxy', async (req, res) => {
@@ -523,7 +585,10 @@ app.post('/api/orders', async (req, res) => {
       status: row.status || 'pending',
       date: row.date || row.created_at
     };
-    
+
+    // Notify admins in real-time
+    sendSseEvent('order', orderResponse);
+
     res.status(201).json(orderResponse);
   } catch (error) {
     console.error('Error creating order:', error);
@@ -552,14 +617,19 @@ app.post('/api/queries', async (req, res) => {
     ]);
 
     const row = result.rows[0];
-    res.status(201).json({
+    const queryResponse = {
       id: row.id.toString(),
       name: row.name,
       email: row.email,
       phone: row.phone,
       message: row.message,
       createdAt: row.created_at
-    });
+    };
+
+    // Notify admins in real-time
+    sendSseEvent('query', queryResponse);
+
+    res.status(201).json(queryResponse);
   } catch (error) {
     console.error('Error creating query:', error);
     res.status(500).json({ error: 'Failed to submit query' });
