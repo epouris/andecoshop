@@ -141,10 +141,60 @@ function initHeroSlider() {
     showSlide(0);
 }
 
+function initContactForm() {
+    const form = document.getElementById('contactForm');
+    const statusEl = document.getElementById('contactStatus');
+
+    if (!form) return;
+
+    const setStatus = (message, isError = false) => {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.classList.toggle('error', isError);
+        statusEl.classList.toggle('success', !isError);
+    };
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('contactName')?.value.trim();
+        const email = document.getElementById('contactEmail')?.value.trim();
+        const phone = document.getElementById('contactPhone')?.value.trim();
+        const message = document.getElementById('contactMessage')?.value.trim();
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        if (!name || !email || !message) {
+            setStatus('Please fill in all required fields.', true);
+            return;
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+        }
+
+        try {
+            const api = await import('./api.js');
+            await api.createQuery({ name, email, phone, message });
+            setStatus('Thank you! Your message has been sent.', false);
+            form.reset();
+        } catch (error) {
+            console.error('Error submitting query:', error);
+            setStatus('Something went wrong. Please try again.', true);
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message';
+            }
+        }
+    });
+}
+
 // Landing page functionality
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize hero slider
     initHeroSlider();
+    initContactForm();
     
     const brandsGrid = document.getElementById('brandsGrid');
     

@@ -662,6 +662,12 @@
                         } catch (error) {
                             console.error('Error rendering orders table:', error);
                         }
+                    } else if (targetTab === 'queries') {
+                        try {
+                            renderQueriesTable();
+                        } catch (error) {
+                            console.error('Error rendering queries table:', error);
+                        }
                     } else if (targetTab === 'settings') {
                         try {
                             const shopLogoUrl = document.getElementById('shopLogoUrl');
@@ -829,6 +835,7 @@
 
         // Orders management
         const ordersTableBody = document.getElementById('ordersTableBody');
+        const queriesTableBody = document.getElementById('queriesTableBody');
 
         async function renderOrdersTable() {
             if (!ordersTableBody) return;
@@ -882,6 +889,49 @@
                                 <button class="btn btn-primary btn-small" onclick="window.generateOrderPDFForAdminFunc(${order.id})">PDF</button>
                             </div>
                         </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function renderQueriesTable() {
+            if (!queriesTableBody) return;
+
+            if (typeof getQueries !== 'function' || typeof refreshQueries !== 'function') {
+                console.error('getQueries or refreshQueries not available');
+                queriesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading queries...</td></tr>';
+                return;
+            }
+
+            try {
+                await refreshQueries();
+            } catch (error) {
+                console.error('Error refreshing queries:', error);
+            }
+
+            const queries = getQueries();
+
+            if (!queries || queries.length === 0) {
+                queriesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No queries found.</td></tr>';
+                return;
+            }
+
+            queriesTableBody.innerHTML = queries.map(query => {
+                const date = new Date(query.createdAt).toLocaleDateString('en-GB', {
+                    year: '2-digit',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${query.name || 'N/A'}</td>
+                        <td>${query.email || 'N/A'}</td>
+                        <td>${query.phone || 'N/A'}</td>
+                        <td class="query-message">${query.message || ''}</td>
                     </tr>
                 `;
             }).join('');

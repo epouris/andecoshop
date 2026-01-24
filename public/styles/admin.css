@@ -770,3 +770,37 @@
     background: rgba(220, 38, 38, 0.1);
     color: #dc2626;
 }
+
+/* Queries Styles */
+.queries-table-container {
+    background: var(--bg-color);
+    border-radius: 16px;
+    padding: 1rem;
+    box-shadow: var(--shadow-md);
+    overflow-x: auto;
+    border: 1px solid var(--border-light);
+    width: 100%;
+    max-width: 100%;
+}
+
+.queries-table-container .products-table {
+    font-size: 0.875rem;
+}
+
+.queries-table-container .products-table th {
+    padding: 0.625rem 0.5rem;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
+.queries-table-container .products-table td {
+    padding: 0.625rem 0.5rem;
+    font-size: 0.875rem;
+    vertical-align: top;
+}
+
+.queries-table-container .query-message {
+    white-space: normal;
+    max-width: 420px;
+    line-height: 1.5;
+}

@@ -655,6 +655,76 @@
     margin: 0;
 }
 
+/* Contact Section */
+.contact-section {
+    padding: 6rem 0;
+    background: var(--bg-light);
+}
+
+.contact-form-wrapper {
+    max-width: 820px;
+    margin: 3rem auto 0;
+    background: var(--bg-color);
+    border-radius: 20px;
+    padding: 2.5rem;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+}
+
+.contact-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.contact-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.contact-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background-color: var(--bg-color);
+}
+
+.contact-form textarea {
+    resize: vertical;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.08);
+}
+
+.contact-status {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.contact-status.success {
+    color: #16a34a;
+}
+
+.contact-status.error {
+    color: #dc2626;
+}
+
 /* Responsive */
 @media (max-width: 968px) {
     .hero-slider-section,
@@ -804,8 +874,17 @@
 
     .brands-showcase,
     .features-section,
-    .values-section {
+    .values-section,
+    .contact-section {
         padding: 5rem 0;
+    }
+
+    .contact-form-wrapper {
+        padding: 2rem;
+    }
+
+    .contact-form-row {
+        grid-template-columns: 1fr;
     }
 
     .brands-showcase .brands-grid {
@@ -932,8 +1011,20 @@
 
     .brands-showcase,
     .features-section,
-    .values-section {
+    .values-section,
+    .contact-section {
         padding: 3rem 0;
+    }
+
+    .contact-form-wrapper {
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+        font-size: 0.9rem;
+        padding: 0.75rem 0.875rem;
     }
 
     .brands-showcase .brands-grid {

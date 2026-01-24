@@ -92,6 +92,18 @@ async function initializeDatabase() {
       )
     `);
 
+    // Queries table (contact form submissions)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS queries (
+        id BIGSERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        phone VARCHAR(100),
+        message TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Settings table (for shop logo)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS settings (
@@ -519,6 +531,41 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+// Create contact query (public)
+app.post('/api/queries', async (req, res) => {
+  try {
+    const { name, email, phone, message } = req.body || {};
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: 'Name, email, and message are required' });
+    }
+
+    const result = await pool.query(`
+      INSERT INTO queries (name, email, phone, message)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+    `, [
+      name.trim(),
+      email.trim(),
+      phone ? phone.trim() : null,
+      message.trim()
+    ]);
+
+    const row = result.rows[0];
+    res.status(201).json({
+      id: row.id.toString(),
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      message: row.message,
+      createdAt: row.created_at
+    });
+  } catch (error) {
+    console.error('Error creating query:', error);
+    res.status(500).json({ error: 'Failed to submit query' });
+  }
+});
+
 // Admin API Routes (require authentication)
 
 // Admin login
@@ -665,6 +712,25 @@ app.delete('/api/admin/orders/:id', authenticateAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error deleting order:', error);
     res.status(500).json({ error: 'Failed to delete order' });
+  }
+});
+
+// Get all queries (admin only)
+app.get('/api/admin/queries', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM queries ORDER BY created_at DESC');
+    const queries = result.rows.map(row => ({
+      id: row.id.toString(),
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      message: row.message,
+      createdAt: row.created_at
+    }));
+    res.json(queries);
+  } catch (error) {
+    console.error('Error fetching queries:', error);
+    res.status(500).json({ error: 'Failed to fetch queries' });
   }
 });
 

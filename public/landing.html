@@ -53,7 +53,7 @@
                             <h1 class="hero-title">Innovation Meets<br>Craftsmanship.</h1>
                             <p class="hero-subtitle">Experience the perfect blend of cutting-edge technology and timeless design in every product we offer.</p>
                             <div class="hero-actions">
-                                <a href="index.html" class="btn btn-primary btn-large">Shop Now</a>
+                                <a href="brand.html?brand=Sipaboards" class="btn btn-primary btn-large">Shop Now</a>
                                 <a href="#brands" class="btn btn-secondary btn-large">Learn More</a>
                             </div>
                         </div>
@@ -313,50 +313,39 @@
             </div>
         </section>
 
-        <!-- Features Section -->
-        <section class="features-section">
+        <!-- Contact Section -->
+        <section class="contact-section" id="contact">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-label">Why Choose Us</span>
-                    <h2 class="section-title">Experience the Difference</h2>
+                    <span class="section-label">Contact Us</span>
+                    <h2 class="section-title">Send Us a Message</h2>
+                    <p class="section-description">Have a question about our brands or products? Send us a message and we’ll get back to you shortly.</p>
                 </div>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon-wrapper">
-                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                <div class="contact-form-wrapper">
+                    <form id="contactForm" class="contact-form">
+                        <div class="contact-form-row">
+                            <div class="form-group">
+                                <label for="contactName">Name *</label>
+                                <input type="text" id="contactName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactEmail">Email *</label>
+                                <input type="email" id="contactEmail" required>
+                            </div>
                         </div>
-                        <h3 class="feature-title">Authentic Products</h3>
-                        <p class="feature-description">Genuine products directly from authorized brand partners, ensuring authenticity and warranty coverage.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon-wrapper">
-                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                        <div class="contact-form-row">
+                            <div class="form-group">
+                                <label for="contactPhone">Phone</label>
+                                <input type="tel" id="contactPhone">
+                            </div>
                         </div>
-                        <h3 class="feature-title">Transparent Pricing</h3>
-                        <p class="feature-description">Clear pricing with all costs upfront. All prices exclude 19% VAT (Cyprus regulation) for complete transparency.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon-wrapper">
-                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
+                        <div class="form-group">
+                            <label for="contactMessage">Message *</label>
+                            <textarea id="contactMessage" rows="5" required></textarea>
                         </div>
-                        <h3 class="feature-title">Fast Delivery</h3>
-                        <p class="feature-description">Efficient shipping and logistics to get your products to you quickly and safely, wherever you are.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon-wrapper">
-                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">Expert Support</h3>
-                        <p class="feature-description">Dedicated customer service team ready to assist with product selection, technical questions, and after-sales support.</p>
-                    </div>
+                        <button type="submit" class="btn btn-primary btn-large">Send Message</button>
+                        <p class="contact-status" id="contactStatus" aria-live="polite"></p>
+                    </form>
                 </div>
             </div>
         </section>

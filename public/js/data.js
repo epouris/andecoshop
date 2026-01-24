@@ -4,6 +4,7 @@
 let productsCache = [];
 let brandsCache = [];
 let ordersCache = [];
+let queriesCache = [];
 let shopLogoCache = '';
 let cacheInitialized = false;
 
@@ -30,6 +31,14 @@ async function initializeData() {
       // Not authenticated, that's ok
       ordersCache = [];
     }
+
+    // Only load queries if admin is authenticated
+    try {
+      queriesCache = await api.getQueries();
+    } catch (e) {
+      // Not authenticated, that's ok
+      queriesCache = [];
+    }
     
     cacheInitialized = true;
     window.cacheInitialized = true;
@@ -47,6 +56,7 @@ async function initializeData() {
     productsCache = [];
     brandsCache = [];
     ordersCache = [];
+    queriesCache = [];
     window.cacheInitialized = true; // Set to true even on error so pages don't wait forever
   }
 }
@@ -269,6 +279,11 @@ async function deleteOrder(id) {
   }
 }
 
+// Queries management functions (admin)
+function getQueries() {
+  return queriesCache;
+}
+
 // Refresh cache functions (for admin use)
 async function refreshProducts() {
   try {
@@ -294,6 +309,15 @@ async function refreshOrders() {
     ordersCache = await api.getOrders();
   } catch (error) {
     console.error('Error refreshing orders:', error);
+  }
+}
+
+async function refreshQueries() {
+  try {
+    const api = await import('./api.js');
+    queriesCache = await api.getQueries();
+  } catch (error) {
+    console.error('Error refreshing queries:', error);
   }
 }
 

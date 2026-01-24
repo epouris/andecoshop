@@ -96,6 +96,18 @@ export async function createOrder(order) {
   }
 }
 
+export async function createQuery(query) {
+  try {
+    return await apiCall('/queries', {
+      method: 'POST',
+      body: query,
+    });
+  } catch (error) {
+    console.error('Error creating query:', error);
+    throw error;
+  }
+}
+
 // Admin API functions
 export async function adminLogin(username, password) {
   try {
@@ -126,6 +138,15 @@ export async function getOrders() {
     return await apiCall('/admin/orders');
   } catch (error) {
     console.error('Error fetching orders:', error);
+    throw error;
+  }
+}
+
+export async function getQueries() {
+  try {
+    return await apiCall('/admin/queries');
+  } catch (error) {
+    console.error('Error fetching queries:', error);
     throw error;
   }
 }
