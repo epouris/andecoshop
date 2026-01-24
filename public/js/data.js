@@ -185,6 +185,8 @@ function updateShopLogo() {
   logoElements.forEach(logoEl => {
     const logoImg = logoEl.querySelector('img.shop-logo-img');
     const logoText = logoEl.querySelector('.logo-text');
+    const isHeaderLogo = !!logoEl.closest('.header');
+    const effectiveLogoUrl = logoUrl || (isHeaderLogo ? 'logo.png' : '');
     
     // Always ensure text exists
     if (!logoText) {
@@ -194,12 +196,12 @@ function updateShopLogo() {
       logoEl.appendChild(textSpan);
     }
     
-    if (logoUrl) {
+    if (effectiveLogoUrl) {
       // If logo URL exists, show image alongside text (logo on left, text on right)
       if (!logoImg) {
         // Create image element if it doesn't exist
         const img = document.createElement('img');
-        img.src = logoUrl;
+        img.src = effectiveLogoUrl;
         img.alt = 'AndecoMarine.shop';
         img.className = 'shop-logo-img';
         img.onerror = function() {
@@ -217,12 +219,14 @@ function updateShopLogo() {
         img.style.display = 'block';
       } else {
         // Update existing image
-        logoImg.src = logoUrl;
+        logoImg.src = effectiveLogoUrl;
         logoImg.style.display = 'block';
       }
       
-      // Always show text alongside logo
-      if (logoText) logoText.style.display = 'block';
+      // Hide header text when showing logo
+      if (logoText) {
+        logoText.style.display = isHeaderLogo ? 'none' : 'block';
+      }
     } else {
       // If no logo URL, hide image but show text
       if (logoImg) logoImg.style.display = 'none';
