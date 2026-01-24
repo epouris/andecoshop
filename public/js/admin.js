@@ -747,6 +747,12 @@
                         } catch (error) {
                             console.error('Error rendering queries table:', error);
                         }
+                    } else if (targetTab === 'traffic') {
+                        try {
+                            renderTrafficTable(currentTrafficPeriod || 'day');
+                        } catch (error) {
+                            console.error('Error rendering traffic table:', error);
+                        }
                     } else if (targetTab === 'settings') {
                         try {
                             const shopLogoUrl = document.getElementById('shopLogoUrl');
@@ -1136,6 +1142,95 @@
                     closeQueryModal();
                 }
             }, { passive: true });
+        }
+
+        // Traffic management
+        const trafficDeviceBody = document.getElementById('trafficDeviceBody');
+        const trafficCountryBody = document.getElementById('trafficCountryBody');
+        const trafficCityBody = document.getElementById('trafficCityBody');
+        const totalVisitorsEl = document.getElementById('totalVisitors');
+        const totalVisitsEl = document.getElementById('totalVisits');
+        const trafficPeriodDayBtn = document.getElementById('trafficPeriodDay');
+        const trafficPeriodMonthBtn = document.getElementById('trafficPeriodMonth');
+        const trafficPeriodYearBtn = document.getElementById('trafficPeriodYear');
+        let currentTrafficPeriod = 'day';
+
+        async function renderTrafficTable(period = 'day') {
+            currentTrafficPeriod = period;
+            
+            // Update button states
+            [trafficPeriodDayBtn, trafficPeriodMonthBtn, trafficPeriodYearBtn].forEach(btn => {
+                if (btn) btn.classList.remove('active');
+            });
+            if (period === 'day' && trafficPeriodDayBtn) trafficPeriodDayBtn.classList.add('active');
+            if (period === 'month' && trafficPeriodMonthBtn) trafficPeriodMonthBtn.classList.add('active');
+            if (period === 'year' && trafficPeriodYearBtn) trafficPeriodYearBtn.classList.add('active');
+
+            try {
+                const api = await import('./api.js');
+                const data = await api.getTraffic(period);
+
+                if (totalVisitorsEl) totalVisitorsEl.textContent = data.totalVisitors || 0;
+                if (totalVisitsEl) totalVisitsEl.textContent = data.totalVisits || 0;
+
+                if (trafficDeviceBody) {
+                    if (!data.byDevice || data.byDevice.length === 0) {
+                        trafficDeviceBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No data available.</td></tr>';
+                    } else {
+                        trafficDeviceBody.innerHTML = data.byDevice.map(item => `
+                            <tr>
+                                <td>${item.device || 'Unknown'}</td>
+                                <td>${item.visits || 0}</td>
+                                <td>${item.visitors || 0}</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+
+                if (trafficCountryBody) {
+                    if (!data.byCountry || data.byCountry.length === 0) {
+                        trafficCountryBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No data available.</td></tr>';
+                    } else {
+                        trafficCountryBody.innerHTML = data.byCountry.map(item => `
+                            <tr>
+                                <td>${item.country || 'Unknown'}</td>
+                                <td>${item.visits || 0}</td>
+                                <td>${item.visitors || 0}</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+
+                if (trafficCityBody) {
+                    if (!data.byCity || data.byCity.length === 0) {
+                        trafficCityBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No data available.</td></tr>';
+                    } else {
+                        trafficCityBody.innerHTML = data.byCity.map(item => `
+                            <tr>
+                                <td>${item.city || 'Unknown'}</td>
+                                <td>${item.country || 'Unknown'}</td>
+                                <td>${item.visits || 0}</td>
+                                <td>${item.visitors || 0}</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading traffic data:', error);
+                if (trafficDeviceBody) trafficDeviceBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Error loading data.</td></tr>';
+                if (trafficCountryBody) trafficCountryBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Error loading data.</td></tr>';
+                if (trafficCityBody) trafficCityBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">Error loading data.</td></tr>';
+            }
+        }
+
+        if (trafficPeriodDayBtn) {
+            trafficPeriodDayBtn.addEventListener('click', () => renderTrafficTable('day'));
+        }
+        if (trafficPeriodMonthBtn) {
+            trafficPeriodMonthBtn.addEventListener('click', () => renderTrafficTable('month'));
+        }
+        if (trafficPeriodYearBtn) {
+            trafficPeriodYearBtn.addEventListener('click', () => renderTrafficTable('year'));
         }
 
         let isPollingNotifications = false;

@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.set('trust proxy', true);
 app.use(cors());
 // Increase JSON payload limit to handle large base64 images (50MB)
 app.use(express.json({ limit: '50mb' }));
@@ -35,6 +36,96 @@ function sendSseEvent(event, payload) {
       // Ignore write errors (client likely disconnected)
     }
   });
+}
+
+// Traffic tracking helpers
+const geoCache = new Map();
+const GEO_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+function getClientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) {
+    return xff.split(',')[0].trim();
+  }
+  return req.ip || req.connection?.remoteAddress || '';
+}
+
+function normalizeIp(ip) {
+  if (!ip) return '';
+  return ip.replace('::ffff:', '');
+}
+
+function isPrivateIp(ip) {
+  if (!ip) return true;
+  if (ip === '::1' || ip === '127.0.0.1') return true;
+  if (ip.startsWith('10.')) return true;
+  if (ip.startsWith('192.168.')) return true;
+  if (ip.startsWith('172.')) {
+    const part = parseInt(ip.split('.')[1], 10);
+    if (part >= 16 && part <= 31) return true;
+  }
+  return false;
+}
+
+function detectDeviceType(userAgent) {
+  const ua = (userAgent || '').toLowerCase();
+  if (!ua) return 'Unknown';
+  if (ua.includes('ipad') || ua.includes('tablet')) return 'Tablet';
+  if (ua.includes('mobile') || ua.includes('iphone') || ua.includes('android')) return 'Mobile';
+  return 'Desktop';
+}
+
+function getCachedGeo(ip) {
+  const cached = geoCache.get(ip);
+  if (!cached) return null;
+  if (Date.now() - cached.timestamp > GEO_CACHE_TTL_MS) {
+    geoCache.delete(ip);
+    return null;
+  }
+  return cached.value;
+}
+
+function fetchJson(url) {
+  return new Promise((resolve, reject) => {
+    const request = https.get(url, { timeout: 4000 }, (response) => {
+      let data = '';
+      response.on('data', chunk => {
+        data += chunk;
+      });
+      response.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+    request.on('timeout', () => {
+      request.destroy(new Error('Request timeout'));
+    });
+    request.on('error', reject);
+  });
+}
+
+async function getGeoFromIp(ip) {
+  if (!ip || isPrivateIp(ip)) {
+    return { country: 'Local', city: 'Local' };
+  }
+
+  const cached = getCachedGeo(ip);
+  if (cached) return cached;
+
+  try {
+    const data = await fetchJson(`https://ipapi.co/${encodeURIComponent(ip)}/json/`);
+    const value = {
+      country: data?.country_name || data?.country || 'Unknown',
+      city: data?.city || 'Unknown'
+    };
+    geoCache.set(ip, { value, timestamp: Date.now() });
+    return value;
+  } catch (error) {
+    return { country: 'Unknown', city: 'Unknown' };
+  }
 }
 
 // Test database connection
@@ -115,6 +206,21 @@ async function initializeDatabase() {
         email VARCHAR(255) NOT NULL,
         phone VARCHAR(100),
         message TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Traffic table (visitor tracking)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS traffic (
+        id BIGSERIAL PRIMARY KEY,
+        path TEXT,
+        referrer TEXT,
+        ip TEXT,
+        user_agent TEXT,
+        country TEXT,
+        city TEXT,
+        device VARCHAR(50),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -427,6 +533,39 @@ app.get('/api/image-proxy', async (req, res) => {
   } catch (error) {
     console.error('Image proxy error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Track visitor traffic
+app.post('/api/track', async (req, res) => {
+  try {
+    const { path: pagePath, referrer: pageReferrer } = req.body || {};
+    const ip = normalizeIp(getClientIp(req));
+    const userAgent = req.headers['user-agent'] || '';
+    const device = detectDeviceType(userAgent);
+
+    let geo = { country: 'Unknown', city: 'Unknown' };
+    if (!isPrivateIp(ip)) {
+      geo = await getGeoFromIp(ip);
+    }
+
+    await pool.query(`
+      INSERT INTO traffic (path, referrer, ip, user_agent, country, city, device)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `, [
+      pagePath || '/',
+      pageReferrer || '',
+      ip,
+      userAgent,
+      geo.country,
+      geo.city,
+      device
+    ]);
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error tracking traffic:', error);
+    res.status(500).json({ error: 'Failed to track' });
   }
 });
 
@@ -815,6 +954,71 @@ app.delete('/api/admin/queries/:id', authenticateAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error deleting query:', error);
     res.status(500).json({ error: 'Failed to delete query' });
+  }
+});
+
+// Get traffic statistics (admin only)
+app.get('/api/admin/traffic', authenticateAdmin, async (req, res) => {
+  try {
+    const period = req.query.period || 'day';
+    let dateFilter = '';
+    if (period === 'day') {
+      dateFilter = "WHERE created_at >= CURRENT_DATE";
+    } else if (period === 'month') {
+      dateFilter = "WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)";
+    } else if (period === 'year') {
+      dateFilter = "WHERE created_at >= DATE_TRUNC('year', CURRENT_DATE)";
+    }
+
+    const totalVisitors = await pool.query(`SELECT COUNT(DISTINCT ip) as count FROM traffic ${dateFilter}`);
+    const totalVisits = await pool.query(`SELECT COUNT(*) as count FROM traffic ${dateFilter}`);
+    
+    const byCountry = await pool.query(`
+      SELECT country, COUNT(*) as visits, COUNT(DISTINCT ip) as visitors
+      FROM traffic ${dateFilter}
+      GROUP BY country
+      ORDER BY visits DESC
+      LIMIT 20
+    `);
+    
+    const byDevice = await pool.query(`
+      SELECT device, COUNT(*) as visits, COUNT(DISTINCT ip) as visitors
+      FROM traffic ${dateFilter}
+      GROUP BY device
+      ORDER BY visits DESC
+    `);
+
+    const byCity = await pool.query(`
+      SELECT city, country, COUNT(*) as visits, COUNT(DISTINCT ip) as visitors
+      FROM traffic ${dateFilter}
+      GROUP BY city, country
+      ORDER BY visits DESC
+      LIMIT 20
+    `);
+
+    res.json({
+      totalVisitors: parseInt(totalVisitors.rows[0]?.count || 0, 10),
+      totalVisits: parseInt(totalVisits.rows[0]?.count || 0, 10),
+      byCountry: byCountry.rows.map(r => ({
+        country: r.country || 'Unknown',
+        visits: parseInt(r.visits || 0, 10),
+        visitors: parseInt(r.visitors || 0, 10)
+      })),
+      byDevice: byDevice.rows.map(r => ({
+        device: r.device || 'Unknown',
+        visits: parseInt(r.visits || 0, 10),
+        visitors: parseInt(r.visitors || 0, 10)
+      })),
+      byCity: byCity.rows.map(r => ({
+        city: r.city || 'Unknown',
+        country: r.country || 'Unknown',
+        visits: parseInt(r.visits || 0, 10),
+        visitors: parseInt(r.visitors || 0, 10)
+      }))
+    });
+  } catch (error) {
+    console.error('Error fetching traffic:', error);
+    res.status(500).json({ error: 'Failed to fetch traffic' });
   }
 });
 

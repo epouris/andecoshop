@@ -162,6 +162,27 @@ export async function deleteQuery(id) {
   }
 }
 
+export async function getTraffic(period = 'day') {
+  try {
+    return await apiCall(`/admin/traffic?period=${encodeURIComponent(period)}`);
+  } catch (error) {
+    console.error('Error fetching traffic:', error);
+    throw error;
+  }
+}
+
+export async function trackVisit(path, referrer) {
+  try {
+    return await apiCall('/track', {
+      method: 'POST',
+      body: { path, referrer },
+    });
+  } catch (error) {
+    // Silently fail - don't interrupt user experience
+    console.error('Error tracking visit:', error);
+  }
+}
+
 export async function getOrderById(id) {
   try {
     return await apiCall(`/admin/orders/${id}`);

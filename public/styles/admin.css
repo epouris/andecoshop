@@ -861,3 +861,77 @@
     font-size: 0.95rem;
     max-width: 320px;
 }
+
+/* Traffic Styles */
+.traffic-stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.traffic-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: var(--bg-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.traffic-section {
+    background: var(--bg-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+}
+
+.traffic-section h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.traffic-table-container {
+    overflow-x: auto;
+}
+
+.traffic-table-container .products-table {
+    font-size: 0.875rem;
+}
+
+.traffic-table-container .products-table th {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.traffic-table-container .products-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.traffic-section .btn.active {
+    background: var(--primary-color);
+    color: white;
+}
