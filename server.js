@@ -734,6 +734,20 @@ app.get('/api/admin/queries', authenticateAdmin, async (req, res) => {
   }
 });
 
+// Delete query (admin only)
+app.delete('/api/admin/queries/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('DELETE FROM queries WHERE id = $1 RETURNING *', [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Query not found' });
+    }
+    res.json({ message: 'Query deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting query:', error);
+    res.status(500).json({ error: 'Failed to delete query' });
+  }
+});
+
 // Product management (admin only)
 app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
   try {

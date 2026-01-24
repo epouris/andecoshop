@@ -82,6 +82,13 @@
         const addOptionBtn = document.getElementById('addOptionBtn');
         const optionsContainer = document.getElementById('optionsContainer');
         const modalTitle = document.getElementById('modalTitle');
+        const ordersBadge = document.getElementById('ordersBadge');
+        const queriesBadge = document.getElementById('queriesBadge');
+
+        let lastSeenOrdersTs = parseInt(localStorage.getItem('admin_last_seen_orders_ts') || '0', 10);
+        let lastSeenQueriesTs = parseInt(localStorage.getItem('admin_last_seen_queries_ts') || '0', 10);
+        let lastNotifiedOrdersTs = lastSeenOrdersTs;
+        let lastNotifiedQueriesTs = lastSeenQueriesTs;
 
         if (!productsTableBody || !productModal || !productForm) {
             console.error('Required admin page elements not found', {
@@ -633,6 +640,74 @@
         const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.admin-tab-content');
 
+        const notificationContainerId = 'adminNotificationContainer';
+        const getNotificationContainer = () => {
+            let container = document.getElementById(notificationContainerId);
+            if (!container) {
+                container = document.createElement('div');
+                container.id = notificationContainerId;
+                container.className = 'admin-notification-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        };
+
+        const showAdminNotification = (message) => {
+            const container = getNotificationContainer();
+            const notice = document.createElement('div');
+            notice.className = 'admin-notification';
+            notice.textContent = message;
+            container.appendChild(notice);
+            setTimeout(() => {
+                notice.remove();
+            }, 5000);
+        };
+
+        const parseDateTs = (value) => {
+            if (!value) return 0;
+            const ts = new Date(value).getTime();
+            return Number.isNaN(ts) ? 0 : ts;
+        };
+
+        const getLatestOrderTs = (orders) => orders.reduce((maxTs, order) => {
+            const ts = parseDateTs(order.date || order.createdAt || order.created_at);
+            return Math.max(maxTs, ts);
+        }, 0);
+
+        const getLatestQueryTs = (queries) => queries.reduce((maxTs, query) => {
+            const ts = parseDateTs(query.createdAt || query.created_at);
+            return Math.max(maxTs, ts);
+        }, 0);
+
+        const updateBadge = (badgeEl, count) => {
+            if (!badgeEl) return;
+            if (count > 0) {
+                badgeEl.textContent = count;
+                badgeEl.style.display = 'inline-flex';
+            } else {
+                badgeEl.textContent = '';
+                badgeEl.style.display = 'none';
+            }
+        };
+
+        const markOrdersSeen = (orders) => {
+            const latest = getLatestOrderTs(orders);
+            if (latest > 0) {
+                lastSeenOrdersTs = latest;
+                localStorage.setItem('admin_last_seen_orders_ts', String(latest));
+            }
+            updateBadge(ordersBadge, 0);
+        };
+
+        const markQueriesSeen = (queries) => {
+            const latest = getLatestQueryTs(queries);
+            if (latest > 0) {
+                lastSeenQueriesTs = latest;
+                localStorage.setItem('admin_last_seen_queries_ts', String(latest));
+            }
+            updateBadge(queriesBadge, 0);
+        };
+
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 try {
@@ -659,12 +734,16 @@
                     } else if (targetTab === 'orders') {
                         try {
                             renderOrdersTable();
+                            const orders = typeof getOrders === 'function' ? getOrders() : [];
+                            markOrdersSeen(orders);
                         } catch (error) {
                             console.error('Error rendering orders table:', error);
                         }
                     } else if (targetTab === 'queries') {
                         try {
                             renderQueriesTable();
+                            const queries = typeof getQueries === 'function' ? getQueries() : [];
+                            markQueriesSeen(queries);
                         } catch (error) {
                             console.error('Error rendering queries table:', error);
                         }
@@ -836,6 +915,14 @@
         // Orders management
         const ordersTableBody = document.getElementById('ordersTableBody');
         const queriesTableBody = document.getElementById('queriesTableBody');
+        const queryModal = document.getElementById('queryModal');
+        const closeQueryModalBtn = document.getElementById('closeQueryModal');
+        const closeQueryBtn = document.getElementById('closeQueryBtn');
+        const printQueryBtn = document.getElementById('printQueryBtn');
+        const queryNameEl = document.getElementById('queryName');
+        const queryEmailEl = document.getElementById('queryEmail');
+        const queryPhoneEl = document.getElementById('queryPhone');
+        const queryMessageEl = document.getElementById('queryMessage');
 
         async function renderOrdersTable() {
             if (!ordersTableBody) return;
@@ -925,16 +1012,196 @@
                     minute: '2-digit'
                 });
 
+                const fullMessage = query.message || '';
+                const shortMessage = fullMessage.length > 90
+                    ? `${fullMessage.slice(0, 90)}…`
+                    : fullMessage;
+
                 return `
                     <tr>
                         <td>${date}</td>
                         <td>${query.name || 'N/A'}</td>
                         <td>${query.email || 'N/A'}</td>
                         <td>${query.phone || 'N/A'}</td>
-                        <td class="query-message">${query.message || ''}</td>
+                        <td><span class="query-message-preview">${shortMessage}</span></td>
+                        <td>
+                            <div class="query-actions">
+                                <button class="btn btn-secondary btn-small" onclick="window.viewQueryFunc(${query.id})">View</button>
+                                <button class="btn btn-danger btn-small" onclick="window.deleteQueryFunc(${query.id})">Delete</button>
+                            </div>
+                        </td>
                     </tr>
                 `;
             }).join('');
+        }
+
+        function openQueryModal(query) {
+            if (!queryModal || !query) return;
+            if (queryNameEl) queryNameEl.textContent = query.name || 'N/A';
+            if (queryEmailEl) queryEmailEl.textContent = query.email || 'N/A';
+            if (queryPhoneEl) queryPhoneEl.textContent = query.phone || 'N/A';
+            if (queryMessageEl) queryMessageEl.textContent = query.message || '';
+            queryModal.classList.add('active');
+        }
+
+        function closeQueryModal() {
+            if (queryModal) {
+                queryModal.classList.remove('active');
+            }
+        }
+
+        async function findQueryById(queryId) {
+            let queries = typeof getQueries === 'function' ? getQueries() : [];
+            let query = queries.find(q => q.id == queryId);
+            if (!query && typeof refreshQueries === 'function') {
+                await refreshQueries();
+                queries = typeof getQueries === 'function' ? getQueries() : [];
+                query = queries.find(q => q.id == queryId);
+            }
+            return query || null;
+        }
+
+        function openQueryPrintWindow(query) {
+            if (!query) return;
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) return;
+            const safe = (text) => (text || '').toString();
+            const html = `
+                <!doctype html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Customer Query</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 24px; }
+                        h1 { font-size: 20px; margin-bottom: 16px; }
+                        .row { margin-bottom: 10px; }
+                        .label { font-weight: 700; }
+                        .message { white-space: pre-wrap; margin-top: 12px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Customer Query</h1>
+                    <div class="row"><span class="label">Name:</span> ${safe(query.name)}</div>
+                    <div class="row"><span class="label">Email:</span> ${safe(query.email)}</div>
+                    <div class="row"><span class="label">Phone:</span> ${safe(query.phone)}</div>
+                    <div class="row message"><span class="label">Message:</span><br>${safe(query.message)}</div>
+                </body>
+                </html>
+            `;
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        window.viewQueryFunc = async function(queryId) {
+            const query = await findQueryById(queryId);
+            if (!query) {
+                alert('Query not found.');
+                return;
+            }
+            openQueryModal(query);
+            if (printQueryBtn) {
+                printQueryBtn.onclick = () => openQueryPrintWindow(query);
+            }
+        };
+
+        window.deleteQueryFunc = function(queryId) {
+            if (confirm('Are you sure you want to delete this query?')) {
+                (async () => {
+                    try {
+                        if (typeof deleteQuery === 'function') {
+                            await deleteQuery(queryId);
+                        }
+                        await refreshQueries();
+                        renderQueriesTable();
+                    } catch (error) {
+                        alert('Error deleting query: ' + error.message);
+                    }
+                })();
+            }
+        };
+
+        if (closeQueryModalBtn) {
+            closeQueryModalBtn.addEventListener('click', closeQueryModal);
+        }
+        if (closeQueryBtn) {
+            closeQueryBtn.addEventListener('click', closeQueryModal);
+        }
+        if (queryModal) {
+            queryModal.addEventListener('click', (e) => {
+                if (e.target === queryModal) {
+                    closeQueryModal();
+                }
+            }, { passive: true });
+        }
+
+        let isPollingNotifications = false;
+        async function pollNotifications() {
+            if (isPollingNotifications) return;
+            isPollingNotifications = true;
+            try {
+                const refreshCalls = [];
+                if (typeof refreshOrders === 'function') {
+                    refreshCalls.push(refreshOrders());
+                }
+                if (typeof refreshQueries === 'function') {
+                    refreshCalls.push(refreshQueries());
+                }
+                await Promise.all(refreshCalls);
+
+                const orders = typeof getOrders === 'function' ? getOrders() : [];
+                const queries = typeof getQueries === 'function' ? getQueries() : [];
+
+                if (!lastSeenOrdersTs) {
+                    const latestOrderTs = getLatestOrderTs(orders);
+                    if (latestOrderTs) {
+                        lastSeenOrdersTs = latestOrderTs;
+                        localStorage.setItem('admin_last_seen_orders_ts', String(latestOrderTs));
+                        lastNotifiedOrdersTs = latestOrderTs;
+                    }
+                }
+
+                if (!lastSeenQueriesTs) {
+                    const latestQueryTs = getLatestQueryTs(queries);
+                    if (latestQueryTs) {
+                        lastSeenQueriesTs = latestQueryTs;
+                        localStorage.setItem('admin_last_seen_queries_ts', String(latestQueryTs));
+                        lastNotifiedQueriesTs = latestQueryTs;
+                    }
+                }
+
+                const newOrdersCount = orders.filter(order => {
+                    const ts = parseDateTs(order.date || order.createdAt || order.created_at);
+                    return ts > lastSeenOrdersTs;
+                }).length;
+
+                const newQueriesCount = queries.filter(query => {
+                    const ts = parseDateTs(query.createdAt || query.created_at);
+                    return ts > lastSeenQueriesTs;
+                }).length;
+
+                updateBadge(ordersBadge, newOrdersCount);
+                updateBadge(queriesBadge, newQueriesCount);
+
+                const latestOrderTs = getLatestOrderTs(orders);
+                if (newOrdersCount > 0 && latestOrderTs > lastNotifiedOrdersTs) {
+                    showAdminNotification(newOrdersCount === 1 ? 'New order received.' : `New orders received: ${newOrdersCount}.`);
+                    lastNotifiedOrdersTs = latestOrderTs;
+                }
+
+                const latestQueryTs = getLatestQueryTs(queries);
+                if (newQueriesCount > 0 && latestQueryTs > lastNotifiedQueriesTs) {
+                    showAdminNotification(newQueriesCount === 1 ? 'New query received.' : `New queries received: ${newQueriesCount}.`);
+                    lastNotifiedQueriesTs = latestQueryTs;
+                }
+            } catch (error) {
+                console.error('Error polling notifications:', error);
+            } finally {
+                isPollingNotifications = false;
+            }
         }
 
         window.updateOrderStatusFunc = async function(orderId) {
@@ -1313,6 +1580,10 @@
                 }
             }, 500);
         }
+
+        // Start notifications polling
+        pollNotifications();
+        setInterval(pollNotifications, 30000);
     }
     
     // Start initialization

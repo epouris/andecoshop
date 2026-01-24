@@ -30,8 +30,8 @@
             <div class="admin-tabs">
                 <button class="tab-btn active" data-tab="products">Products</button>
                 <button class="tab-btn" data-tab="brands">Brands</button>
-                <button class="tab-btn" data-tab="orders">Orders</button>
-                <button class="tab-btn" data-tab="queries">Queries</button>
+                <button class="tab-btn" data-tab="orders">Orders <span class="tab-badge" id="ordersBadge" style="display: none;"></span></button>
+                <button class="tab-btn" data-tab="queries">Queries <span class="tab-badge" id="queriesBadge" style="display: none;"></span></button>
                 <button class="tab-btn" data-tab="settings">Settings</button>
             </div>
 
@@ -128,6 +128,7 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Message</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="queriesTableBody">
@@ -284,6 +285,27 @@
                     <button type="submit" class="btn btn-primary">Save Product</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Query Modal -->
+    <div id="queryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Customer Query</h3>
+                <button class="modal-close" id="closeQueryModal">&times;</button>
+            </div>
+            <div class="product-form">
+                <p><strong>Name:</strong> <span id="queryName"></span></p>
+                <p><strong>Email:</strong> <span id="queryEmail"></span></p>
+                <p><strong>Phone:</strong> <span id="queryPhone"></span></p>
+                <p style="margin-top: 1rem;"><strong>Message:</strong></p>
+                <p id="queryMessage" class="query-full-message"></p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="printQueryBtn">Print</button>
+                    <button type="button" class="btn btn-primary" id="closeQueryBtn">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 

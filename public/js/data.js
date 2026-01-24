@@ -284,6 +284,18 @@ function getQueries() {
   return queriesCache;
 }
 
+async function deleteQuery(id) {
+  try {
+    const api = await import('./api.js');
+    await api.deleteQuery(id);
+    queriesCache = queriesCache.filter(q => q.id != id);
+    return true;
+  } catch (error) {
+    console.error('Error deleting query:', error);
+    throw error;
+  }
+}
+
 // Refresh cache functions (for admin use)
 async function refreshProducts() {
   try {

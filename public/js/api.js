@@ -151,6 +151,17 @@ export async function getQueries() {
   }
 }
 
+export async function deleteQuery(id) {
+  try {
+    return await apiCall(`/admin/queries/${id}`, {
+      method: 'DELETE',
+    });
+  } catch (error) {
+    console.error('Error deleting query:', error);
+    throw error;
+  }
+}
+
 export async function getOrderById(id) {
   try {
     return await apiCall(`/admin/orders/${id}`);
