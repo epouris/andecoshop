@@ -1,20 +1,19 @@
 /* Landing Page Styles */
 
 .landing-header {
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(20px);
+    background: #ffffff;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     z-index: 100;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
 }
 
 .landing-header .logo {
-    color: white;
-    -webkit-text-fill-color: white;
+    color: #000;
+    -webkit-text-fill-color: #000;
     background: none;
 }
 
@@ -23,32 +22,31 @@
 }
 
 .landing-header .nav-link {
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-secondary);
 }
 
 .landing-header .nav-link:hover,
 .landing-header .nav-link.active {
-    color: white;
+    color: var(--text-color);
 }
 
 .landing-header .nav-link::after {
-    background: white;
+    background: var(--primary-color);
 }
 
 .landing-header .dropdown-menu {
-    background: rgba(15, 23, 42, 0.98);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
 }
 
 .landing-header .dropdown-menu a {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-secondary);
 }
 
 .landing-header .dropdown-menu a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: var(--bg-light);
+    color: var(--text-color);
 }
 
 .landing-main {
@@ -925,7 +923,7 @@
     }
 
     .landing-header .logo {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
     }
 
     .landing-header .nav {
