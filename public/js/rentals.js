@@ -29,21 +29,14 @@ function initRentalForm() {
         const name = document.getElementById('rentalName')?.value.trim();
         const company = document.getElementById('rentalCompany')?.value.trim();
         const website = document.getElementById('rentalWebsite')?.value.trim();
-        const city = document.getElementById('rentalCity')?.value.trim();
-        const country = document.getElementById('rentalCountry')?.value;
+        const city = document.getElementById('rentalCity')?.value;
         const email = document.getElementById('rentalEmail')?.value.trim();
         const phone = document.getElementById('rentalPhone')?.value.trim();
         const message = document.getElementById('rentalMessage')?.value.trim();
-        const consent = document.getElementById('rentalConsent')?.checked;
         const submitBtn = form.querySelector('button[type="submit"]');
 
-        if (!name || !company || !city || !country || !email || !phone) {
+        if (!name || !company || !city || !email || !phone) {
             setStatus('Please fill in all required fields.', true);
-            return;
-        }
-
-        if (!consent) {
-            setStatus('Please agree to the privacy policy and terms and conditions.', true);
             return;
         }
 
@@ -57,7 +50,6 @@ function initRentalForm() {
             `Company: ${company}\n` +
             `Website: ${website || 'Not provided'}\n` +
             `City: ${city}\n` +
-            `Country: ${country}\n` +
             `Phone: ${phone}\n` +
             (message ? `\nMessage:\n${message}` : '');
 
@@ -84,21 +76,7 @@ function initRentalForm() {
     });
 }
 
-function initCalculateButton() {
-    const calculateBtn = document.getElementById('calculateBtn');
-    if (calculateBtn) {
-        calculateBtn.addEventListener('click', () => {
-            // Scroll to contact form
-            const contactSection = document.getElementById('contact');
-            if (contactSection) {
-                contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    }
-}
-
 // Initialize rentals page
 document.addEventListener('DOMContentLoaded', () => {
     initRentalForm();
-    initCalculateButton();
 });

@@ -48,33 +48,29 @@
             </div>
         </section>
 
-        <!-- Calculator Section -->
-        <section class="rentals-section rentals-section-alt">
-            <div class="container">
-                <div class="section-content">
-                    <h2 class="section-title">See how much you could earn with renting SipaBoards</h2>
-                    <div class="calculator-wrapper">
-                        <button class="btn btn-primary btn-large" id="calculateBtn">Calculate</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Features Section -->
         <section class="rentals-section">
             <div class="container">
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <img src="https://sipaboards.com/wp-content/uploads/2024/12/SipaBoards_Electric_SUP_SipaBoards_More_Rent_Hours-1.webp" alt="More rent hours and new possibilities" class="feature-image">
-                        <h3 class="feature-title">More rent hours and new possibilities</h3>
-                        <p class="feature-description">It is not about the board, but the experience that people get. Forget windy days, when no one wants to go out. Organise tours and offer your customers something more than just a board.</p>
-                        <p class="feature-description">The boards are great for families who want to have fun. Our partners are offering guided tours and multi-hour rents for people who want something new and fun.</p>
+                <div class="features-list">
+                    <div class="feature-row feature-row-right">
+                        <div class="feature-content">
+                            <h3 class="feature-title">More rent hours and new possibilities</h3>
+                            <p class="feature-description">It is not about the board, but the experience that people get. Forget windy days, when no one wants to go out. Organise tours and offer your customers something more than just a board.</p>
+                            <p class="feature-description">The boards are great for families who want to have fun. Our partners are offering guided tours and multi-hour rents for people who want something new and fun.</p>
+                        </div>
+                        <div class="feature-image-wrapper">
+                            <img src="https://sipaboards.com/wp-content/uploads/2024/12/SipaBoards_Electric_SUP_SipaBoards_More_Rent_Hours-1.webp" alt="More rent hours and new possibilities" class="feature-image">
+                        </div>
                     </div>
-                    <div class="feature-card">
-                        <img src="https://sipaboards.com/wp-content/uploads/2025/02/SipaBoards_Electric_SUP_GPS_and_Rental_App.webp" alt="GPS for more safety, Rental App for optimal business" class="feature-image">
-                        <h3 class="feature-title">GPS for more safety, Rental App for optimal business</h3>
-                        <p class="feature-description">Our boards are equipped with GPS trackers, so that you always know where your customers and boards are. Search and Rescue becomes cheaper, while your boards are safe from getting lost or stolen.</p>
-                        <p class="feature-description">The app shows battery status of the boards, run time, rent hours and offers a deep dive into how well you and your team are performing.</p>
+                    <div class="feature-row feature-row-left">
+                        <div class="feature-image-wrapper">
+                            <img src="https://sipaboards.com/wp-content/uploads/2025/02/SipaBoards_Electric_SUP_GPS_and_Rental_App.webp" alt="GPS for more safety, Rental App for optimal business" class="feature-image">
+                        </div>
+                        <div class="feature-content">
+                            <h3 class="feature-title">GPS for more safety, Rental App for optimal business</h3>
+                            <p class="feature-description">Our boards are equipped with GPS trackers, so that you always know where your customers and boards are. Search and Rescue becomes cheaper, while your boards are safe from getting lost or stolen.</p>
+                            <p class="feature-description">The app shows battery status of the boards, run time, rent hours and offers a deep dive into how well you and your team are performing.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -161,82 +157,17 @@
                             </div>
                             <div class="form-group">
                                 <label for="rentalCity">City *</label>
-                                <input type="text" id="rentalCity" required>
+                                <select id="rentalCity" required>
+                                    <option value="">Select a city</option>
+                                    <option value="Larnaca">Larnaca</option>
+                                    <option value="Limassol">Limassol</option>
+                                    <option value="Paphos">Paphos</option>
+                                    <option value="Famagusta">Famagusta</option>
+                                    <option value="Nicosia">Nicosia</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label for="rentalCountry">Country *</label>
-                                <select id="rentalCountry" required>
-                                    <option value="">Select a country</option>
-                                    <option value="Afghanistan">Afghanistan</option>
-                                    <option value="Albania">Albania</option>
-                                    <option value="Algeria">Algeria</option>
-                                    <option value="Argentina">Argentina</option>
-                                    <option value="Australia">Australia</option>
-                                    <option value="Austria">Austria</option>
-                                    <option value="Bahrain">Bahrain</option>
-                                    <option value="Belgium">Belgium</option>
-                                    <option value="Brazil">Brazil</option>
-                                    <option value="Bulgaria">Bulgaria</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="Chile">Chile</option>
-                                    <option value="China">China</option>
-                                    <option value="Colombia">Colombia</option>
-                                    <option value="Croatia">Croatia</option>
-                                    <option value="Cyprus">Cyprus</option>
-                                    <option value="Czech Republic">Czech Republic</option>
-                                    <option value="Denmark">Denmark</option>
-                                    <option value="Egypt">Egypt</option>
-                                    <option value="Estonia">Estonia</option>
-                                    <option value="Finland">Finland</option>
-                                    <option value="France">France</option>
-                                    <option value="Germany">Germany</option>
-                                    <option value="Greece">Greece</option>
-                                    <option value="Hong Kong">Hong Kong</option>
-                                    <option value="Hungary">Hungary</option>
-                                    <option value="Iceland">Iceland</option>
-                                    <option value="India">India</option>
-                                    <option value="Indonesia">Indonesia</option>
-                                    <option value="Ireland">Ireland</option>
-                                    <option value="Israel">Israel</option>
-                                    <option value="Italy">Italy</option>
-                                    <option value="Japan">Japan</option>
-                                    <option value="Kuwait">Kuwait</option>
-                                    <option value="Latvia">Latvia</option>
-                                    <option value="Lebanon">Lebanon</option>
-                                    <option value="Lithuania">Lithuania</option>
-                                    <option value="Luxembourg">Luxembourg</option>
-                                    <option value="Malaysia">Malaysia</option>
-                                    <option value="Malta">Malta</option>
-                                    <option value="Mexico">Mexico</option>
-                                    <option value="Monaco">Monaco</option>
-                                    <option value="Morocco">Morocco</option>
-                                    <option value="Netherlands">Netherlands</option>
-                                    <option value="New Zealand">New Zealand</option>
-                                    <option value="Norway">Norway</option>
-                                    <option value="Oman">Oman</option>
-                                    <option value="Poland">Poland</option>
-                                    <option value="Portugal">Portugal</option>
-                                    <option value="Qatar">Qatar</option>
-                                    <option value="Romania">Romania</option>
-                                    <option value="Saudi Arabia">Saudi Arabia</option>
-                                    <option value="Singapore">Singapore</option>
-                                    <option value="Slovakia">Slovakia</option>
-                                    <option value="Slovenia">Slovenia</option>
-                                    <option value="South Africa">South Africa</option>
-                                    <option value="South Korea">South Korea</option>
-                                    <option value="Spain">Spain</option>
-                                    <option value="Sweden">Sweden</option>
-                                    <option value="Switzerland">Switzerland</option>
-                                    <option value="Thailand">Thailand</option>
-                                    <option value="Turkey">Turkey</option>
-                                    <option value="United Arab Emirates">United Arab Emirates</option>
-                                    <option value="United Kingdom">United Kingdom</option>
-                                    <option value="United States">United States</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
                             <div class="form-group">
                                 <label for="rentalEmail">Email Address *</label>
                                 <input type="email" id="rentalEmail" required>
@@ -252,12 +183,6 @@
                             <label for="rentalMessage">Message</label>
                             <textarea id="rentalMessage" rows="5" maxlength="180" placeholder="Tell us about your rental business..."></textarea>
                             <div class="char-count"><span id="charCount">0</span> / 180</div>
-                        </div>
-                        <div class="form-group checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="rentalConsent" required>
-                                <span>Yes, I agree with the privacy policy and terms and conditions. *</span>
-                            </label>
                         </div>
                         <button type="submit" class="btn btn-primary btn-large">Send Message</button>
                         <p class="contact-status" id="rentalStatus" aria-live="polite"></p>
