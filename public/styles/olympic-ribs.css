@@ -4,14 +4,43 @@
     padding: 0;
 }
 
+/* Brand Logo in Header */
+.brand-logo-header {
+    margin-left: auto;
+    margin-right: 2rem;
+    display: flex;
+    align-items: center;
+}
+
+.brand-logo-header-img {
+    max-height: 50px;
+    max-width: 200px;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+}
+
 /* Hero Section */
 .olympic-hero {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    background: #000000;
     color: white;
     padding: 10rem 0 8rem;
     text-align: center;
     position: relative;
     overflow: hidden;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+}
+
+.hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
 }
 
 .olympic-hero::before {
@@ -21,8 +50,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-    opacity: 0.5;
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1;
 }
 
@@ -52,7 +80,7 @@
 /* Stats Section */
 .olympic-stats {
     padding: 6rem 0;
-    background: var(--bg-color);
+    background: #ffffff;
 }
 
 .stats-grid {
@@ -66,9 +94,9 @@
 .stat-card {
     text-align: center;
     padding: 2.5rem 2rem;
-    background: var(--bg-light);
+    background: #ffffff;
     border-radius: 16px;
-    border: 1px solid var(--border-light);
+    border: 2px solid #000000;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -80,7 +108,7 @@
 .stat-number {
     font-size: 3.5rem;
     font-weight: 800;
-    color: #1e40af;
+    color: #000000;
     line-height: 1;
     margin-bottom: 0.5rem;
 }
@@ -102,7 +130,7 @@
 /* Models Section */
 .olympic-models {
     padding: 6rem 0;
-    background: var(--bg-light);
+    background: #ffffff;
 }
 
 .section-header {
@@ -126,6 +154,24 @@
     margin: 0 auto;
 }
 
+.model-line-section {
+    margin-bottom: 5rem;
+}
+
+.model-line-section:last-child {
+    margin-bottom: 0;
+}
+
+.line-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #000000;
+    text-align: center;
+    margin-bottom: 3rem;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
 .models-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -135,14 +181,14 @@
 }
 
 .model-card {
-    background: var(--bg-color);
+    background: #ffffff;
     border-radius: 16px;
     overflow: hidden;
     text-decoration: none;
     color: inherit;
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--border-light);
+    border: 2px solid #000000;
     box-shadow: var(--shadow-sm);
     transition: all 0.3s ease;
 }
@@ -150,13 +196,13 @@
 .model-card:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
-    border-color: #1e40af;
+    border-color: #000000;
 }
 
 .model-image-wrapper {
     width: 100%;
     height: 280px;
-    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    background: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -206,7 +252,7 @@
 /* About Section */
 .olympic-about {
     padding: 6rem 0;
-    background: var(--bg-color);
+    background: #f5f5f5;
 }
 
 .about-content {
@@ -218,7 +264,7 @@
 /* Why Choose Section */
 .olympic-why {
     padding: 6rem 0;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: #ffffff;
 }
 
 .why-content {
@@ -238,7 +284,7 @@
 /* Contact Section */
 .olympic-contact {
     padding: 6rem 0;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    background: #000000;
     color: white;
     text-align: center;
 }
@@ -255,7 +301,7 @@
 
 /* Model Page Styles */
 .model-hero {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    background: #000000;
     color: white;
     padding: 8rem 0 6rem;
     text-align: center;
@@ -300,7 +346,7 @@
 
 .model-specs {
     padding: 5rem 0;
-    background: var(--bg-color);
+    background: #ffffff;
 }
 
 .specs-grid {
@@ -313,9 +359,9 @@
 
 .spec-card {
     padding: 2rem;
-    background: var(--bg-light);
+    background: #ffffff;
     border-radius: 12px;
-    border: 1px solid var(--border-light);
+    border: 2px solid #000000;
     text-align: center;
 }
 
@@ -331,12 +377,12 @@
 .spec-value {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #1e40af;
+    color: #000000;
 }
 
 .model-features {
     padding: 5rem 0;
-    background: var(--bg-light);
+    background: #f5f5f5;
 }
 
 .features-list {
@@ -346,7 +392,7 @@
 
 .feature-item {
     padding: 1.5rem 0;
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid #000000;
 }
 
 .feature-item:last-child {
@@ -369,7 +415,7 @@
 
 .model-gallery {
     padding: 5rem 0;
-    background: var(--bg-color);
+    background: #ffffff;
 }
 
 .gallery-grid {
@@ -382,16 +428,16 @@
 
 .gallery-item {
     aspect-ratio: 16 / 9;
-    background: var(--bg-light);
+    background: #ffffff;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--border-light);
+    border: 2px solid #000000;
 }
 
 .gallery-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    background: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -422,6 +468,10 @@
     .section-title {
         font-size: 2.5rem;
     }
+
+    .line-title {
+        font-size: 1.75rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -449,11 +499,29 @@
         font-size: 2rem;
     }
 
+    .line-title {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .model-line-section {
+        margin-bottom: 4rem;
+    }
+
     .stat-number {
         font-size: 2.5rem;
     }
 
     .models-grid {
         grid-template-columns: 1fr;
+    }
+
+    .brand-logo-header {
+        margin-right: 1rem;
+    }
+
+    .brand-logo-header-img {
+        max-height: 40px;
+        max-width: 150px;
     }
 }

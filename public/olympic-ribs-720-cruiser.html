@@ -17,6 +17,9 @@
                 <a href="index.html" class="logo">
                     <span class="logo-text">AndecoMarine.shop</span>
                 </a>
+                <div class="brand-logo-header" id="brandLogoHeader" style="display: none;">
+                    <img id="brandLogoImg" src="" alt="Olympic Ribs Logo" class="brand-logo-header-img">
+                </div>
                 <nav class="nav">
                     <a href="index.html" class="nav-link">Home</a>
                 </nav>
@@ -122,9 +125,36 @@
         </div>
     </footer>
 
+    <script src="js/data.js"></script>
+    <script src="js/image-proxy.js"></script>
     <script src="js/nav.js"></script>
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        // Load brand logo
+        document.addEventListener('DOMContentLoaded', async () => {
+            await new Promise((resolve) => {
+                if (window.cacheInitialized && typeof getBrandByName !== 'undefined') {
+                    resolve();
+                } else {
+                    window.addEventListener('dataLoaded', resolve, { once: true });
+                    setTimeout(resolve, 2000);
+                }
+            });
+            
+            const brand = getBrandByName('Olympic Ribs');
+            const brandLogoHeader = document.getElementById('brandLogoHeader');
+            const brandLogoImg = document.getElementById('brandLogoImg');
+            
+            if (brand && brand.logo) {
+                brandLogoImg.src = getProxiedImageUrl(brand.logo);
+                brandLogoImg.alt = 'Olympic Ribs Logo';
+                brandLogoHeader.style.display = 'block';
+                brandLogoImg.onerror = function() {
+                    brandLogoHeader.style.display = 'none';
+                };
+            }
+        });
     </script>
 </body>
 </html>

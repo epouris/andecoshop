@@ -17,6 +17,9 @@
                 <a href="index.html" class="logo">
                     <span class="logo-text">AndecoMarine.shop</span>
                 </a>
+                <div class="brand-logo-header" id="brandLogoHeader" style="display: none;">
+                    <img id="brandLogoImg" src="" alt="Olympic Ribs Logo" class="brand-logo-header-img">
+                </div>
                 <nav class="nav">
                     <a href="index.html" class="nav-link">Home</a>
                     <!-- Brand links will be dynamically added by nav.js -->
@@ -28,6 +31,9 @@
     <main class="olympic-main">
         <!-- Hero Section -->
         <section class="olympic-hero">
+            <video class="hero-video" autoplay loop muted playsinline>
+                <source src="https://cdn.prod.website-files.com/66fea88084a63f96ada457cc%2F692f212470d6002f37f09d4e_OLR%20Website%20Video%20%282%29_mp4.mp4" type="video/mp4">
+            </video>
             <div class="container">
                 <div class="hero-content">
                     <h1 class="hero-title">Celebrating Heydays</h1>
@@ -66,70 +72,91 @@
                 <div class="section-header">
                     <h2 class="section-title">Our Range</h2>
                 </div>
-                <div class="models-grid">
-                    <a href="olympic-ribs-430-captain-hook.html" class="model-card">
-                        <div class="model-image-wrapper">
-                            <div class="model-placeholder">430 Captain Hook</div>
-                        </div>
-                        <div class="model-content">
-                            <h3 class="model-name">430 Captain Hook</h3>
-                            <p class="model-description">A versatile and powerful RIB designed for adventure and performance.</p>
-                        </div>
-                    </a>
-                    <a href="olympic-ribs-499-star.html" class="model-card">
-                        <div class="model-image-wrapper">
-                            <div class="model-placeholder">499 Star</div>
-                        </div>
-                        <div class="model-content">
-                            <h3 class="model-name">499 Star</h3>
-                            <p class="model-description">Premium design meets exceptional performance in this stunning model.</p>
-                        </div>
-                    </a>
-                    <a href="olympic-ribs-585-speedster.html" class="model-card">
-                        <div class="model-image-wrapper">
-                            <div class="model-placeholder">585 Speedster</div>
-                        </div>
-                        <div class="model-content">
-                            <h3 class="model-name">585 Speedster</h3>
-                            <p class="model-description">Speed and agility combined with luxury and comfort.</p>
-                        </div>
-                    </a>
-                    <a href="olympic-ribs-720-cruiser.html" class="model-card">
-                        <div class="model-image-wrapper">
-                            <div class="model-placeholder">720 Cruiser</div>
-                        </div>
-                        <div class="model-content">
-                            <h3 class="model-name">720 Cruiser</h3>
-                            <p class="model-description">The ultimate cruising experience with spacious design and premium features.</p>
-                        </div>
-                    </a>
-                    <a href="olympic-ribs-30sr.html" class="model-card">
-                        <div class="model-image-wrapper">
-                            <div class="model-placeholder">30SR</div>
-                        </div>
-                        <div class="model-content">
-                            <h3 class="model-name">30 SR</h3>
-                            <p class="model-description">The OLR 30SR, a vessel of exceptional versatility in maritime engineering, offers big boat spec, in 30ft (9.45m) package.</p>
-                        </div>
-                    </a>
-                    <a href="olympic-ribs-40sr.html" class="model-card">
-                        <div class="model-image-wrapper">
-                            <div class="model-placeholder">40SR</div>
-                        </div>
-                        <div class="model-content">
-                            <h3 class="model-name">40 SR</h3>
-                            <p class="model-description">The OLR 40SR stands as a beacon of luxury in the world of yachting, its sleek design and polished finish exuding high-end sophistication. The ultimate 40ft (12m) leisure or chase boat powerhouse.</p>
-                        </div>
-                    </a>
-                    <a href="olympic-ribs-45src.html" class="model-card">
-                        <div class="model-image-wrapper">
-                            <div class="model-placeholder">45SRC</div>
-                        </div>
-                        <div class="model-content">
-                            <h3 class="model-name">45 SRC</h3>
-                            <p class="model-description">The OLR 45 SRC introduces a cabin under the console that extends further under the bow lounge, maximizing the habitable space. Capable of handling up to 3300HP, this goliath is ready for any adventure.</p>
-                        </div>
-                    </a>
+                
+                <!-- Heritage Line -->
+                <div class="model-line-section">
+                    <h3 class="line-title">Heritage Line</h3>
+                    <div class="models-grid">
+                        <a href="olympic-ribs-430-captain-hook.html" class="model-card">
+                            <div class="model-image-wrapper">
+                                <div class="model-placeholder">430 Captain Hook</div>
+                            </div>
+                            <div class="model-content">
+                                <h3 class="model-name">430 Captain Hook</h3>
+                                <p class="model-description">A versatile and powerful RIB designed for adventure and performance.</p>
+                            </div>
+                        </a>
+                        <a href="olympic-ribs-499-star.html" class="model-card">
+                            <div class="model-image-wrapper">
+                                <div class="model-placeholder">499 Star</div>
+                            </div>
+                            <div class="model-content">
+                                <h3 class="model-name">499 Star</h3>
+                                <p class="model-description">Premium design meets exceptional performance in this stunning model.</p>
+                            </div>
+                        </a>
+                        <a href="olympic-ribs-585-speedster.html" class="model-card">
+                            <div class="model-image-wrapper">
+                                <div class="model-placeholder">585 Speedster</div>
+                            </div>
+                            <div class="model-content">
+                                <h3 class="model-name">585 Speedster</h3>
+                                <p class="model-description">Speed and agility combined with luxury and comfort.</p>
+                            </div>
+                        </a>
+                        <a href="olympic-ribs-720-cruiser.html" class="model-card">
+                            <div class="model-image-wrapper">
+                                <div class="model-placeholder">720 Cruiser</div>
+                            </div>
+                            <div class="model-content">
+                                <h3 class="model-name">720 Cruiser</h3>
+                                <p class="model-description">The ultimate cruising experience with spacious design and premium features.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- SR Line -->
+                <div class="model-line-section">
+                    <h3 class="line-title">SR Line</h3>
+                    <div class="models-grid">
+                        <a href="olympic-ribs-30sr.html" class="model-card">
+                            <div class="model-image-wrapper">
+                                <div class="model-placeholder">30SR</div>
+                            </div>
+                            <div class="model-content">
+                                <h3 class="model-name">30 SR</h3>
+                                <p class="model-description">The OLR 30SR, a vessel of exceptional versatility in maritime engineering, offers big boat spec, in 30ft (9.45m) package.</p>
+                            </div>
+                        </a>
+                        <a href="olympic-ribs-40sr.html" class="model-card">
+                            <div class="model-image-wrapper">
+                                <div class="model-placeholder">40SR</div>
+                            </div>
+                            <div class="model-content">
+                                <h3 class="model-name">40 SR</h3>
+                                <p class="model-description">The OLR 40SR stands as a beacon of luxury in the world of yachting, its sleek design and polished finish exuding high-end sophistication. The ultimate 40ft (12m) leisure or chase boat powerhouse.</p>
+                            </div>
+                        </a>
+                        <a href="olympic-ribs-40src.html" class="model-card">
+                            <div class="model-image-wrapper">
+                                <div class="model-placeholder">40SRC</div>
+                            </div>
+                            <div class="model-content">
+                                <h3 class="model-name">40 SRC</h3>
+                                <p class="model-description">The OLR 40SRC combines luxury design with exceptional performance, featuring advanced cabin configurations and powerful engine options.</p>
+                            </div>
+                        </a>
+                        <a href="olympic-ribs-45src.html" class="model-card">
+                            <div class="model-image-wrapper">
+                                <div class="model-placeholder">45SRC</div>
+                            </div>
+                            <div class="model-content">
+                                <h3 class="model-name">45 SRC</h3>
+                                <p class="model-description">The OLR 45 SRC introduces a cabin under the console that extends further under the bow lounge, maximizing the habitable space. Capable of handling up to 3300HP, this goliath is ready for any adventure.</p>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -174,10 +201,37 @@
         </div>
     </footer>
 
+    <script src="js/data.js"></script>
+    <script src="js/image-proxy.js"></script>
     <script src="js/nav.js"></script>
     <script>
         // Set current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        // Load brand logo
+        document.addEventListener('DOMContentLoaded', async () => {
+            await new Promise((resolve) => {
+                if (window.cacheInitialized && typeof getBrandByName !== 'undefined') {
+                    resolve();
+                } else {
+                    window.addEventListener('dataLoaded', resolve, { once: true });
+                    setTimeout(resolve, 2000);
+                }
+            });
+            
+            const brand = getBrandByName('Olympic Ribs');
+            const brandLogoHeader = document.getElementById('brandLogoHeader');
+            const brandLogoImg = document.getElementById('brandLogoImg');
+            
+            if (brand && brand.logo) {
+                brandLogoImg.src = getProxiedImageUrl(brand.logo);
+                brandLogoImg.alt = 'Olympic Ribs Logo';
+                brandLogoHeader.style.display = 'block';
+                brandLogoImg.onerror = function() {
+                    brandLogoHeader.style.display = 'none';
+                };
+            }
+        });
     </script>
 </body>
 </html>
