@@ -343,15 +343,11 @@
     overflow: hidden;
 }
 
-.model-image-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="waves" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 0 30 Q 15 20, 30 30 T 60 30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></pattern></defs><rect width="60" height="60" fill="url(%23waves)"/></svg>');
-    opacity: 0.5;
+.model-carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
 }
 
 .model-placeholder {
@@ -477,6 +473,27 @@
     margin: 0 auto;
 }
 
+/* Side View Section */
+.model-side-view {
+    padding: 4rem 0;
+    background: #ffffff;
+}
+
+.side-view-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.side-view-image {
+    width: 100%;
+    max-width: 1000px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
 .model-specs {
     padding: 5rem 0;
     background: #ffffff;
@@ -544,6 +561,29 @@
     line-height: 1.7;
     color: var(--text-secondary);
     margin: 0;
+}
+
+/* Layout Section */
+.model-layout {
+    padding: 5rem 0;
+    background: #f5f5f5;
+}
+
+.layout-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.layout-image {
+    width: 100%;
+    max-width: 1200px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .model-gallery {
@@ -695,6 +735,14 @@
     .brand-logo-header-img {
         max-height: 40px;
         max-width: 150px;
+    }
+
+    .side-view-image {
+        max-width: 100%;
+    }
+
+    .layout-image {
+        max-width: 100%;
     }
 
     .carousel-wrapper {
