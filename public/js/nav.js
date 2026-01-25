@@ -93,16 +93,25 @@ function renderBrandsMenu() {
     // Add brand links after Rentals link
     brands.forEach(brand => {
         const brandLink = document.createElement('a');
-        brandLink.href = `brand.html?brand=${encodeURIComponent(brand.name)}`;
-        brandLink.className = 'nav-link';
         
-        // Set active state if current page matches this brand
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentBrand = urlParams.get('brand');
-        if (currentBrand === brand.name) {
-            brandLink.classList.add('active');
+        // Special handling for Olympic Ribs - link to dedicated page
+        if (brand.name === 'Olympic Ribs') {
+            brandLink.href = 'olympic-ribs.html';
+            // Set active state if on Olympic Ribs pages
+            if (window.location.pathname.includes('olympic-ribs')) {
+                brandLink.classList.add('active');
+            }
+        } else {
+            brandLink.href = `brand.html?brand=${encodeURIComponent(brand.name)}`;
+            // Set active state if current page matches this brand
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentBrand = urlParams.get('brand');
+            if (currentBrand === brand.name) {
+                brandLink.classList.add('active');
+            }
         }
         
+        brandLink.className = 'nav-link';
         brandLink.textContent = brand.name;
         nav.appendChild(brandLink);
     });
