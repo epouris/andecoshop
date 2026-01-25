@@ -465,6 +465,16 @@
     .rental-form .form-row {
         grid-template-columns: 1fr;
         gap: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .rental-form .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .rental-form > .form-group {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
     }
 }
 
@@ -523,5 +533,58 @@
 
     .testimonial-card {
         padding: 1.5rem;
+    }
+    
+    .rental-form .form-row {
+        margin-bottom: 1rem;
+    }
+    
+    .rental-form .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .rental-form input,
+    .rental-form select,
+    .rental-form textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+@media (max-width: 480px) {
+    .rentals-hero .hero-title {
+        font-size: 1.75rem;
+        line-height: 1.2;
+    }
+
+    .rentals-hero .hero-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .feature-card {
+        padding: 1.25rem;
+    }
+
+    .feature-title {
+        font-size: 1.25rem;
+    }
+
+    .contact-form-wrapper {
+        padding: 1.5rem 1rem;
+    }
+
+    .rental-form input,
+    .rental-form select,
+    .rental-form textarea {
+        padding: 0.75rem 0.875rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
     }
 }

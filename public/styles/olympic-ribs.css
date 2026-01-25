@@ -729,20 +729,32 @@
     }
 
     .brand-logo-header {
-        margin-right: 1rem;
+        margin-right: 0;
+        margin-left: 0;
+        margin-bottom: 0.5rem;
+        order: -1;
+        width: 100%;
+        justify-content: center;
     }
 
     .brand-logo-header-img {
-        max-height: 40px;
-        max-width: 150px;
+        max-height: 35px;
+        max-width: 120px;
     }
 
     .side-view-image {
         max-width: 100%;
+        padding: 0 1rem;
     }
 
     .layout-image {
         max-width: 100%;
+        padding: 0 1rem;
+    }
+    
+    .model-side-view,
+    .model-layout {
+        padding: 2.5rem 0;
     }
 
     .carousel-wrapper {
@@ -793,23 +805,111 @@
 }
 
 @media (max-width: 480px) {
+    .olympic-hero {
+        padding: 4rem 0 3rem;
+    }
+
+    .olympic-hero .hero-title {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+
+    .olympic-hero .hero-subtitle {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .line-title {
+        font-size: 1.25rem;
+    }
+
+    .brand-logo-header {
+        margin-bottom: 0.75rem;
+    }
+
+    .brand-logo-header-img {
+        max-height: 30px;
+        max-width: 100px;
+    }
+
+    .side-view-image {
+        padding: 0 0.5rem;
+    }
+
+    .layout-image {
+        padding: 0 0.5rem;
+    }
+
+    .model-side-view,
+    .model-layout {
+        padding: 2rem 0;
+    }
+
     .carousel-wrapper {
-        padding: 2rem 1.5rem;
+        padding: 1.5rem 1rem;
         perspective: 800px;
     }
 
     .carousel-container {
-        height: 340px;
+        height: 300px;
     }
 
     .carousel-track .model-card {
-        width: 280px;
-        margin-left: -140px;
+        width: 260px;
+        margin-left: -130px;
     }
 
     .carousel-track .model-card.prev-2,
     .carousel-track .model-card.next-2 {
         opacity: 0;
         filter: blur(3px);
+    }
+
+    .carousel-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .carousel-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .model-card .model-name {
+        font-size: 1.1rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .model-card .model-description {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .model-card {
+        overflow: hidden;
+    }
+    
+    .specs-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .spec-card {
+        padding: 1rem;
+    }
+    
+    .spec-label {
+        font-size: 0.85rem;
+    }
+    
+    .spec-value {
+        font-size: 1.25rem;
     }
 }
