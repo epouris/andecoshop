@@ -261,90 +261,80 @@
             }
         });
 
-        // Carousel functionality
+        // 3D Circular Carousel functionality
         document.addEventListener('DOMContentLoaded', () => {
             const carouselWrappers = document.querySelectorAll('.carousel-wrapper');
             
             carouselWrappers.forEach(wrapper => {
-                const container = wrapper.querySelector('.carousel-container');
                 const track = wrapper.querySelector('.carousel-track');
                 const prevBtn = wrapper.querySelector('.carousel-btn-prev');
                 const nextBtn = wrapper.querySelector('.carousel-btn-next');
-                const cards = track.querySelectorAll('.model-card');
+                const cards = Array.from(track.querySelectorAll('.model-card'));
                 
                 if (!track || !prevBtn || !nextBtn || cards.length === 0) return;
                 
                 let currentIndex = 0;
-                const gap = 40; // 2.5rem = 40px
+                const totalCards = cards.length;
                 
-                function getCardWidth() {
-                    return cards[0] ? cards[0].offsetWidth : 0;
-                }
-                
-                function getVisibleCards() {
-                    const containerWidth = container.offsetWidth;
-                    const cardWidth = getCardWidth();
-                    if (cardWidth === 0) return cards.length;
-                    return Math.floor(containerWidth / (cardWidth + gap));
-                }
-                
-                function getMaxIndex() {
-                    const visible = getVisibleCards();
-                    return Math.max(0, cards.length - visible);
-                }
-                
-                function updateButtons() {
-                    const maxIdx = getMaxIndex();
-                    const canGoPrev = currentIndex > 0;
-                    const canGoNext = currentIndex < maxIdx;
+                function updateCarousel() {
+                    cards.forEach((card, index) => {
+                        // Remove all position classes
+                        card.classList.remove('active', 'prev-1', 'prev-2', 'next-1', 'next-2');
+                        
+                        // Calculate relative position
+                        let relativePos = index - currentIndex;
+                        
+                        // Handle circular wrapping
+                        if (relativePos < -totalCards / 2) {
+                            relativePos += totalCards;
+                        } else if (relativePos > totalCards / 2) {
+                            relativePos -= totalCards;
+                        }
+                        
+                        // Apply classes based on position
+                        if (relativePos === 0) {
+                            card.classList.add('active');
+                        } else if (relativePos === -1) {
+                            card.classList.add('prev-1');
+                        } else if (relativePos === -2) {
+                            card.classList.add('prev-2');
+                        } else if (relativePos === 1) {
+                            card.classList.add('next-1');
+                        } else if (relativePos === 2) {
+                            card.classList.add('next-2');
+                        } else {
+                            // Cards further away - hide them
+                            card.style.opacity = '0';
+                            card.style.pointerEvents = 'none';
+                        }
+                    });
                     
-                    prevBtn.disabled = !canGoPrev;
-                    nextBtn.disabled = !canGoNext;
-                    
-                    prevBtn.style.opacity = canGoPrev ? '1' : '0.5';
-                    prevBtn.style.cursor = canGoPrev ? 'pointer' : 'not-allowed';
-                    
-                    nextBtn.style.opacity = canGoNext ? '1' : '0.5';
-                    nextBtn.style.cursor = canGoNext ? 'pointer' : 'not-allowed';
-                }
-                
-                function scrollCarousel() {
-                    const cardWidth = getCardWidth();
-                    const scrollAmount = currentIndex * (cardWidth + gap);
-                    track.style.transform = `translateX(-${scrollAmount}px)`;
                     updateButtons();
                 }
                 
+                function updateButtons() {
+                    // For circular carousel, buttons are always enabled
+                    // But we can disable if you want non-circular behavior
+                    prevBtn.disabled = false;
+                    nextBtn.disabled = false;
+                    prevBtn.style.opacity = '1';
+                    nextBtn.style.opacity = '1';
+                    prevBtn.style.cursor = 'pointer';
+                    nextBtn.style.cursor = 'pointer';
+                }
+                
                 prevBtn.addEventListener('click', () => {
-                    if (currentIndex > 0) {
-                        currentIndex--;
-                        scrollCarousel();
-                    }
+                    currentIndex = (currentIndex - 1 + totalCards) % totalCards;
+                    updateCarousel();
                 });
                 
                 nextBtn.addEventListener('click', () => {
-                    const maxIdx = getMaxIndex();
-                    if (currentIndex < maxIdx) {
-                        currentIndex++;
-                        scrollCarousel();
-                    }
-                });
-                
-                // Handle window resize
-                let resizeTimer;
-                window.addEventListener('resize', () => {
-                    clearTimeout(resizeTimer);
-                    resizeTimer = setTimeout(() => {
-                        const maxIdx = getMaxIndex();
-                        if (currentIndex > maxIdx) {
-                            currentIndex = maxIdx;
-                        }
-                        scrollCarousel();
-                    }, 250);
+                    currentIndex = (currentIndex + 1) % totalCards;
+                    updateCarousel();
                 });
                 
                 // Initial setup
-                updateButtons();
+                updateCarousel();
             });
         });
     </script>
