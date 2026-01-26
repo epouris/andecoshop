@@ -286,13 +286,22 @@
                 </div>
                 <div class="gallery-grid">
                     <div class="gallery-item">
-                        <div class="gallery-placeholder">30SR Image 1</div>
+                        <img src="olympic ribs models/olr30sr (1).jpg" alt="30SR Gallery Image 1" class="gallery-image">
                     </div>
                     <div class="gallery-item">
-                        <div class="gallery-placeholder">30SR Image 2</div>
+                        <img src="olympic ribs models/olr30sr (2).jpg" alt="30SR Gallery Image 2" class="gallery-image">
                     </div>
                     <div class="gallery-item">
-                        <div class="gallery-placeholder">30SR Image 3</div>
+                        <img src="olympic ribs models/olr30sr (3).jpg" alt="30SR Gallery Image 3" class="gallery-image">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="olympic ribs models/olr30sr (4).jpg" alt="30SR Gallery Image 4" class="gallery-image">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="olympic ribs models/olr30sr (5).jpg" alt="30SR Gallery Image 5" class="gallery-image">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="olympic ribs models/olr30sr (6).jpg" alt="30SR Gallery Image 6" class="gallery-image">
                     </div>
                 </div>
             </div>
@@ -321,7 +330,7 @@
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
         
-        // Load brand logo
+        // Load brand logo and gallery images
         document.addEventListener('DOMContentLoaded', async () => {
             await new Promise((resolve) => {
                 if (window.cacheInitialized && typeof getBrandByName !== 'undefined') {
@@ -344,6 +353,9 @@
                     brandLogoHeader.style.display = 'none';
                 };
             }
+            
+            // Load gallery images dynamically
+            // Gallery images are already in HTML for 30SR, but this can be extended for other models
         });
     </script>
 </body>
