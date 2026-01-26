@@ -951,12 +951,11 @@
 
         const specSections = [
             { name: 'General', fields: ['Shipyard', 'Type', 'Subtype', 'Model range', 'Model', 'Country', 'Build type', 'Status', 'Premiere'] },
-            { name: 'Design & classification', fields: ['Concept', 'Architecture', 'Exterior', 'Classification'] },
+            { name: 'Design & classification', fields: ['Concept', 'Classification'] },
             { name: 'Dimensions', fields: ['Length (LOA), m', 'Beam (max), m', 'Draft, m', 'Dry weight, t'] },
             { name: 'Hull & superstructure', fields: ['Hull type', 'Hull material', 'Deadrise (transom)', 'Decks'] },
             { name: 'Accommodation', fields: ['Passengers', 'Heads'] },
-            { name: 'Engines, Performance, Capacity', fields: ['Engine type', 'Engines', 'Fuel type', 'Drive type', 'Power, h.p.', 'Speed (max), kn', 'Fuel capacity, l', 'Water capacity, l'] },
-            { name: 'Features', fields: ['Outdoor areas', 'Beach club', 'Hydraulic platform', 'Stabilizers'] }
+            { name: 'Engines, Performance, Capacity', fields: ['Engine type', 'Engines', 'Fuel type', 'Drive type', 'Max Power (H.P.)', 'Speed (max), kn', 'Fuel capacity, l', 'Water capacity, l'] }
         ];
 
         function buildSpecsEditor(specs = {}) {

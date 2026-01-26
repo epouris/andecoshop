@@ -21,12 +21,11 @@ function renderSpecificationsTable(specs, container) {
     
     const specSections = [
         { name: 'General', fields: ['Shipyard', 'Type', 'Subtype', 'Model range', 'Model', 'Country', 'Build type', 'Status', 'Premiere'] },
-        { name: 'Design & classification', fields: ['Concept', 'Architecture', 'Exterior', 'Classification'] },
+        { name: 'Design & classification', fields: ['Concept', 'Classification'] },
         { name: 'Dimensions', fields: ['Length (LOA), m', 'Beam (max), m', 'Draft, m', 'Dry weight, t'] },
         { name: 'Hull & superstructure', fields: ['Hull type', 'Hull material', 'Deadrise (transom)', 'Decks'] },
         { name: 'Accommodation', fields: ['Passengers', 'Heads'] },
-        { name: 'Engines, Performance, Capacity', fields: ['Engine type', 'Engines', 'Fuel type', 'Drive type', 'Power, h.p.', 'Speed (max), kn', 'Fuel capacity, l', 'Water capacity, l'] },
-        { name: 'Features', fields: ['Outdoor areas', 'Beach club', 'Hydraulic platform', 'Stabilizers'] }
+        { name: 'Engines, Performance, Capacity', fields: ['Engine type', 'Engines', 'Fuel type', 'Drive type', 'Max Power (H.P.)', 'Speed (max), kn', 'Fuel capacity, l', 'Water capacity, l'] }
     ];
     
     let tableHTML = '<table class="specs-table-detailed"><tbody>';
@@ -51,6 +50,55 @@ function renderSpecificationsTable(specs, container) {
     container.innerHTML = tableHTML;
 }
 
+function updateSpecBoxes(specs) {
+    if (!specs) return;
+    
+    // Find the specs-grid container
+    const specsGrid = document.querySelector('.specs-grid');
+    if (!specsGrid) return;
+    
+    // Map database fields to spec boxes
+    const lengthValue = specs['Length (LOA), m'] || '';
+    const beamValue = specs['Beam (max), m'] || '';
+    const powerValue = specs['Max Power (H.P.)'] || specs['Power, h.p.'] || ''; // Support old field name for backward compatibility
+    const capacityValue = specs['Passengers'] || '';
+    
+    // Update each spec card
+    const specCards = specsGrid.querySelectorAll('.spec-card');
+    specCards.forEach((card, index) => {
+        const valueElement = card.querySelector('.spec-value');
+        if (valueElement) {
+            switch(index) {
+                case 0: // Length
+                    if (lengthValue) {
+                        valueElement.textContent = lengthValue + (lengthValue.includes('m') ? '' : 'm');
+                    }
+                    break;
+                case 1: // Beam
+                    if (beamValue) {
+                        valueElement.textContent = beamValue + (beamValue.includes('m') ? '' : 'm');
+                    }
+                    break;
+                case 2: // Max Power
+                    if (powerValue) {
+                        // Format power value - add HP if not present
+                        let formattedPower = powerValue.toString();
+                        if (!formattedPower.toUpperCase().includes('HP') && !formattedPower.toUpperCase().includes('H.P')) {
+                            formattedPower = formattedPower + ' HP';
+                        }
+                        valueElement.textContent = formattedPower;
+                    }
+                    break;
+                case 3: // Capacity
+                    if (capacityValue) {
+                        valueElement.textContent = capacityValue;
+                    }
+                    break;
+            }
+        }
+    });
+}
+
 async function initModelSpecifications(modelName) {
     const container = document.querySelector('.detailed-specs-table');
     if (!container) return;
@@ -59,6 +107,8 @@ async function initModelSpecifications(modelName) {
     if (specs) {
         // Replace any existing table with dynamic data
         renderSpecificationsTable(specs, container);
+        // Update the 4 spec boxes at the top
+        updateSpecBoxes(specs);
     } else {
         // If no database data, keep existing hardcoded table if it exists
         // Otherwise hide the container

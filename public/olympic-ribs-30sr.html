@@ -121,14 +121,6 @@
                                 <td class="spec-value-cell">Olympic Ribs</td>
                             </tr>
                             <tr>
-                                <td class="spec-label-cell">Architecture</td>
-                                <td class="spec-value-cell">Olympic Ribs</td>
-                            </tr>
-                            <tr>
-                                <td class="spec-label-cell">Exterior</td>
-                                <td class="spec-value-cell">Olympic Ribs</td>
-                            </tr>
-                            <tr>
                                 <td class="spec-label-cell">Classification</td>
                                 <td class="spec-value-cell">CE B</td>
                             </tr>
@@ -201,7 +193,7 @@
                                 <td class="spec-value-cell">Outboard</td>
                             </tr>
                             <tr>
-                                <td class="spec-label-cell">Power, h.p.</td>
+                                <td class="spec-label-cell">Max Power (H.P.)</td>
                                 <td class="spec-value-cell">2 x 250, 2 x 300, 2 x 400 (total 500-800)</td>
                             </tr>
                             <tr>
@@ -216,32 +208,8 @@
                                 <td class="spec-label-cell">Water capacity, l</td>
                                 <td class="spec-value-cell">150</td>
                             </tr>
-                            <tr class="spec-section-header">
-                                <td colspan="2">Features</td>
-                            </tr>
-                            <tr>
-                                <td class="spec-label-cell">Outdoor areas</td>
-                                <td class="spec-value-cell">2</td>
-                            </tr>
-                            <tr>
-                                <td class="spec-label-cell">Beach club</td>
-                                <td class="spec-value-cell">No</td>
-                            </tr>
-                            <tr>
-                                <td class="spec-label-cell">Hydraulic platform</td>
-                                <td class="spec-value-cell">No</td>
-                            </tr>
-                            <tr>
-                                <td class="spec-label-cell">Stabilizers</td>
-                                <td class="spec-value-cell">No</td>
-                            </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Detailed Specifications Table -->
-                <div class="detailed-specs-table">
-                    <!-- Specifications will be loaded dynamically -->
                 </div>
             </div>
         </section>
@@ -365,6 +333,9 @@
             
             // Load gallery images dynamically
             // Gallery images are already in HTML for 30SR, but this can be extended for other models
+            
+            // Load model specifications
+            initModelSpecifications('30SR');
         });
     </script>
 </body>
