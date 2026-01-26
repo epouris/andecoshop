@@ -993,7 +993,7 @@
             try {
                 const response = await fetch('/api/admin/model-specifications', {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
                     }
                 });
                 
@@ -1098,7 +1098,7 @@
                         method: method,
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
                         },
                         body: JSON.stringify({ modelName, specifications })
                     });
