@@ -722,6 +722,8 @@
                     const targetTabContent = document.getElementById(`${targetTab}Tab`);
                     if (targetTabContent) {
                         targetTabContent.classList.add('active');
+                    } else {
+                        console.error(`Tab content not found for: ${targetTab}Tab`);
                     }
                     
                     // Render appropriate content
@@ -753,7 +755,7 @@
                         } catch (error) {
                             console.error('Error rendering traffic table:', error);
                         }
-                    } else if (targetTab === 'model-specs') {
+                    } else if (targetTab === 'modelSpecs' || targetTab === 'model-specs') {
                         try {
                             console.log('Model Specs tab clicked, rendering table...');
                             renderModelSpecsTable();
@@ -1039,17 +1041,18 @@
                 }
                 
                 const specs = await response.json();
-                console.log('Received specifications:', specs.length);
-                
-                if (specs.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No model specifications found. Click "Add New Model Specifications" to create one.</td></tr>';
-                    return;
-                }
+                console.log('Received specifications:', specs);
+                console.log('Specs type:', typeof specs, 'Is array:', Array.isArray(specs));
                 
                 // Ensure specs is an array
                 if (!Array.isArray(specs)) {
                     console.error('Expected array but got:', typeof specs, specs);
-                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Invalid data format received from server.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Invalid data format received from server. Expected array but got ' + typeof specs + '</td></tr>';
+                    return;
+                }
+                
+                if (specs.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No model specifications found. Click "Add New Model Specifications" to create one.</td></tr>';
                     return;
                 }
                 
