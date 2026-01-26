@@ -642,22 +642,25 @@
 }
 
 .spec-section-header td {
-    padding: 1rem 1.5rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
 }
 
 .spec-label-cell {
-    padding: 1rem 1.5rem;
+    padding: 0.5rem 1rem;
     font-weight: 600;
     color: var(--text-color);
     width: 40%;
     border-right: 1px solid #f0f0f0;
     background: #fafafa;
+    font-size: 0.9rem;
 }
 
 .spec-value-cell {
-    padding: 1rem 1.5rem;
+    padding: 0.5rem 1rem;
     color: var(--text-secondary);
     width: 60%;
+    font-size: 0.9rem;
 }
 
 .specs-table-detailed tbody tr:hover {
@@ -1036,13 +1039,14 @@
     }
     
     .spec-section-header td {
-        padding: 0.875rem 1.25rem;
-        font-size: 1rem;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
     }
     
     .spec-label-cell,
     .spec-value-cell {
-        padding: 0.875rem 1.25rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
     }
 }
 
@@ -1056,22 +1060,21 @@
     }
     
     .spec-section-header td {
-        padding: 0.75rem 1rem;
-        font-size: 0.95rem;
+        padding: 0.5rem 0.7rem;
+        font-size: 0.8rem;
     }
     
     .spec-label-cell,
     .spec-value-cell {
-        padding: 0.75rem 1rem;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.75rem;
     }
     
     .spec-label-cell {
         width: 45%;
-        font-size: 0.85rem;
     }
     
     .spec-value-cell {
         width: 55%;
-        font-size: 0.85rem;
     }
 }
