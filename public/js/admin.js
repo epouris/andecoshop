@@ -1040,21 +1040,35 @@
                     throw new Error(`Failed to fetch specifications: ${response.status} ${errorText}`);
                 }
                 
-                const specs = await response.json();
+                let specs;
+                try {
+                    specs = await response.json();
+                } catch (parseError) {
+                    console.error('Error parsing JSON response:', parseError);
+                    const responseText = await response.text();
+                    console.error('Response text:', responseText);
+                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Error parsing server response. Check console for details.</td></tr>';
+                    return;
+                }
+                
                 console.log('Received specifications:', specs);
                 console.log('Specs type:', typeof specs, 'Is array:', Array.isArray(specs));
+                console.log('Number of specs:', specs?.length);
                 
                 // Ensure specs is an array
                 if (!Array.isArray(specs)) {
                     console.error('Expected array but got:', typeof specs, specs);
-                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Invalid data format received from server. Expected array but got ' + typeof specs + '</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Invalid data format received from server. Expected array but got ' + typeof specs + '. Response: ' + JSON.stringify(specs).substring(0, 200) + '</td></tr>';
                     return;
                 }
                 
                 if (specs.length === 0) {
+                    console.log('No model specifications found in database');
                     tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No model specifications found. Click "Add New Model Specifications" to create one.</td></tr>';
                     return;
                 }
+                
+                console.log('Rendering', specs.length, 'model specifications:', specs.map(s => s.modelName));
                 
                 // Escape HTML to prevent XSS
                 const escapeHtml = (text) => {

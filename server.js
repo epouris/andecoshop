@@ -1297,17 +1297,35 @@ app.put('/api/admin/settings/logo', authenticateAdmin, async (req, res) => {
 app.get('/api/admin/model-specifications', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM model_specifications ORDER BY model_name');
-    const specs = result.rows.map(row => ({
-      id: row.id,
-      modelName: row.model_name,
-      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at
-    }));
+    console.log(`Found ${result.rows.length} model specifications in database`);
+    
+    const specs = result.rows.map(row => {
+      let specifications = row.specifications;
+      
+      // Handle JSONB field - PostgreSQL returns it as an object, but sometimes as string
+      if (typeof specifications === 'string') {
+        try {
+          specifications = JSON.parse(specifications);
+        } catch (parseError) {
+          console.error('Error parsing specifications JSON for model:', row.model_name, parseError);
+          specifications = {};
+        }
+      }
+      
+      return {
+        id: row.id,
+        modelName: row.model_name,
+        specifications: specifications,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      };
+    });
+    
+    console.log('Returning specifications:', specs.map(s => ({ id: s.id, modelName: s.modelName })));
     res.json(specs);
   } catch (error) {
     console.error('Error fetching model specifications:', error);
-    res.status(500).json({ error: 'Failed to fetch model specifications' });
+    res.status(500).json({ error: 'Failed to fetch model specifications', details: error.message });
   }
 });
 
@@ -1318,10 +1336,22 @@ app.get('/api/model-specifications/:modelName', async (req, res) => {
       return res.status(404).json({ error: 'Specifications not found' });
     }
     const row = result.rows[0];
+    
+    let specifications = row.specifications;
+    // Handle JSONB field - PostgreSQL returns it as an object, but sometimes as string
+    if (typeof specifications === 'string') {
+      try {
+        specifications = JSON.parse(specifications);
+      } catch (parseError) {
+        console.error('Error parsing specifications JSON for model:', row.model_name, parseError);
+        specifications = {};
+      }
+    }
+    
     res.json({
       id: row.id,
       modelName: row.model_name,
-      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+      specifications: specifications
     });
   } catch (error) {
     console.error('Error fetching model specifications:', error);
