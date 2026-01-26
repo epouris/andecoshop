@@ -991,13 +991,26 @@
             if (!modelSpecsTableBody) return;
             
             try {
+                const token = localStorage.getItem('admin_token');
+                if (!token) {
+                    modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Please log in to view model specifications.</td></tr>';
+                    return;
+                }
+                
                 const response = await fetch('/api/admin/model-specifications', {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 
-                if (!response.ok) throw new Error('Failed to fetch specifications');
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Authentication required. Please log in again.</td></tr>';
+                        return;
+                    }
+                    throw new Error('Failed to fetch specifications');
+                }
                 
                 const specs = await response.json();
                 
@@ -1093,12 +1106,18 @@
                         : '/api/admin/model-specifications';
                     
                     const method = editingModelSpecId ? 'PUT' : 'POST';
+                    const token = localStorage.getItem('admin_token');
+                    
+                    if (!token) {
+                        alert('Please log in to save specifications');
+                        return;
+                    }
                     
                     const response = await fetch(url, {
                         method: method,
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                            'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({ modelName, specifications })
                     });
