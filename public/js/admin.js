@@ -1001,31 +1001,21 @@
 
         async function renderModelSpecsTable() {
             console.log('renderModelSpecsTable called');
-            if (!modelSpecsTableBody) {
-                console.error('modelSpecsTableBody element not found');
-                // Try to find it again
-                const retryElement = document.getElementById('modelSpecsTableBody');
-                if (!retryElement) {
-                    console.error('modelSpecsTableBody still not found after retry');
-                    return;
-                }
-                // If found, we can't reassign const, so we'll need to work with retryElement
-                console.log('Found modelSpecsTableBody on retry');
+            // Query element dynamically to ensure it exists
+            const tableBody = document.getElementById('modelSpecsTableBody');
+            if (!tableBody) {
+                console.error('modelSpecsTableBody element not found in DOM');
+                return;
             }
             
             // Show loading state
-            if (modelSpecsTableBody) {
-                modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Loading model specifications...</td></tr>';
-            } else {
-                console.error('Cannot set innerHTML - modelSpecsTableBody is null');
-                return;
-            }
+            tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Loading model specifications...</td></tr>';
             
             try {
                 const token = localStorage.getItem('admin_token');
                 console.log('Token exists:', !!token);
                 if (!token) {
-                    modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Please log in to view model specifications.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Please log in to view model specifications.</td></tr>';
                     return;
                 }
                 
@@ -1040,7 +1030,7 @@
                 console.log('Response status:', response.status);
                 if (!response.ok) {
                     if (response.status === 401) {
-                        modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Authentication required. Please log in again.</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Authentication required. Please log in again.</td></tr>';
                         return;
                     }
                     const errorText = await response.text();
@@ -1052,27 +1042,52 @@
                 console.log('Received specifications:', specs.length);
                 
                 if (specs.length === 0) {
-                    modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No model specifications found. Click "Add New Model Specifications" to create one.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No model specifications found. Click "Add New Model Specifications" to create one.</td></tr>';
                     return;
                 }
                 
-                modelSpecsTableBody.innerHTML = specs.map(spec => {
+                // Ensure specs is an array
+                if (!Array.isArray(specs)) {
+                    console.error('Expected array but got:', typeof specs, specs);
+                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Invalid data format received from server.</td></tr>';
+                    return;
+                }
+                
+                // Escape HTML to prevent XSS
+                const escapeHtml = (text) => {
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                };
+                
+                tableBody.innerHTML = specs.map(spec => {
                     const updatedAt = spec.updatedAt || spec.updated_at;
-                    const date = updatedAt ? new Date(updatedAt).toLocaleDateString('en-GB', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) : 'N/A';
+                    let date = 'N/A';
+                    if (updatedAt) {
+                        try {
+                            date = new Date(updatedAt).toLocaleDateString('en-GB', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                        } catch (e) {
+                            console.error('Error formatting date:', e, updatedAt);
+                            date = updatedAt.toString();
+                        }
+                    }
+                    
+                    const modelName = escapeHtml(spec.modelName || 'Unknown');
+                    const modelNameForJs = (spec.modelName || 'Unknown').replace(/'/g, "\\'");
                     
                     return `
                         <tr>
-                            <td>${spec.modelName}</td>
+                            <td>${modelName}</td>
                             <td>${date}</td>
                             <td>
                                 <div class="table-actions">
-                                    <button class="btn btn-secondary btn-small" onclick="window.editModelSpecFunc('${spec.modelName}')">Edit</button>
+                                    <button class="btn btn-secondary btn-small" onclick="window.editModelSpecFunc('${modelNameForJs}')">Edit</button>
                                 </div>
                             </td>
                         </tr>
@@ -1080,7 +1095,10 @@
                 }).join('');
             } catch (error) {
                 console.error('Error rendering model specs table:', error);
-                modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Error loading specifications: ' + error.message + '</td></tr>';
+                const tableBody = document.getElementById('modelSpecsTableBody');
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Error loading specifications: ' + error.message + '</td></tr>';
+                }
             }
         }
 

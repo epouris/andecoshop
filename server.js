@@ -1300,7 +1300,9 @@ app.get('/api/admin/model-specifications', authenticateAdmin, async (req, res) =
     const specs = result.rows.map(row => ({
       id: row.id,
       modelName: row.model_name,
-      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
     }));
     res.json(specs);
   } catch (error) {
