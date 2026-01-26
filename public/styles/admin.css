@@ -935,3 +935,92 @@
     background: var(--primary-color);
     color: white;
 }
+
+/* Model Specifications Styles */
+.model-specs-table-container {
+    overflow-x: auto;
+}
+
+.model-specs-editor {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 1rem 0;
+}
+
+.spec-section-editor {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-light);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+}
+
+.spec-section-editor h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.spec-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.spec-fields-grid .form-group {
+    margin-bottom: 0;
+}
+
+.spec-fields-grid label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.spec-fields-grid input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.spec-fields-grid input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.08);
+}
+
+.modal-large {
+    max-width: 1200px;
+    max-height: 90vh;
+}
+
+.modal-large .modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-large .product-form {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .spec-fields-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-large {
+        max-width: 95%;
+    }
+}

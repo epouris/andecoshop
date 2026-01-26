@@ -753,6 +753,12 @@
                         } catch (error) {
                             console.error('Error rendering traffic table:', error);
                         }
+                    } else if (targetTab === 'model-specs') {
+                        try {
+                            renderModelSpecsTable();
+                        } catch (error) {
+                            console.error('Error rendering model specs table:', error);
+                        }
                     } else if (targetTab === 'settings') {
                         try {
                             const shopLogoUrl = document.getElementById('shopLogoUrl');
@@ -917,6 +923,216 @@
                 closeBrandModal();
             }
         }, { passive: true });
+
+        // Model Specifications management
+        const modelSpecsTableBody = document.getElementById('modelSpecsTableBody');
+        const modelSpecModal = document.getElementById('modelSpecModal');
+        const modelSpecForm = document.getElementById('modelSpecForm');
+        const addModelSpecBtn = document.getElementById('addModelSpecBtn');
+        const closeModelSpecModalBtn = document.getElementById('closeModelSpecModal');
+        const cancelModelSpecBtn = document.getElementById('cancelModelSpecBtn');
+        const modelSpecsContainer = document.getElementById('modelSpecsContainer');
+        const modelSpecModalTitle = document.getElementById('modelSpecModalTitle');
+        let editingModelSpecId = null;
+
+        const specSections = [
+            { name: 'General', fields: ['Shipyard', 'Type', 'Subtype', 'Model range', 'Model', 'Country', 'Build type', 'Status', 'Premiere'] },
+            { name: 'Design & classification', fields: ['Concept', 'Architecture', 'Exterior', 'Classification'] },
+            { name: 'Dimensions', fields: ['Length (LOA), m', 'Beam (max), m', 'Draft, m', 'Dry weight, t'] },
+            { name: 'Hull & superstructure', fields: ['Hull type', 'Hull material', 'Deadrise (transom)', 'Decks'] },
+            { name: 'Accommodation', fields: ['Passengers', 'Heads'] },
+            { name: 'Engines, Performance, Capacity', fields: ['Engine type', 'Engines', 'Fuel type', 'Drive type', 'Power, h.p.', 'Speed (max), kn', 'Fuel capacity, l', 'Water capacity, l'] },
+            { name: 'Features', fields: ['Outdoor areas', 'Beach club', 'Hydraulic platform', 'Stabilizers'] }
+        ];
+
+        function buildSpecsEditor(specs = {}) {
+            if (!modelSpecsContainer) return;
+            
+            modelSpecsContainer.innerHTML = '';
+            
+            specSections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'spec-section-editor';
+                sectionDiv.innerHTML = `<h4>${section.name}</h4>`;
+                
+                const fieldsDiv = document.createElement('div');
+                fieldsDiv.className = 'spec-fields-grid';
+                
+                section.fields.forEach(field => {
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'form-group';
+                    const fieldId = `spec_${field.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                    const value = specs[field] || '';
+                    
+                    fieldDiv.innerHTML = `
+                        <label for="${fieldId}">${field}</label>
+                        <input type="text" id="${fieldId}" name="${field}" value="${value}" placeholder="Enter ${field}">
+                    `;
+                    fieldsDiv.appendChild(fieldDiv);
+                });
+                
+                sectionDiv.appendChild(fieldsDiv);
+                modelSpecsContainer.appendChild(sectionDiv);
+            });
+        }
+
+        function getSpecsFromForm() {
+            const specs = {};
+            const inputs = modelSpecsContainer.querySelectorAll('input[type="text"]');
+            inputs.forEach(input => {
+                if (input.value.trim()) {
+                    specs[input.name] = input.value.trim();
+                }
+            });
+            return specs;
+        }
+
+        async function renderModelSpecsTable() {
+            if (!modelSpecsTableBody) return;
+            
+            try {
+                const response = await fetch('/api/admin/model-specifications', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch specifications');
+                
+                const specs = await response.json();
+                
+                if (specs.length === 0) {
+                    modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No model specifications found. Click "Add New Model Specifications" to create one.</td></tr>';
+                    return;
+                }
+                
+                modelSpecsTableBody.innerHTML = specs.map(spec => {
+                    const updatedAt = spec.updatedAt || spec.updated_at;
+                    const date = updatedAt ? new Date(updatedAt).toLocaleDateString('en-GB', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : 'N/A';
+                    
+                    return `
+                        <tr>
+                            <td>${spec.modelName}</td>
+                            <td>${date}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary btn-small" onclick="window.editModelSpecFunc('${spec.modelName}')">Edit</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error rendering model specs table:', error);
+                modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Error loading specifications: ' + error.message + '</td></tr>';
+            }
+        }
+
+        function openModelSpecModal(modelName = null, specs = null) {
+            if (!modelSpecModal) return;
+            
+            editingModelSpecId = null;
+            modelSpecForm.reset();
+            
+            if (modelName && specs) {
+                editingModelSpecId = modelName;
+                modelSpecModalTitle.textContent = 'Edit Model Specifications';
+                document.getElementById('modelSpecModelName').value = modelName;
+                document.getElementById('modelSpecModelName').disabled = true;
+                buildSpecsEditor(specs);
+            } else {
+                modelSpecModalTitle.textContent = 'Add Model Specifications';
+                document.getElementById('modelSpecModelName').value = '';
+                document.getElementById('modelSpecModelName').disabled = false;
+                buildSpecsEditor();
+            }
+            
+            modelSpecModal.classList.add('active');
+        }
+
+        function closeModelSpecModal() {
+            if (modelSpecModal) {
+                modelSpecModal.classList.remove('active');
+                editingModelSpecId = null;
+                modelSpecForm.reset();
+                modelSpecsContainer.innerHTML = '';
+            }
+        }
+
+        window.editModelSpecFunc = async function(modelName) {
+            try {
+                const response = await fetch(`/api/model-specifications/${encodeURIComponent(modelName)}`);
+                if (!response.ok) throw new Error('Failed to fetch specifications');
+                const spec = await response.json();
+                openModelSpecModal(spec.modelName, spec.specifications);
+            } catch (error) {
+                alert('Error loading specifications: ' + error.message);
+            }
+        };
+
+        if (modelSpecForm) {
+            modelSpecForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                try {
+                    const modelName = document.getElementById('modelSpecModelName').value;
+                    if (!modelName) {
+                        alert('Please select a model');
+                        return;
+                    }
+                    
+                    const specifications = getSpecsFromForm();
+                    
+                    const url = editingModelSpecId 
+                        ? `/api/admin/model-specifications/model/${encodeURIComponent(editingModelSpecId)}`
+                        : '/api/admin/model-specifications';
+                    
+                    const method = editingModelSpecId ? 'PUT' : 'POST';
+                    
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                        },
+                        body: JSON.stringify({ modelName, specifications })
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Failed to save specifications');
+                    }
+                    
+                    showAdminNotification('Model specifications saved successfully');
+                    await renderModelSpecsTable();
+                    closeModelSpecModal();
+                } catch (error) {
+                    alert('Error saving specifications: ' + error.message);
+                }
+            });
+        }
+
+        if (addModelSpecBtn) {
+            addModelSpecBtn.addEventListener('click', () => openModelSpecModal());
+        }
+        if (closeModelSpecModalBtn) {
+            closeModelSpecModalBtn.addEventListener('click', closeModelSpecModal);
+        }
+        if (cancelModelSpecBtn) {
+            cancelModelSpecBtn.addEventListener('click', closeModelSpecModal);
+        }
+        if (modelSpecModal) {
+            modelSpecModal.addEventListener('click', (e) => {
+                if (e.target === modelSpecModal) {
+                    closeModelSpecModal();
+                }
+            }, { passive: true });
+        }
 
         // Orders management
         const ordersTableBody = document.getElementById('ordersTableBody');

@@ -30,6 +30,7 @@
             <div class="admin-tabs">
                 <button class="tab-btn active" data-tab="products">Products</button>
                 <button class="tab-btn" data-tab="brands">Brands</button>
+                <button class="tab-btn" data-tab="model-specs">Model Specs</button>
                 <button class="tab-btn" data-tab="orders">Orders <span class="tab-badge" id="ordersBadge" style="display: none;"></span></button>
                 <button class="tab-btn" data-tab="queries">Queries <span class="tab-badge" id="queriesBadge" style="display: none;"></span></button>
                 <button class="tab-btn" data-tab="traffic">Traffic</button>
@@ -81,6 +82,29 @@
                         </thead>
                         <tbody id="brandsTableBody">
                             <!-- Brands will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Model Specifications Tab -->
+            <div id="modelSpecsTab" class="admin-tab-content">
+                <div class="admin-header">
+                    <h2>Model Specifications Management</h2>
+                    <button class="btn btn-primary" id="addModelSpecBtn">+ Add New Model Specifications</button>
+                </div>
+
+                <div class="model-specs-table-container">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Model Name</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modelSpecsTableBody">
+                            <!-- Model specifications will be loaded here -->
                         </tbody>
                     </table>
                 </div>
@@ -387,6 +411,39 @@
                     <button type="button" class="btn btn-primary" id="closeQueryBtn">Close</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Model Specifications Modal -->
+    <div id="modelSpecModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="modelSpecModalTitle">Add Model Specifications</h3>
+                <button class="modal-close" id="closeModelSpecModal">&times;</button>
+            </div>
+            <form id="modelSpecForm" class="product-form">
+                <div class="form-group">
+                    <label for="modelSpecModelName">Model Name *</label>
+                    <select id="modelSpecModelName" required>
+                        <option value="">Select Model</option>
+                        <option value="30SR">30SR</option>
+                        <option value="40SR">40SR</option>
+                        <option value="40SRC">40SRC</option>
+                        <option value="45SRC">45SRC</option>
+                        <option value="430 Captain Hook">430 Captain Hook</option>
+                        <option value="499 Star">499 Star</option>
+                        <option value="585 Speedster">585 Speedster</option>
+                        <option value="720 Cruiser">720 Cruiser</option>
+                    </select>
+                </div>
+                <div id="modelSpecsContainer" class="model-specs-editor">
+                    <!-- Specifications will be dynamically generated here -->
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelModelSpecBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Specifications</button>
+                </div>
+            </form>
         </div>
     </div>
 

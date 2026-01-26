@@ -69,6 +69,11 @@
                         <div class="spec-value">20+</div>
                     </div>
                 </div>
+
+                <!-- Detailed Specifications Table -->
+                <div class="detailed-specs-table">
+                    <!-- Specifications will be loaded dynamically -->
+                </div>
             </div>
         </section>
 
@@ -160,6 +165,7 @@
     <script src="js/data.js"></script>
     <script src="js/image-proxy.js"></script>
     <script src="js/nav.js"></script>
+    <script src="js/model-specs.js"></script>
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
         
@@ -186,6 +192,9 @@
                     brandLogoHeader.style.display = 'none';
                 };
             }
+            
+            // Load model specifications
+            initModelSpecifications('45SRC');
         });
     </script>
 </body>

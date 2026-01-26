@@ -245,6 +245,17 @@ async function initializeDatabase() {
       )
     `);
 
+    // Model specifications table (for Olympic Ribs models)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS model_specifications (
+        id SERIAL PRIMARY KEY,
+        model_name VARCHAR(255) UNIQUE NOT NULL,
+        specifications JSONB NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log('Database tables initialized');
     
     // Migrate existing schema if needed (fix INTEGER to BIGINT for product IDs)
@@ -1279,6 +1290,111 @@ app.put('/api/admin/settings/logo', authenticateAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error updating logo:', error);
     res.status(500).json({ error: 'Failed to update logo' });
+  }
+});
+
+// Model Specifications management (admin only)
+app.get('/api/admin/model-specifications', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM model_specifications ORDER BY model_name');
+    const specs = result.rows.map(row => ({
+      id: row.id,
+      modelName: row.model_name,
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+    }));
+    res.json(specs);
+  } catch (error) {
+    console.error('Error fetching model specifications:', error);
+    res.status(500).json({ error: 'Failed to fetch model specifications' });
+  }
+});
+
+app.get('/api/model-specifications/:modelName', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM model_specifications WHERE model_name = $1', [req.params.modelName]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Specifications not found' });
+    }
+    const row = result.rows[0];
+    res.json({
+      id: row.id,
+      modelName: row.model_name,
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+    });
+  } catch (error) {
+    console.error('Error fetching model specifications:', error);
+    res.status(500).json({ error: 'Failed to fetch model specifications' });
+  }
+});
+
+app.post('/api/admin/model-specifications', authenticateAdmin, async (req, res) => {
+  try {
+    const { modelName, specifications } = req.body;
+    const result = await pool.query(`
+      INSERT INTO model_specifications (model_name, specifications)
+      VALUES ($1, $2)
+      RETURNING *
+    `, [modelName, JSON.stringify(specifications)]);
+    const row = result.rows[0];
+    res.status(201).json({
+      id: row.id,
+      modelName: row.model_name,
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+    });
+  } catch (error) {
+    if (error.code === '23505') { // Unique violation
+      return res.status(400).json({ error: 'Specifications for this model already exist. Use PUT to update.' });
+    }
+    console.error('Error creating model specifications:', error);
+    res.status(500).json({ error: 'Failed to create model specifications' });
+  }
+});
+
+app.put('/api/admin/model-specifications/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const { specifications } = req.body;
+    const result = await pool.query(`
+      UPDATE model_specifications 
+      SET specifications = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING *
+    `, [JSON.stringify(specifications), req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Specifications not found' });
+    }
+    const row = result.rows[0];
+    res.json({
+      id: row.id,
+      modelName: row.model_name,
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+    });
+  } catch (error) {
+    console.error('Error updating model specifications:', error);
+    res.status(500).json({ error: 'Failed to update model specifications' });
+  }
+});
+
+app.put('/api/admin/model-specifications/model/:modelName', authenticateAdmin, async (req, res) => {
+  try {
+    const { specifications } = req.body;
+    const result = await pool.query(`
+      UPDATE model_specifications 
+      SET specifications = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE model_name = $2
+      RETURNING *
+    `, [JSON.stringify(specifications), req.params.modelName]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Specifications not found' });
+    }
+    const row = result.rows[0];
+    res.json({
+      id: row.id,
+      modelName: row.model_name,
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+    });
+  } catch (error) {
+    console.error('Error updating model specifications:', error);
+    res.status(500).json({ error: 'Failed to update model specifications' });
   }
 });
 
