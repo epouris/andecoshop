@@ -566,7 +566,7 @@
 /* Layout Section */
 .model-layout {
     padding: 5rem 0;
-    background: #f5f5f5;
+    background: transparent;
 }
 
 .layouts-grid {
