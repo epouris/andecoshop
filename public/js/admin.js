@@ -755,6 +755,7 @@
                         }
                     } else if (targetTab === 'model-specs') {
                         try {
+                            console.log('Model Specs tab clicked, rendering table...');
                             renderModelSpecsTable();
                         } catch (error) {
                             console.error('Error rendering model specs table:', error);
@@ -934,6 +935,17 @@
         const modelSpecsContainer = document.getElementById('modelSpecsContainer');
         const modelSpecModalTitle = document.getElementById('modelSpecModalTitle');
         let editingModelSpecId = null;
+        
+        // Debug: Check if elements exist
+        if (!modelSpecsTableBody) {
+            console.warn('modelSpecsTableBody element not found');
+        }
+        if (!modelSpecModal) {
+            console.warn('modelSpecModal element not found');
+        }
+        if (!addModelSpecBtn) {
+            console.warn('addModelSpecBtn element not found');
+        }
 
         const specSections = [
             { name: 'General', fields: ['Shipyard', 'Type', 'Subtype', 'Model range', 'Model', 'Country', 'Build type', 'Status', 'Premiere'] },
@@ -988,15 +1000,36 @@
         }
 
         async function renderModelSpecsTable() {
-            if (!modelSpecsTableBody) return;
+            console.log('renderModelSpecsTable called');
+            if (!modelSpecsTableBody) {
+                console.error('modelSpecsTableBody element not found');
+                // Try to find it again
+                const retryElement = document.getElementById('modelSpecsTableBody');
+                if (!retryElement) {
+                    console.error('modelSpecsTableBody still not found after retry');
+                    return;
+                }
+                // If found, we can't reassign const, so we'll need to work with retryElement
+                console.log('Found modelSpecsTableBody on retry');
+            }
+            
+            // Show loading state
+            if (modelSpecsTableBody) {
+                modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Loading model specifications...</td></tr>';
+            } else {
+                console.error('Cannot set innerHTML - modelSpecsTableBody is null');
+                return;
+            }
             
             try {
                 const token = localStorage.getItem('admin_token');
+                console.log('Token exists:', !!token);
                 if (!token) {
                     modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Please log in to view model specifications.</td></tr>';
                     return;
                 }
                 
+                console.log('Fetching model specifications...');
                 const response = await fetch('/api/admin/model-specifications', {
                     headers: {
                         'Content-Type': 'application/json',
@@ -1004,15 +1037,19 @@
                     }
                 });
                 
+                console.log('Response status:', response.status);
                 if (!response.ok) {
                     if (response.status === 401) {
                         modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Authentication required. Please log in again.</td></tr>';
                         return;
                     }
-                    throw new Error('Failed to fetch specifications');
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    throw new Error(`Failed to fetch specifications: ${response.status} ${errorText}`);
                 }
                 
                 const specs = await response.json();
+                console.log('Received specifications:', specs.length);
                 
                 if (specs.length === 0) {
                     modelSpecsTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No model specifications found. Click "Add New Model Specifications" to create one.</td></tr>';
