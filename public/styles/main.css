@@ -68,7 +68,7 @@ body {
 }
 
 .logo {
-    font-size: 2.2rem;
+    font-size: 3rem;
     font-weight: 800;
     color: #000;
     letter-spacing: -0.02em;
@@ -92,8 +92,8 @@ body {
 }
 
 .logo .shop-logo-img {
-    max-height: 90px;
-    max-width: 320px;
+    max-height: 120px;
+    max-width: 400px;
     height: auto;
     width: auto;
     object-fit: contain;
@@ -848,7 +848,7 @@ body {
     }
 
     .logo {
-        font-size: 1.8rem;
+        font-size: 2.4rem;
         position: static;
         transform: none;
         order: 1;
@@ -933,15 +933,15 @@ body {
     }
 
     .logo {
-        font-size: 1.5rem;
+        font-size: 2rem;
         position: static;
         transform: none;
         order: 1;
     }
 
     .logo .shop-logo-img {
-        max-height: 60px;
-        max-width: 220px;
+        max-height: 80px;
+        max-width: 280px;
     }
 
     .nav {
