@@ -1010,13 +1010,43 @@ app.delete('/api/admin/queries/:id', authenticateAdmin, async (req, res) => {
 app.get('/api/admin/traffic', authenticateAdmin, async (req, res) => {
   try {
     const period = req.query.period || 'day';
+    const dateParam = req.query.date;
     let dateFilter = '';
-    if (period === 'day') {
-      dateFilter = "WHERE created_at >= CURRENT_DATE";
-    } else if (period === 'month') {
-      dateFilter = "WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)";
-    } else if (period === 'year') {
-      dateFilter = "WHERE created_at >= DATE_TRUNC('year', CURRENT_DATE)";
+    
+    if (dateParam) {
+      if (period === 'day') {
+        // Filter for specific day
+        const date = new Date(dateParam);
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+        dateFilter = `WHERE created_at >= '${date.toISOString().split('T')[0]}' AND created_at < '${nextDay.toISOString().split('T')[0]}'`;
+      } else if (period === 'month') {
+        // Filter for specific month (format: YYYY-MM)
+        const [year, month] = dateParam.split('-');
+        const startDate = `${year}-${month}-01`;
+        // Calculate next month for the upper bound
+        let nextMonth = parseInt(month) + 1;
+        let nextYear = parseInt(year);
+        if (nextMonth > 12) {
+          nextMonth = 1;
+          nextYear += 1;
+        }
+        const nextMonthStr = String(nextMonth).padStart(2, '0');
+        dateFilter = `WHERE created_at >= '${startDate}' AND created_at < '${nextYear}-${nextMonthStr}-01'`;
+      } else if (period === 'year') {
+        // Filter for specific year
+        const year = dateParam;
+        dateFilter = `WHERE created_at >= '${year}-01-01' AND created_at < '${parseInt(year) + 1}-01-01'`;
+      }
+    } else {
+      // Default to current period if no date specified
+      if (period === 'day') {
+        dateFilter = "WHERE created_at >= CURRENT_DATE";
+      } else if (period === 'month') {
+        dateFilter = "WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)";
+      } else if (period === 'year') {
+        dateFilter = "WHERE created_at >= DATE_TRUNC('year', CURRENT_DATE)";
+      }
     }
 
     const totalVisitors = await pool.query(`SELECT COUNT(DISTINCT ip) as count FROM traffic ${dateFilter}`);

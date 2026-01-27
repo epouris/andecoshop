@@ -162,9 +162,13 @@ export async function deleteQuery(id) {
   }
 }
 
-export async function getTraffic(period = 'day') {
+export async function getTraffic(period = 'day', date = null) {
   try {
-    return await apiCall(`/admin/traffic?period=${encodeURIComponent(period)}`);
+    let url = `/admin/traffic?period=${encodeURIComponent(period)}`;
+    if (date) {
+      url += `&date=${encodeURIComponent(date)}`;
+    }
+    return await apiCall(url);
   } catch (error) {
     console.error('Error fetching traffic:', error);
     throw error;

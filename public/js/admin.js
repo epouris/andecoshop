@@ -756,7 +756,9 @@
                         }
                     } else if (targetTab === 'traffic') {
                         try {
-                            renderTrafficTable(currentTrafficPeriod || 'day');
+                            const period = currentTrafficPeriod || 'day';
+                            updateDatePickers(period);
+                            renderTrafficTable(period);
                             startRealtimePolling(); // Start real-time updates
                         } catch (error) {
                             console.error('Error rendering traffic table:', error);
@@ -1467,10 +1469,43 @@
         const trafficPeriodDayBtn = document.getElementById('trafficPeriodDay');
         const trafficPeriodMonthBtn = document.getElementById('trafficPeriodMonth');
         const trafficPeriodYearBtn = document.getElementById('trafficPeriodYear');
+        const trafficDatePickerContainer = document.getElementById('trafficDatePickerContainer');
+        const trafficDatePicker = document.getElementById('trafficDatePicker');
+        const trafficMonthPickerContainer = document.getElementById('trafficMonthPickerContainer');
+        const trafficMonthPicker = document.getElementById('trafficMonthPicker');
+        const trafficYearPickerContainer = document.getElementById('trafficYearPickerContainer');
+        const trafficYearPicker = document.getElementById('trafficYearPicker');
         let currentTrafficPeriod = 'day';
         let realtimeIntervalId = null;
 
-        async function renderTrafficTable(period = 'day') {
+        // Show/hide date pickers based on period
+        function updateDatePickers(period) {
+            if (trafficDatePickerContainer) trafficDatePickerContainer.style.display = 'none';
+            if (trafficMonthPickerContainer) trafficMonthPickerContainer.style.display = 'none';
+            if (trafficYearPickerContainer) trafficYearPickerContainer.style.display = 'none';
+
+            if (period === 'day' && trafficDatePickerContainer) {
+                trafficDatePickerContainer.style.display = 'block';
+                if (trafficDatePicker && !trafficDatePicker.value) {
+                    const today = new Date().toISOString().split('T')[0];
+                    trafficDatePicker.value = today;
+                }
+            } else if (period === 'month' && trafficMonthPickerContainer) {
+                trafficMonthPickerContainer.style.display = 'block';
+                if (trafficMonthPicker && !trafficMonthPicker.value) {
+                    const today = new Date();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    trafficMonthPicker.value = `${today.getFullYear()}-${month}`;
+                }
+            } else if (period === 'year' && trafficYearPickerContainer) {
+                trafficYearPickerContainer.style.display = 'block';
+                if (trafficYearPicker && !trafficYearPicker.value) {
+                    trafficYearPicker.value = new Date().getFullYear();
+                }
+            }
+        }
+
+        async function renderTrafficTable(period = 'day', dateParam = null) {
             currentTrafficPeriod = period;
             
             // Update button states
@@ -1481,9 +1516,24 @@
             if (period === 'month' && trafficPeriodMonthBtn) trafficPeriodMonthBtn.classList.add('active');
             if (period === 'year' && trafficPeriodYearBtn) trafficPeriodYearBtn.classList.add('active');
 
+            // Update date pickers visibility
+            updateDatePickers(period);
+
+            // Get date parameter based on period
+            let dateValue = dateParam;
+            if (!dateValue) {
+                if (period === 'day' && trafficDatePicker) {
+                    dateValue = trafficDatePicker.value;
+                } else if (period === 'month' && trafficMonthPicker) {
+                    dateValue = trafficMonthPicker.value;
+                } else if (period === 'year' && trafficYearPicker) {
+                    dateValue = trafficYearPicker.value;
+                }
+            }
+
             try {
                 const api = await import('./api.js');
-                const data = await api.getTraffic(period);
+                const data = await api.getTraffic(period, dateValue);
 
                 if (totalVisitorsEl) totalVisitorsEl.textContent = data.totalVisitors || 0;
                 if (totalVisitsEl) totalVisitsEl.textContent = data.totalVisits || 0;
@@ -1583,13 +1633,45 @@
         }
 
         if (trafficPeriodDayBtn) {
-            trafficPeriodDayBtn.addEventListener('click', () => renderTrafficTable('day'));
+            trafficPeriodDayBtn.addEventListener('click', () => {
+                updateDatePickers('day');
+                renderTrafficTable('day');
+            });
         }
         if (trafficPeriodMonthBtn) {
-            trafficPeriodMonthBtn.addEventListener('click', () => renderTrafficTable('month'));
+            trafficPeriodMonthBtn.addEventListener('click', () => {
+                updateDatePickers('month');
+                renderTrafficTable('month');
+            });
         }
         if (trafficPeriodYearBtn) {
-            trafficPeriodYearBtn.addEventListener('click', () => renderTrafficTable('year'));
+            trafficPeriodYearBtn.addEventListener('click', () => {
+                updateDatePickers('year');
+                renderTrafficTable('year');
+            });
+        }
+
+        // Add event listeners for date pickers
+        if (trafficDatePicker) {
+            trafficDatePicker.addEventListener('change', () => {
+                if (currentTrafficPeriod === 'day') {
+                    renderTrafficTable('day', trafficDatePicker.value);
+                }
+            });
+        }
+        if (trafficMonthPicker) {
+            trafficMonthPicker.addEventListener('change', () => {
+                if (currentTrafficPeriod === 'month') {
+                    renderTrafficTable('month', trafficMonthPicker.value);
+                }
+            });
+        }
+        if (trafficYearPicker) {
+            trafficYearPicker.addEventListener('change', () => {
+                if (currentTrafficPeriod === 'year') {
+                    renderTrafficTable('year', trafficYearPicker.value);
+                }
+            });
         }
 
         let isPollingNotifications = false;
