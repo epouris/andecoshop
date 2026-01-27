@@ -146,7 +146,10 @@
                 <div class="contact-content">
                     <h2 class="section-title">Interested in the 720 Cruiser?</h2>
                     <p class="section-description">Contact us to learn more about this luxurious cruising RIB and arrange a viewing.</p>
-                    <a href="index.html#contact" class="btn btn-primary btn-large">Enquire Now</a>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="index.html#contact" class="btn btn-primary btn-large">Enquire Now</a>
+                        <a href="#" id="customizeBtn" class="btn btn-secondary btn-large">Customize Yours</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -191,6 +194,28 @@
             
             // Load model specifications
             initModelSpecifications('720 Cruiser');
+            
+            // Set up Customize Yours button
+            const customizeBtn = document.getElementById('customizeBtn');
+            if (customizeBtn) {
+                // Wait for products to be loaded
+                if (typeof getProducts === 'function') {
+                    const products = getProducts();
+                    const product = products.find(p => 
+                        p.name.toLowerCase().includes('720') && 
+                        p.name.toLowerCase().includes('cruiser')
+                    ) || products.find(p => p.name.toLowerCase().includes('720 cruiser'));
+                    
+                    if (product) {
+                        customizeBtn.href = `product.html?id=${product.id}`;
+                    } else {
+                        customizeBtn.href = 'brand.html?brand=Olympic%20Ribs';
+                    }
+                } else {
+                    // Fallback if products not loaded yet
+                    customizeBtn.href = 'brand.html?brand=Olympic%20Ribs';
+                }
+            }
         });
     </script>
 </body>
