@@ -287,8 +287,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Use brand logo if available, otherwise use split product images
             const hasLogo = brand.logo && brand.logo.trim() !== '';
             
+            // Special handling for Olympic Ribs - redirect to olympic-ribs.html
+            const brandUrl = brand.name === 'Olympic Ribs' ? 'olympic-ribs.html' : `brand.html?brand=${encodeURIComponent(brand.name)}`;
+            
             return `
-                <a href="brand.html?brand=${encodeURIComponent(brand.name)}" class="brand-card">
+                <a href="${brandUrl}" class="brand-card">
                     <div class="brand-image-container">
                         ${hasLogo ? `
                             <div class="brand-logo-container">
@@ -303,7 +306,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <h3 class="brand-name">${brand.name}</h3>
                         </div>
                         ` : ''}
-                        <p class="brand-count">${brand.productCount} ${brand.productCount === 1 ? 'product' : 'products'}</p>
                     </div>
                 </a>
             `;
