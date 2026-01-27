@@ -1045,6 +1045,14 @@ app.get('/api/admin/traffic', authenticateAdmin, async (req, res) => {
       LIMIT 20
     `);
 
+    const byPath = await pool.query(`
+      SELECT path, COUNT(*) as visits, COUNT(DISTINCT ip) as visitors
+      FROM traffic ${dateFilter}
+      GROUP BY path
+      ORDER BY visits DESC
+      LIMIT 50
+    `);
+
     res.json({
       totalVisitors: parseInt(totalVisitors.rows[0]?.count || 0, 10),
       totalVisits: parseInt(totalVisits.rows[0]?.count || 0, 10),
@@ -1063,11 +1071,52 @@ app.get('/api/admin/traffic', authenticateAdmin, async (req, res) => {
         country: r.country || 'Unknown',
         visits: parseInt(r.visits || 0, 10),
         visitors: parseInt(r.visitors || 0, 10)
+      })),
+      byPath: byPath.rows.map(r => ({
+        path: r.path || 'Unknown',
+        visits: parseInt(r.visits || 0, 10),
+        visitors: parseInt(r.visitors || 0, 10)
       }))
     });
   } catch (error) {
     console.error('Error fetching traffic:', error);
     res.status(500).json({ error: 'Failed to fetch traffic' });
+  }
+});
+
+// Get real-time active visitors (last 5 minutes)
+app.get('/api/admin/traffic/realtime', authenticateAdmin, async (req, res) => {
+  try {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    
+    const activeVisitors = await pool.query(`
+      SELECT DISTINCT ip, path, country, city, device, created_at
+      FROM traffic
+      WHERE created_at >= $1
+      ORDER BY created_at DESC
+      LIMIT 100
+    `, [fiveMinutesAgo]);
+
+    const uniqueIPs = await pool.query(`
+      SELECT COUNT(DISTINCT ip) as count
+      FROM traffic
+      WHERE created_at >= $1
+    `, [fiveMinutesAgo]);
+
+    res.json({
+      activeVisitors: parseInt(uniqueIPs.rows[0]?.count || 0, 10),
+      recentActivity: activeVisitors.rows.map(r => ({
+        ip: r.ip,
+        path: r.path || '/',
+        country: r.country || 'Unknown',
+        city: r.city || 'Unknown',
+        device: r.device || 'Unknown',
+        timestamp: r.created_at
+      }))
+    });
+  } catch (error) {
+    console.error('Error fetching real-time traffic:', error);
+    res.status(500).json({ error: 'Failed to fetch real-time traffic' });
   }
 });
 

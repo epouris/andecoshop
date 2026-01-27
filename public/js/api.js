@@ -171,6 +171,15 @@ export async function getTraffic(period = 'day') {
   }
 }
 
+export async function getRealtimeTraffic() {
+  try {
+    return await apiCall('/admin/traffic/realtime');
+  } catch (error) {
+    console.error('Error fetching real-time traffic:', error);
+    throw error;
+  }
+}
+
 export async function trackVisit(path, referrer) {
   try {
     return await apiCall('/track', {

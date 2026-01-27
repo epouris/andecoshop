@@ -726,6 +726,11 @@
                         console.error(`Tab content not found for: ${targetTab}Tab`);
                     }
                     
+                    // Stop real-time polling if switching away from traffic tab
+                    if (targetTab !== 'traffic') {
+                        stopRealtimePolling();
+                    }
+
                     // Render appropriate content
                     if (targetTab === 'brands') {
                         try {
@@ -752,6 +757,7 @@
                     } else if (targetTab === 'traffic') {
                         try {
                             renderTrafficTable(currentTrafficPeriod || 'day');
+                            startRealtimePolling(); // Start real-time updates
                         } catch (error) {
                             console.error('Error rendering traffic table:', error);
                         }
@@ -1454,12 +1460,15 @@
         const trafficDeviceBody = document.getElementById('trafficDeviceBody');
         const trafficCountryBody = document.getElementById('trafficCountryBody');
         const trafficCityBody = document.getElementById('trafficCityBody');
+        const trafficPathBody = document.getElementById('trafficPathBody');
         const totalVisitorsEl = document.getElementById('totalVisitors');
         const totalVisitsEl = document.getElementById('totalVisits');
+        const realtimeVisitorsEl = document.getElementById('realtimeVisitors');
         const trafficPeriodDayBtn = document.getElementById('trafficPeriodDay');
         const trafficPeriodMonthBtn = document.getElementById('trafficPeriodMonth');
         const trafficPeriodYearBtn = document.getElementById('trafficPeriodYear');
         let currentTrafficPeriod = 'day';
+        let realtimeIntervalId = null;
 
         async function renderTrafficTable(period = 'day') {
             currentTrafficPeriod = period;
@@ -1521,11 +1530,55 @@
                         `).join('');
                     }
                 }
+
+                if (trafficPathBody) {
+                    if (!data.byPath || data.byPath.length === 0) {
+                        trafficPathBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No data available.</td></tr>';
+                    } else {
+                        trafficPathBody.innerHTML = data.byPath.map(item => `
+                            <tr>
+                                <td>${item.path || '/'}</td>
+                                <td>${item.visits || 0}</td>
+                                <td>${item.visitors || 0}</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
             } catch (error) {
                 console.error('Error loading traffic data:', error);
                 if (trafficDeviceBody) trafficDeviceBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Error loading data.</td></tr>';
                 if (trafficCountryBody) trafficCountryBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Error loading data.</td></tr>';
                 if (trafficCityBody) trafficCityBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">Error loading data.</td></tr>';
+                if (trafficPathBody) trafficPathBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Error loading data.</td></tr>';
+            }
+        }
+
+        // Real-time traffic polling
+        async function updateRealtimeTraffic() {
+            try {
+                const api = await import('./api.js');
+                const data = await api.getRealtimeTraffic();
+                if (realtimeVisitorsEl) {
+                    realtimeVisitorsEl.textContent = data.activeVisitors || 0;
+                }
+            } catch (error) {
+                console.error('Error loading real-time traffic:', error);
+            }
+        }
+
+        // Start real-time polling when traffic tab is active
+        function startRealtimePolling() {
+            if (realtimeIntervalId) {
+                clearInterval(realtimeIntervalId);
+            }
+            updateRealtimeTraffic(); // Update immediately
+            realtimeIntervalId = setInterval(updateRealtimeTraffic, 10000); // Update every 10 seconds
+        }
+
+        function stopRealtimePolling() {
+            if (realtimeIntervalId) {
+                clearInterval(realtimeIntervalId);
+                realtimeIntervalId = null;
             }
         }
 
