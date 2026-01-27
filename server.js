@@ -87,14 +87,21 @@ function getCachedGeo(ip) {
 
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
-    const request = https.get(url, { timeout: 4000 }, (response) => {
+    const urlObj = new URL(url);
+    const client = urlObj.protocol === 'https:' ? https : http;
+    
+    const request = client.get(url, { timeout: 5000 }, (response) => {
       let data = '';
       response.on('data', chunk => {
         data += chunk;
       });
       response.on('end', () => {
         try {
-          resolve(JSON.parse(data));
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            resolve(JSON.parse(data));
+          } else {
+            reject(new Error(`HTTP ${response.statusCode}`));
+          }
         } catch (error) {
           reject(error);
         }
@@ -115,17 +122,42 @@ async function getGeoFromIp(ip) {
   const cached = getCachedGeo(ip);
   if (cached) return cached;
 
+  // Try ipapi.co first
   try {
     const data = await fetchJson(`https://ipapi.co/${encodeURIComponent(ip)}/json/`);
-    const value = {
-      country: data?.country_name || data?.country || 'Unknown',
-      city: data?.city || 'Unknown'
-    };
-    geoCache.set(ip, { value, timestamp: Date.now() });
-    return value;
+    if (data && !data.error) {
+      const value = {
+        country: data.country_name || data.country || 'Unknown',
+        city: data.city || 'Unknown'
+      };
+      if (value.country !== 'Unknown') {
+        geoCache.set(ip, { value, timestamp: Date.now() });
+        return value;
+      }
+    }
   } catch (error) {
-    return { country: 'Unknown', city: 'Unknown' };
+    console.log(`ipapi.co lookup failed for ${ip}, trying fallback...`);
   }
+
+  // Fallback to ip-api.com (free, no API key required)
+  try {
+    const data = await fetchJson(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,city`);
+    if (data && data.status === 'success') {
+      const value = {
+        country: data.country || 'Unknown',
+        city: data.city || 'Unknown'
+      };
+      if (value.country !== 'Unknown') {
+        geoCache.set(ip, { value, timestamp: Date.now() });
+        return value;
+      }
+    }
+  } catch (error) {
+    console.log(`ip-api.com lookup failed for ${ip}`);
+  }
+
+  // If both fail, return Unknown
+  return { country: 'Unknown', city: 'Unknown' };
 }
 
 // Test database connection
@@ -558,6 +590,12 @@ app.post('/api/track', async (req, res) => {
     let geo = { country: 'Unknown', city: 'Unknown' };
     if (!isPrivateIp(ip)) {
       geo = await getGeoFromIp(ip);
+      // Log for debugging (can be removed in production)
+      if (geo.country === 'Unknown' && ip) {
+        console.log(`Could not determine country for IP: ${ip}`);
+      }
+    } else {
+      geo = { country: 'Local', city: 'Local' };
     }
 
     await pool.query(`
