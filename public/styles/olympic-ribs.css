@@ -466,7 +466,7 @@
 }
 
 .hero-title-image {
-    max-width: 600px;
+    max-width: 480px;
     width: 100%;
     height: auto;
     margin: 0 auto 1.5rem;
@@ -884,8 +884,17 @@
         font-size: 2.5rem;
     }
 
+    .model-hero {
+        padding: 5rem 0 4rem;
+    }
+
     .hero-title-image {
-        max-width: 400px;
+        max-width: 320px;
+    }
+
+    .model-hero .hero-subtitle {
+        font-size: 1rem;
+        padding: 0 1rem;
     }
 
     .olympic-hero .hero-subtitle {
@@ -1026,8 +1035,19 @@
         line-height: 1.2;
     }
 
+    .model-hero {
+        padding: 3rem 0 2.5rem;
+    }
+
     .hero-title-image {
-        max-width: 280px;
+        max-width: 220px;
+        margin-bottom: 1rem;
+    }
+
+    .model-hero .hero-subtitle {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        padding: 0 1rem;
     }
 
     .olympic-hero .hero-subtitle {
