@@ -92,22 +92,42 @@
                 <div class="section-header">
                     <h2 class="section-title">Key Features</h2>
                 </div>
-                <div class="features-list">
-                    <div class="feature-item">
-                        <h3>High-Speed Performance</h3>
-                        <p>Engineered for maximum speed and acceleration, delivering an exhilarating experience on the water.</p>
+                <div class="features-accordion" id="featuresAccordion">
+                    <div class="feature-accordion-item active" data-feature="0">
+                        <img src="olympic ribs models/olr585speedster.jpeg" alt="High-Speed Performance" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">High-Speed Performance</h3>
+                                <p class="feature-accordion-description">Engineered for maximum speed and acceleration, delivering an exhilarating experience on the water.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Agile Handling</h3>
-                        <p>Responsive steering and exceptional maneuverability for precise control in all conditions.</p>
+                    <div class="feature-accordion-item" data-feature="1">
+                        <img src="olympic ribs models/olr585speedster.jpeg" alt="Agile Handling" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Agile Handling</h3>
+                                <p class="feature-accordion-description">Responsive steering and exceptional maneuverability for precise control in all conditions.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Luxury Comfort</h3>
-                        <p>Premium seating and ergonomic design ensure comfort during high-speed adventures.</p>
+                    <div class="feature-accordion-item" data-feature="2">
+                        <img src="olympic ribs models/olr585speedster.jpeg" alt="Luxury Comfort" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Luxury Comfort</h3>
+                                <p class="feature-accordion-description">Premium seating and ergonomic design ensure comfort during high-speed adventures.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Advanced Hull Design</h3>
-                        <p>Cutting-edge hull technology for optimal performance and stability at high speeds.</p>
+                    <div class="feature-accordion-item" data-feature="3">
+                        <img src="olympic ribs models/olr585speedster.jpeg" alt="Advanced Hull Design" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Advanced Hull Design</h3>
+                                <p class="feature-accordion-description">Cutting-edge hull technology for optimal performance and stability at high speeds.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,6 +205,17 @@
             
             // Load model specifications
             initModelSpecifications('585 Speedster');
+            
+            // Features Accordion functionality
+            const accordionItems = document.querySelectorAll('.feature-accordion-item');
+            accordionItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    accordionItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                });
+            });
             
             // Set up Customize Yours button
             const customizeBtn = document.getElementById('customizeBtn');

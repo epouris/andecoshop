@@ -103,22 +103,42 @@
                 <div class="section-header">
                     <h2 class="section-title">Key Features</h2>
                 </div>
-                <div class="features-list">
-                    <div class="feature-item">
-                        <h3>Maximized Habitable Space</h3>
-                        <p>Cabin under the console extends further under the bow lounge, creating exceptional interior space.</p>
+                <div class="features-accordion" id="featuresAccordion">
+                    <div class="feature-accordion-item active" data-feature="0">
+                        <img src="olympic ribs models/olr45src (1).jpg" alt="Maximized Habitable Space" class="feature-accordion-image" onerror="this.src='olympic ribs models/olr45src (1).jpeg'">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Maximized Habitable Space</h3>
+                                <p class="feature-accordion-description">Cabin under the console extends further under the bow lounge, creating exceptional interior space.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Extraordinary Power</h3>
-                        <p>Capable of handling up to 3300HP, making it one of the most powerful RIBs available.</p>
+                    <div class="feature-accordion-item" data-feature="1">
+                        <img src="olympic ribs models/olr45src (2).jpg" alt="Extraordinary Power" class="feature-accordion-image" onerror="this.src='olympic ribs models/olr45src (2).jpeg'">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Extraordinary Power</h3>
+                                <p class="feature-accordion-description">Capable of handling up to 3300HP, making it one of the most powerful RIBs available.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Adventure Ready</h3>
-                        <p>Built for the most demanding adventures with robust construction and advanced systems.</p>
+                    <div class="feature-accordion-item" data-feature="2">
+                        <img src="olympic ribs models/olr45src (3).jpg" alt="Adventure Ready" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Adventure Ready</h3>
+                                <p class="feature-accordion-description">Built for the most demanding adventures with robust construction and advanced systems.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Premium Accommodation</h3>
-                        <p>Spacious interior with comfortable accommodations for extended journeys and overnight stays.</p>
+                    <div class="feature-accordion-item" data-feature="3">
+                        <img src="olympic ribs models/olr45src (4).jpg" alt="Premium Accommodation" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Premium Accommodation</h3>
+                                <p class="feature-accordion-description">Spacious interior with comfortable accommodations for extended journeys and overnight stays.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -211,6 +231,17 @@
             
             // Load model specifications
             initModelSpecifications('45SRC');
+            
+            // Features Accordion functionality
+            const accordionItems = document.querySelectorAll('.feature-accordion-item');
+            accordionItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    accordionItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                });
+            });
         });
     </script>
 </body>

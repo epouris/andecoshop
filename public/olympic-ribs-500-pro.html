@@ -92,22 +92,42 @@
                 <div class="section-header">
                     <h2 class="section-title">Key Features</h2>
                 </div>
-                <div class="features-list">
-                    <div class="feature-item">
-                        <h3>Professional Grade</h3>
-                        <p>Engineered for professional use with robust construction and reliable performance.</p>
+                <div class="features-accordion" id="featuresAccordion">
+                    <div class="feature-accordion-item active" data-feature="0">
+                        <img src="olympic ribs models/olr500pro.jpeg" alt="Professional Grade" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Professional Grade</h3>
+                                <p class="feature-accordion-description">Engineered for professional use with robust construction and reliable performance.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Enhanced Power</h3>
-                        <p>Powerful engine options deliver exceptional performance for demanding applications.</p>
+                    <div class="feature-accordion-item" data-feature="1">
+                        <img src="olympic ribs models/olr500pro.jpeg" alt="Enhanced Power" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Enhanced Power</h3>
+                                <p class="feature-accordion-description">Powerful engine options deliver exceptional performance for demanding applications.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Versatile Design</h3>
-                        <p>Adaptable layout suitable for various professional and recreational activities.</p>
+                    <div class="feature-accordion-item" data-feature="2">
+                        <img src="olympic ribs models/olr500pro.jpeg" alt="Versatile Design" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Versatile Design</h3>
+                                <p class="feature-accordion-description">Adaptable layout suitable for various professional and recreational activities.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Durable Construction</h3>
-                        <p>Built to withstand challenging conditions with premium materials and expert craftsmanship.</p>
+                    <div class="feature-accordion-item" data-feature="3">
+                        <img src="olympic ribs models/olr500pro.jpeg" alt="Durable Construction" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Durable Construction</h3>
+                                <p class="feature-accordion-description">Built to withstand challenging conditions with premium materials and expert craftsmanship.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,6 +205,17 @@
             
             // Load model specifications
             initModelSpecifications('500 Pro');
+            
+            // Features Accordion functionality
+            const accordionItems = document.querySelectorAll('.feature-accordion-item');
+            accordionItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    accordionItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                });
+            });
             
             // Set up Customize Yours button
             const customizeBtn = document.getElementById('customizeBtn');

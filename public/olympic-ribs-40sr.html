@@ -92,22 +92,42 @@
                 <div class="section-header">
                     <h2 class="section-title">Key Features</h2>
                 </div>
-                <div class="features-list">
-                    <div class="feature-item">
-                        <h3>Luxury Design</h3>
-                        <p>Sleek design and polished finish exuding high-end sophistication and elegance.</p>
+                <div class="features-accordion" id="featuresAccordion">
+                    <div class="feature-accordion-item active" data-feature="0">
+                        <img src="olympic ribs models/projective-40sr.png" alt="Luxury Design" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Luxury Design</h3>
+                                <p class="feature-accordion-description">Sleek design and polished finish exuding high-end sophistication and elegance.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Powerhouse Performance</h3>
-                        <p>Ultimate leisure or chase boat with exceptional power and speed capabilities.</p>
+                    <div class="feature-accordion-item" data-feature="1">
+                        <img src="olympic ribs models/projective-40sr.png" alt="Powerhouse Performance" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Powerhouse Performance</h3>
+                                <p class="feature-accordion-description">Ultimate leisure or chase boat with exceptional power and speed capabilities.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Premium Craftsmanship</h3>
-                        <p>Meticulously crafted with attention to detail and premium materials throughout.</p>
+                    <div class="feature-accordion-item" data-feature="2">
+                        <img src="olympic ribs models/projective-40sr.png" alt="Premium Craftsmanship" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Premium Craftsmanship</h3>
+                                <p class="feature-accordion-description">Meticulously crafted with attention to detail and premium materials throughout.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Versatile Applications</h3>
-                        <p>Perfect for luxury leisure cruising or high-performance chase boat operations.</p>
+                    <div class="feature-accordion-item" data-feature="3">
+                        <img src="olympic ribs models/projective-40sr.png" alt="Versatile Applications" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Versatile Applications</h3>
+                                <p class="feature-accordion-description">Perfect for luxury leisure cruising or high-performance chase boat operations.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -182,6 +202,17 @@
             
             // Load model specifications
             initModelSpecifications('40SR');
+            
+            // Features Accordion functionality
+            const accordionItems = document.querySelectorAll('.feature-accordion-item');
+            accordionItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    accordionItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                });
+            });
         });
     </script>
 </body>

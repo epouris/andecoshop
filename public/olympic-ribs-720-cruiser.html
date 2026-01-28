@@ -92,22 +92,42 @@
                 <div class="section-header">
                     <h2 class="section-title">Key Features</h2>
                 </div>
-                <div class="features-list">
-                    <div class="feature-item">
-                        <h3>Spacious Design</h3>
-                        <p>Generous deck space and comfortable seating for extended cruising and entertaining.</p>
+                <div class="features-accordion" id="featuresAccordion">
+                    <div class="feature-accordion-item active" data-feature="0">
+                        <img src="olympic ribs models/olr720cruiser.jpeg" alt="Spacious Design" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Spacious Design</h3>
+                                <p class="feature-accordion-description">Generous deck space and comfortable seating for extended cruising and entertaining.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Premium Amenities</h3>
-                        <p>Luxury features and high-quality finishes throughout for the ultimate cruising experience.</p>
+                    <div class="feature-accordion-item" data-feature="1">
+                        <img src="olympic ribs models/olr720cruiser (1).jpeg" alt="Premium Amenities" class="feature-accordion-image" onerror="this.src='olympic ribs models/olr720cruiser (1).jpg'; this.onerror=function(){this.src='olympic ribs models/olr720cruiser (1).jfif';}">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Premium Amenities</h3>
+                                <p class="feature-accordion-description">Luxury features and high-quality finishes throughout for the ultimate cruising experience.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Stable Performance</h3>
-                        <p>Excellent stability and smooth ride quality for comfortable long-distance cruising.</p>
+                    <div class="feature-accordion-item" data-feature="2">
+                        <img src="olympic ribs models/olr720cruiser (2).jfif" alt="Stable Performance" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Stable Performance</h3>
+                                <p class="feature-accordion-description">Excellent stability and smooth ride quality for comfortable long-distance cruising.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Versatile Layout</h3>
-                        <p>Flexible configuration options to suit various activities and preferences.</p>
+                    <div class="feature-accordion-item" data-feature="3">
+                        <img src="olympic ribs models/olr720cruiser (3).jfif" alt="Versatile Layout" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Versatile Layout</h3>
+                                <p class="feature-accordion-description">Flexible configuration options to suit various activities and preferences.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -194,6 +214,17 @@
             
             // Load model specifications
             initModelSpecifications('720 Cruiser');
+            
+            // Features Accordion functionality
+            const accordionItems = document.querySelectorAll('.feature-accordion-item');
+            accordionItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    accordionItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                });
+            });
             
             // Set up Customize Yours button
             const customizeBtn = document.getElementById('customizeBtn');
