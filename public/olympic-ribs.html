@@ -332,18 +332,49 @@
                     nextBtn.style.cursor = 'pointer';
                 }
                 
-                prevBtn.addEventListener('click', () => {
-                    currentIndex = (currentIndex - 1 + totalCards) % totalCards;
+                function isMobile() {
+                    return window.innerWidth <= 768;
+                }
+                
+                function handleCarouselUpdate() {
+                    if (isMobile()) {
+                        // Mobile: Use horizontal scroll, hide buttons
+                        prevBtn.style.display = 'none';
+                        nextBtn.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Desktop: Use 3D carousel
+                    prevBtn.style.display = 'flex';
+                    nextBtn.style.display = 'flex';
                     updateCarousel();
+                }
+                
+                prevBtn.addEventListener('click', () => {
+                    if (!isMobile()) {
+                        currentIndex = (currentIndex - 1 + totalCards) % totalCards;
+                        updateCarousel();
+                    }
                 });
                 
                 nextBtn.addEventListener('click', () => {
-                    currentIndex = (currentIndex + 1) % totalCards;
-                    updateCarousel();
+                    if (!isMobile()) {
+                        currentIndex = (currentIndex + 1) % totalCards;
+                        updateCarousel();
+                    }
+                });
+                
+                // Handle window resize
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        handleCarouselUpdate();
+                    }, 250);
                 });
                 
                 // Initial setup
-                updateCarousel();
+                handleCarouselUpdate();
             });
         });
     </script>

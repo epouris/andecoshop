@@ -229,22 +229,42 @@
                 <div class="section-header">
                     <h2 class="section-title">Key Features</h2>
                 </div>
-                <div class="features-list">
-                    <div class="feature-item">
-                        <h3>Big Boat Specifications</h3>
-                        <p>Full-size boat features and capabilities in a compact 30ft package, maximizing versatility and performance.</p>
+                <div class="features-accordion" id="featuresAccordion">
+                    <div class="feature-accordion-item active" data-feature="0">
+                        <img src="olympic ribs models/olr30sr (1).jpg" alt="Big Boat Specifications" class="feature-accordion-image" onerror="this.src='olympic ribs models/olr30sr (1).jpeg'">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Big Boat Specifications</h3>
+                                <p class="feature-accordion-description">Full-size boat features and capabilities in a compact 30ft package, maximizing versatility and performance.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Exceptional Versatility</h3>
-                        <p>Designed for multiple applications including leisure, commercial, and professional use.</p>
+                    <div class="feature-accordion-item" data-feature="1">
+                        <img src="olympic ribs models/olr30sr (3).jpeg" alt="Exceptional Versatility" class="feature-accordion-image" onerror="this.src='olympic ribs models/olr30sr (3).jpg'">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Exceptional Versatility</h3>
+                                <p class="feature-accordion-description">Designed for multiple applications including leisure, commercial, and professional use.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Advanced Engineering</h3>
-                        <p>State-of-the-art maritime engineering ensures reliability and performance in all conditions.</p>
+                    <div class="feature-accordion-item" data-feature="2">
+                        <img src="olympic ribs models/olr30sr (7).jpg" alt="Advanced Engineering" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Advanced Engineering</h3>
+                                <p class="feature-accordion-description">State-of-the-art maritime engineering ensures reliability and performance in all conditions.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <h3>Premium Quality</h3>
-                        <p>Built to the highest standards with attention to detail and quality craftsmanship throughout.</p>
+                    <div class="feature-accordion-item" data-feature="3">
+                        <img src="olympic ribs models/olr30sr (8).jpg" alt="Premium Quality" class="feature-accordion-image">
+                        <div class="feature-accordion-overlay">
+                            <div class="feature-accordion-content">
+                                <h3 class="feature-accordion-title">Premium Quality</h3>
+                                <p class="feature-accordion-description">Built to the highest standards with attention to detail and quality craftsmanship throughout.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -334,6 +354,17 @@
             
             // Load model specifications
             initModelSpecifications('30SR');
+            
+            // Features Accordion functionality
+            const accordionItems = document.querySelectorAll('.feature-accordion-item');
+            accordionItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    accordionItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                });
+            });
         });
     </script>
 </body>
