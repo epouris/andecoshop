@@ -763,6 +763,16 @@
     background: #f5f5f5;
 }
 
+.specs-disclaimer {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 1.5rem;
+    padding: 0 1rem;
+    text-align: left;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
 .model-gallery {
     padding: 5rem 0;
     background: #ffffff;
@@ -1331,5 +1341,11 @@
     
     .spec-value-cell {
         width: 55%;
+    }
+
+    .specs-disclaimer {
+        font-size: 0.7rem;
+        margin-top: 1rem;
+        padding: 0 0.5rem;
     }
 }

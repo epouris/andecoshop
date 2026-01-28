@@ -47,6 +47,7 @@ function renderSpecificationsTable(specs, container) {
     });
     
     tableHTML += '</tbody></table>';
+    tableHTML += '<p class="specs-disclaimer">*Specifications may be changed without prior notice. Performance may vary due to equipment, weather and load conditions.</p>';
     container.innerHTML = tableHTML;
 }
 
