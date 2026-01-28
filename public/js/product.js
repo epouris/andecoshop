@@ -48,8 +48,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Update back link to go to brand page
     const backLink = document.getElementById('backLink');
     if (backLink && product.category) {
-        backLink.href = `brand.html?brand=${encodeURIComponent(product.category)}`;
-        backLink.textContent = `← Back to ${product.category}`;
+        // Special case: Olympic Ribs should go to olympic-ribs.html
+        if (product.category.toLowerCase() === 'olympic ribs') {
+            backLink.href = 'olympic-ribs.html';
+            backLink.textContent = '← Back to Olympic Ribs';
+        } else {
+            backLink.href = `brand.html?brand=${encodeURIComponent(product.category)}`;
+            backLink.textContent = `← Back to ${product.category}`;
+        }
     }
 
     let selectedOptions = {};
