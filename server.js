@@ -420,6 +420,29 @@ async function initializeDatabase() {
     } catch (error) {
       console.error('Error checking specs_columns column:', error);
     }
+
+    // Model page media: key feature panels + gallery (JSON arrays)
+    try {
+      const fpCheck = await pool.query(`
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'model_specifications' AND column_name = 'feature_panels'
+      `);
+      if (fpCheck.rows.length === 0) {
+        console.log('Adding feature_panels and gallery_images to model_specifications...');
+        await pool.query(`
+          ALTER TABLE model_specifications
+          ADD COLUMN feature_panels JSONB DEFAULT '[]'::jsonb
+        `);
+        await pool.query(`
+          ALTER TABLE model_specifications
+          ADD COLUMN gallery_images JSONB DEFAULT '[]'::jsonb
+        `);
+        console.log('✓ model_specifications media columns added');
+      }
+    } catch (migrationError) {
+      console.error('model_specifications media columns migration:', migrationError);
+    }
     
     // After tables are created, initialize admin user
     if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
@@ -1454,6 +1477,20 @@ app.put('/api/admin/settings/logo', authenticateAdmin, async (req, res) => {
   }
 });
 
+function parseJsonbArray(val) {
+  if (val == null) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') {
+    try {
+      const p = JSON.parse(val);
+      return Array.isArray(p) ? p : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 // Model Specifications management (admin only)
 app.get('/api/admin/model-specifications', authenticateAdmin, async (req, res) => {
   try {
@@ -1477,6 +1514,8 @@ app.get('/api/admin/model-specifications', authenticateAdmin, async (req, res) =
         id: row.id,
         modelName: row.model_name,
         specifications: specifications,
+        featurePanels: parseJsonbArray(row.feature_panels),
+        galleryImages: parseJsonbArray(row.gallery_images),
         createdAt: row.created_at,
         updatedAt: row.updated_at
       };
@@ -1512,7 +1551,9 @@ app.get('/api/model-specifications/:modelName', async (req, res) => {
     res.json({
       id: row.id,
       modelName: row.model_name,
-      specifications: specifications
+      specifications: specifications,
+      featurePanels: parseJsonbArray(row.feature_panels),
+      galleryImages: parseJsonbArray(row.gallery_images)
     });
   } catch (error) {
     console.error('Error fetching model specifications:', error);
@@ -1549,17 +1590,21 @@ app.get('/api/admin/model-brochure-pdf/:slug', authenticateAdmin, async (req, re
 
 app.post('/api/admin/model-specifications', authenticateAdmin, async (req, res) => {
   try {
-    const { modelName, specifications } = req.body;
+    const { modelName, specifications, featurePanels, galleryImages } = req.body;
+    const fp = JSON.stringify(Array.isArray(featurePanels) ? featurePanels : []);
+    const gi = JSON.stringify(Array.isArray(galleryImages) ? galleryImages : []);
     const result = await pool.query(`
-      INSERT INTO model_specifications (model_name, specifications)
-      VALUES ($1, $2)
+      INSERT INTO model_specifications (model_name, specifications, feature_panels, gallery_images)
+      VALUES ($1, $2, $3::jsonb, $4::jsonb)
       RETURNING *
-    `, [modelName, JSON.stringify(specifications)]);
+    `, [modelName, JSON.stringify(specifications || {}), fp, gi]);
     const row = result.rows[0];
     res.status(201).json({
       id: row.id,
       modelName: row.model_name,
-      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications,
+      featurePanels: parseJsonbArray(row.feature_panels),
+      galleryImages: parseJsonbArray(row.gallery_images)
     });
   } catch (error) {
     if (error.code === '23505') { // Unique violation
@@ -1572,13 +1617,18 @@ app.post('/api/admin/model-specifications', authenticateAdmin, async (req, res) 
 
 app.put('/api/admin/model-specifications/:id', authenticateAdmin, async (req, res) => {
   try {
-    const { specifications } = req.body;
+    const { specifications, featurePanels, galleryImages } = req.body;
+    const fp = JSON.stringify(Array.isArray(featurePanels) ? featurePanels : []);
+    const gi = JSON.stringify(Array.isArray(galleryImages) ? galleryImages : []);
     const result = await pool.query(`
       UPDATE model_specifications 
-      SET specifications = $1, updated_at = CURRENT_TIMESTAMP
+      SET specifications = $1,
+          feature_panels = $3::jsonb,
+          gallery_images = $4::jsonb,
+          updated_at = CURRENT_TIMESTAMP
       WHERE id = $2
       RETURNING *
-    `, [JSON.stringify(specifications), req.params.id]);
+    `, [JSON.stringify(specifications || {}), req.params.id, fp, gi]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Specifications not found' });
     }
@@ -1586,7 +1636,9 @@ app.put('/api/admin/model-specifications/:id', authenticateAdmin, async (req, re
     res.json({
       id: row.id,
       modelName: row.model_name,
-      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications,
+      featurePanels: parseJsonbArray(row.feature_panels),
+      galleryImages: parseJsonbArray(row.gallery_images)
     });
   } catch (error) {
     console.error('Error updating model specifications:', error);
@@ -1596,13 +1648,18 @@ app.put('/api/admin/model-specifications/:id', authenticateAdmin, async (req, re
 
 app.put('/api/admin/model-specifications/model/:modelName', authenticateAdmin, async (req, res) => {
   try {
-    const { specifications } = req.body;
+    const { specifications, featurePanels, galleryImages } = req.body;
+    const fp = JSON.stringify(Array.isArray(featurePanels) ? featurePanels : []);
+    const gi = JSON.stringify(Array.isArray(galleryImages) ? galleryImages : []);
     const result = await pool.query(`
       UPDATE model_specifications 
-      SET specifications = $1, updated_at = CURRENT_TIMESTAMP
+      SET specifications = $1,
+          feature_panels = $3::jsonb,
+          gallery_images = $4::jsonb,
+          updated_at = CURRENT_TIMESTAMP
       WHERE model_name = $2
       RETURNING *
-    `, [JSON.stringify(specifications), req.params.modelName]);
+    `, [JSON.stringify(specifications || {}), req.params.modelName, fp, gi]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Specifications not found' });
     }
@@ -1610,7 +1667,9 @@ app.put('/api/admin/model-specifications/model/:modelName', authenticateAdmin, a
     res.json({
       id: row.id,
       modelName: row.model_name,
-      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications
+      specifications: typeof row.specifications === 'string' ? JSON.parse(row.specifications) : row.specifications,
+      featurePanels: parseJsonbArray(row.feature_panels),
+      galleryImages: parseJsonbArray(row.gallery_images)
     });
   } catch (error) {
     console.error('Error updating model specifications:', error);

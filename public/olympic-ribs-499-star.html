@@ -96,8 +96,8 @@
                     <div class="feature-accordion-item active" data-feature="0">
                         <img src="olympic ribs models/olr499star.jpeg" alt="Premium Design" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Premium Design</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Premium Design</h3>
                                 <p class="feature-accordion-description">Elegant styling with attention to detail, combining aesthetics with functionality.</p>
                             </div>
                         </div>
@@ -105,8 +105,8 @@
                     <div class="feature-accordion-item" data-feature="1">
                         <img src="olympic ribs models/olr499star (1).jpeg" alt="Enhanced Performance" class="feature-accordion-image" onerror="this.src='olympic ribs models/olr499star (1).jpg'">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Enhanced Performance</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Enhanced Performance</h3>
                                 <p class="feature-accordion-description">Powerful engine options deliver impressive speed and handling capabilities.</p>
                             </div>
                         </div>
@@ -114,8 +114,8 @@
                     <div class="feature-accordion-item" data-feature="2">
                         <img src="olympic ribs models/olr499star (2).jpeg" alt="Spacious Layout" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Spacious Layout</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Spacious Layout</h3>
                                 <p class="feature-accordion-description">Comfortable seating arrangement for extended cruising and leisure activities.</p>
                             </div>
                         </div>
@@ -123,8 +123,8 @@
                     <div class="feature-accordion-item" data-feature="3">
                         <img src="olympic ribs models/olr499star (3).jpeg" alt="Quality Craftsmanship" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Quality Craftsmanship</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Quality Craftsmanship</h3>
                                 <p class="feature-accordion-description">Built to the highest standards with premium materials and expert construction.</p>
                             </div>
                         </div>
@@ -212,19 +212,7 @@
                 };
             }
             
-            // Load model specifications
-            initModelSpecifications('499 Star');
-            
-            // Features Accordion functionality
-            const accordionItems = document.querySelectorAll('.feature-accordion-item');
-            accordionItems.forEach((item, index) => {
-                item.addEventListener('click', () => {
-                    // Remove active class from all items
-                    accordionItems.forEach(i => i.classList.remove('active'));
-                    // Add active class to clicked item
-                    item.classList.add('active');
-                });
-            });
+            void initModelSpecifications('499 Star');
             
             // Set up Customize Yours button
             const customizeBtn = document.getElementById('customizeBtn');

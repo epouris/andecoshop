@@ -100,8 +100,8 @@
                     <div class="feature-accordion-item active" data-feature="0">
                         <img src="olympic ribs models/olr430captainhook.jpg" alt="Exceptional Performance" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Exceptional Performance</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Exceptional Performance</h3>
                                 <p class="feature-accordion-description">Designed for speed and agility, the 430 Captain Hook delivers outstanding performance in various sea conditions.</p>
                             </div>
                         </div>
@@ -109,8 +109,8 @@
                     <div class="feature-accordion-item" data-feature="1">
                         <img src="olympic ribs models/olr430captainhook (1).jpeg" alt="Durable Construction" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Durable Construction</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Durable Construction</h3>
                                 <p class="feature-accordion-description">Built with premium materials and expert craftsmanship to ensure longevity and reliability.</p>
                             </div>
                         </div>
@@ -118,8 +118,8 @@
                     <div class="feature-accordion-item" data-feature="2">
                         <img src="olympic ribs models/olr430captainhook (2).jpeg" alt="Comfortable Seating" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Comfortable Seating</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Comfortable Seating</h3>
                                 <p class="feature-accordion-description">Ergonomic design with comfortable seating for extended journeys on the water.</p>
                             </div>
                         </div>
@@ -127,8 +127,8 @@
                     <div class="feature-accordion-item" data-feature="3">
                         <img src="olympic ribs models/olr430captainhook (3).jpeg" alt="Versatile Design" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Versatile Design</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Versatile Design</h3>
                                 <p class="feature-accordion-description">Perfect for fishing, leisure cruising, or water sports activities.</p>
                             </div>
                         </div>
@@ -215,19 +215,7 @@
                 };
             }
             
-            // Load model specifications
-            initModelSpecifications('430 Captain Hook');
-            
-            // Features Accordion functionality
-            const accordionItems = document.querySelectorAll('.feature-accordion-item');
-            accordionItems.forEach((item, index) => {
-                item.addEventListener('click', () => {
-                    // Remove active class from all items
-                    accordionItems.forEach(i => i.classList.remove('active'));
-                    // Add active class to clicked item
-                    item.classList.add('active');
-                });
-            });
+            void initModelSpecifications('430 Captain Hook');
             
             // Set up Customize Yours button
             const customizeBtn = document.getElementById('customizeBtn');

@@ -1213,18 +1213,159 @@
             }
         }
 
-        function openModelSpecModal(modelName = null, specs = null) {
+        function appendFeaturePanelRow(container, panel) {
+            const p = panel || {};
+            const row = document.createElement('div');
+            row.className = 'media-panel-row';
+            const fg1 = document.createElement('div');
+            fg1.className = 'form-group';
+            const l1 = document.createElement('label');
+            l1.textContent = 'Image URL';
+            const in1 = document.createElement('input');
+            in1.type = 'text';
+            in1.className = 'form-input fp-image';
+            in1.placeholder = 'Path or https URL';
+            in1.value = (p.image || p.imageUrl || '').trim();
+            fg1.appendChild(l1);
+            fg1.appendChild(in1);
+            const fg2 = document.createElement('div');
+            fg2.className = 'form-group';
+            const l2 = document.createElement('label');
+            l2.textContent = 'Title';
+            const in2 = document.createElement('input');
+            in2.type = 'text';
+            in2.className = 'form-input fp-title';
+            in2.value = (p.title || '').trim();
+            fg2.appendChild(l2);
+            fg2.appendChild(in2);
+            const fg3 = document.createElement('div');
+            fg3.className = 'form-group';
+            const l3 = document.createElement('label');
+            l3.textContent = 'Description';
+            const in3 = document.createElement('input');
+            in3.type = 'text';
+            in3.className = 'form-input fp-desc';
+            in3.value = (p.description || '').trim();
+            fg3.appendChild(l3);
+            fg3.appendChild(in3);
+            const rm = document.createElement('button');
+            rm.type = 'button';
+            rm.className = 'btn btn-secondary btn-small media-row-remove';
+            rm.textContent = 'Remove';
+            rm.addEventListener('click', function () {
+                row.remove();
+            });
+            row.appendChild(fg1);
+            row.appendChild(fg2);
+            row.appendChild(fg3);
+            row.appendChild(rm);
+            container.appendChild(row);
+        }
+
+        function renderFeaturePanelsEditor(panels) {
+            const el = document.getElementById('featurePanelsEditor');
+            if (!el) return;
+            el.innerHTML = '';
+            (panels || []).forEach(function (p) {
+                appendFeaturePanelRow(el, p);
+            });
+        }
+
+        function appendGalleryImageRow(container, g) {
+            const row = document.createElement('div');
+            row.className = 'media-panel-row';
+            const fg1 = document.createElement('div');
+            fg1.className = 'form-group';
+            const l1 = document.createElement('label');
+            l1.textContent = 'Image URL';
+            const in1 = document.createElement('input');
+            in1.type = 'text';
+            in1.className = 'form-input gi-src';
+            in1.placeholder = 'Path or https URL';
+            in1.value = ((g && (g.src || g.url)) || '').trim();
+            fg1.appendChild(l1);
+            fg1.appendChild(in1);
+            const fg2 = document.createElement('div');
+            fg2.className = 'form-group';
+            const l2 = document.createElement('label');
+            l2.textContent = 'Alt text (optional)';
+            const in2 = document.createElement('input');
+            in2.type = 'text';
+            in2.className = 'form-input gi-alt';
+            in2.value = ((g && g.alt) || '').trim();
+            fg2.appendChild(l2);
+            fg2.appendChild(in2);
+            const rm = document.createElement('button');
+            rm.type = 'button';
+            rm.className = 'btn btn-secondary btn-small media-row-remove';
+            rm.textContent = 'Remove';
+            rm.addEventListener('click', function () {
+                row.remove();
+            });
+            row.appendChild(fg1);
+            row.appendChild(fg2);
+            row.appendChild(rm);
+            container.appendChild(row);
+        }
+
+        function renderGalleryImagesEditor(images) {
+            const el = document.getElementById('galleryImagesEditor');
+            if (!el) return;
+            el.innerHTML = '';
+            (images || []).forEach(function (g) {
+                appendGalleryImageRow(el, g);
+            });
+        }
+
+        function getFeaturePanelsFromForm() {
+            const el = document.getElementById('featurePanelsEditor');
+            if (!el) return [];
+            return Array.from(el.querySelectorAll('.media-panel-row')).map(function (row) {
+                return {
+                    image: (row.querySelector('.fp-image') && row.querySelector('.fp-image').value.trim()) || '',
+                    title: (row.querySelector('.fp-title') && row.querySelector('.fp-title').value.trim()) || '',
+                    description: (row.querySelector('.fp-desc') && row.querySelector('.fp-desc').value.trim()) || ''
+                };
+            }).filter(function (p) {
+                return p.image;
+            });
+        }
+
+        function getGalleryImagesFromForm() {
+            const el = document.getElementById('galleryImagesEditor');
+            if (!el) return [];
+            return Array.from(el.querySelectorAll('.media-panel-row')).map(function (row) {
+                return {
+                    src: (row.querySelector('.gi-src') && row.querySelector('.gi-src').value.trim()) || '',
+                    alt: (row.querySelector('.gi-alt') && row.querySelector('.gi-alt').value.trim()) || ''
+                };
+            }).filter(function (g) {
+                return g.src;
+            });
+        }
+
+        function clearModelMediaEditors() {
+            const fpe = document.getElementById('featurePanelsEditor');
+            const gie = document.getElementById('galleryImagesEditor');
+            if (fpe) fpe.innerHTML = '';
+            if (gie) gie.innerHTML = '';
+        }
+
+        function openModelSpecModal(editData) {
             if (!modelSpecModal) return;
             
             editingModelSpecId = null;
             modelSpecForm.reset();
+            clearModelMediaEditors();
             
-            if (modelName && specs) {
-                editingModelSpecId = modelName;
+            if (editData && editData.modelName) {
+                editingModelSpecId = editData.modelName;
                 modelSpecModalTitle.textContent = 'Edit Model Specifications';
-                document.getElementById('modelSpecModelName').value = modelName;
+                document.getElementById('modelSpecModelName').value = editData.modelName;
                 document.getElementById('modelSpecModelName').disabled = true;
-                buildSpecsEditor(specs);
+                buildSpecsEditor(editData.specifications || {});
+                renderFeaturePanelsEditor(editData.featurePanels || []);
+                renderGalleryImagesEditor(editData.galleryImages || []);
             } else {
                 modelSpecModalTitle.textContent = 'Add Model Specifications';
                 document.getElementById('modelSpecModelName').value = '';
@@ -1241,6 +1382,7 @@
                 editingModelSpecId = null;
                 modelSpecForm.reset();
                 modelSpecsContainer.innerHTML = '';
+                clearModelMediaEditors();
             }
         }
 
@@ -1249,7 +1391,12 @@
                 const response = await fetch(`/api/model-specifications/${encodeURIComponent(modelName)}`);
                 if (!response.ok) throw new Error('Failed to fetch specifications');
                 const spec = await response.json();
-                openModelSpecModal(spec.modelName, spec.specifications);
+                openModelSpecModal({
+                    modelName: spec.modelName,
+                    specifications: spec.specifications,
+                    featurePanels: spec.featurePanels || [],
+                    galleryImages: spec.galleryImages || []
+                });
             } catch (error) {
                 alert('Error loading specifications: ' + error.message);
             }
@@ -1266,6 +1413,8 @@
                     }
                     
                     const specifications = getSpecsFromForm();
+                    const featurePanels = getFeaturePanelsFromForm();
+                    const galleryImages = getGalleryImagesFromForm();
                     
                     const url = editingModelSpecId 
                         ? `/api/admin/model-specifications/model/${encodeURIComponent(editingModelSpecId)}`
@@ -1285,7 +1434,7 @@
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify({ modelName, specifications })
+                        body: JSON.stringify({ modelName, specifications, featurePanels, galleryImages })
                     });
                     
                     if (!response.ok) {
@@ -1302,8 +1451,25 @@
             });
         }
 
+        const addFeaturePanelBtn = document.getElementById('addFeaturePanelBtn');
+        const addGalleryImageBtn = document.getElementById('addGalleryImageBtn');
+        if (addFeaturePanelBtn) {
+            addFeaturePanelBtn.addEventListener('click', function () {
+                const c = document.getElementById('featurePanelsEditor');
+                if (c) appendFeaturePanelRow(c, {});
+            });
+        }
+        if (addGalleryImageBtn) {
+            addGalleryImageBtn.addEventListener('click', function () {
+                const c = document.getElementById('galleryImagesEditor');
+                if (c) appendGalleryImageRow(c, {});
+            });
+        }
+
         if (addModelSpecBtn) {
-            addModelSpecBtn.addEventListener('click', () => openModelSpecModal());
+            addModelSpecBtn.addEventListener('click', function () {
+                openModelSpecModal(null);
+            });
         }
         if (closeModelSpecModalBtn) {
             closeModelSpecModalBtn.addEventListener('click', closeModelSpecModal);

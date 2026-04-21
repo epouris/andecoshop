@@ -96,8 +96,8 @@
                     <div class="feature-accordion-item active" data-feature="0">
                         <img src="olympic ribs models/projective-720-cruiser.png" alt="Spacious Design" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Spacious Design</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Spacious Design</h3>
                                 <p class="feature-accordion-description">Generous deck space and comfortable seating for extended cruising and entertaining.</p>
                             </div>
                         </div>
@@ -105,8 +105,8 @@
                     <div class="feature-accordion-item" data-feature="1">
                         <img src="olympic ribs models/projective-720-cruiser.png" alt="Premium Amenities" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Premium Amenities</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Premium Amenities</h3>
                                 <p class="feature-accordion-description">Luxury features and high-quality finishes throughout for the ultimate cruising experience.</p>
                             </div>
                         </div>
@@ -114,8 +114,8 @@
                     <div class="feature-accordion-item" data-feature="2">
                         <img src="olympic ribs models/projective-720-cruiser.png" alt="Stable Performance" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Stable Performance</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Stable Performance</h3>
                                 <p class="feature-accordion-description">Excellent stability and smooth ride quality for comfortable long-distance cruising.</p>
                             </div>
                         </div>
@@ -123,8 +123,8 @@
                     <div class="feature-accordion-item" data-feature="3">
                         <img src="olympic ribs models/projective-720-cruiser.png" alt="Versatile Layout" class="feature-accordion-image">
                         <div class="feature-accordion-overlay">
+                            <h3 class="feature-accordion-title">Versatile Layout</h3>
                             <div class="feature-accordion-content">
-                                <h3 class="feature-accordion-title">Versatile Layout</h3>
                                 <p class="feature-accordion-description">Flexible configuration options to suit various activities and preferences.</p>
                             </div>
                         </div>
@@ -212,19 +212,7 @@
                 };
             }
             
-            // Load model specifications
-            initModelSpecifications('720 Cruiser');
-            
-            // Features Accordion functionality
-            const accordionItems = document.querySelectorAll('.feature-accordion-item');
-            accordionItems.forEach((item, index) => {
-                item.addEventListener('click', () => {
-                    // Remove active class from all items
-                    accordionItems.forEach(i => i.classList.remove('active'));
-                    // Add active class to clicked item
-                    item.classList.add('active');
-                });
-            });
+            void initModelSpecifications('720 Cruiser');
             
             // Set up Customize Yours button
             const customizeBtn = document.getElementById('customizeBtn');

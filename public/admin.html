@@ -479,6 +479,17 @@
                 <div id="modelSpecsContainer" class="model-specs-editor">
                     <!-- Specifications will be dynamically generated here -->
                 </div>
+                <div id="modelMediaEditors" class="model-media-editors">
+                    <h4 class="model-media-heading">Key feature panels (optional)</h4>
+                    <p class="model-media-hint">Add image URL, title, and short text for each panel. If you save at least one panel with an image, it replaces the key-feature section on the model page and in the PDF. Leave empty to keep the photos already in the HTML file. Use a site path (for example olympic ribs models/photo.jpg) or a full https image URL.</p>
+                    <div id="featurePanelsEditor" class="model-media-rows"></div>
+                    <button type="button" class="btn btn-secondary btn-small" id="addFeaturePanelBtn">+ Add feature panel</button>
+
+                    <h4 class="model-media-heading">Gallery photos (optional)</h4>
+                    <p class="model-media-hint">Add one row per photo. If you save at least one image URL, it replaces the gallery on the model page and in the PDF. Leave empty to keep the gallery already in the HTML file.</p>
+                    <div id="galleryImagesEditor" class="model-media-rows"></div>
+                    <button type="button" class="btn btn-secondary btn-small" id="addGalleryImageBtn">+ Add gallery photo</button>
+                </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancelModelSpecBtn">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Specifications</button>

@@ -1071,3 +1071,56 @@
     font-size: 0.85rem;
     color: var(--text-secondary);
 }
+
+/* Model spec modal: feature panels + gallery URLs */
+.model-media-editors {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.model-media-heading {
+    margin: 1rem 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.model-media-heading:first-child {
+    margin-top: 0;
+}
+
+.model-media-hint {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0 0 0.75rem;
+}
+
+.model-media-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.media-panel-row {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-light);
+}
+
+.media-panel-row .form-group {
+    margin-bottom: 0.5rem;
+}
+
+.media-panel-row .form-group:last-of-type {
+    margin-bottom: 0.35rem;
+}
+
+.media-row-remove {
+    margin-top: 0.35rem;
+}
