@@ -533,7 +533,8 @@ async function generateModelBrochurePdf(pagePath) {
     return await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: { top: '10mm', right: '8mm', bottom: '12mm', left: '8mm' },
+      margin: { top: '5mm', right: '5mm', bottom: '6mm', left: '5mm' },
+      scale: 0.92,
     });
   } finally {
     await browser.close();
