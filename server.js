@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
+const { MODEL_BROCHURE_PAGES, getBrochurePageBySlug } = require('./model-brochures');
 const https = require('https');
 const http = require('http');
 require('dotenv').config();
@@ -494,6 +495,48 @@ async function getAdminByToken(token) {
   } catch (error) {
     console.error('Admin token lookup error:', error);
     return null;
+  }
+}
+
+/** Renders a whitelisted public model page to PDF (Chromium via Puppeteer). */
+async function generateModelBrochurePdf(pagePath) {
+  const puppeteer = require('puppeteer');
+  const baseUrl = (process.env.PUBLIC_APP_URL || `http://127.0.0.1:${PORT}`).replace(/\/$/, '');
+  const url = `${baseUrl}${pagePath}`;
+  const launchOpts = {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--font-render-hinting=medium',
+    ],
+  };
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    launchOpts.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+  const browser = await puppeteer.launch(launchOpts);
+  try {
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1200, height: 900, deviceScaleFactor: 1 });
+    await page.goto(url, { waitUntil: 'load', timeout: 120000 });
+    try {
+      await page.waitForResponse(
+        (response) => response.url().includes('/api/model-specifications/'),
+        { timeout: 25000 }
+      );
+    } catch (_) {
+      // Static fallback tables do not call the API
+    }
+    await page.evaluate(() => document.fonts.ready).catch(() => {});
+    await new Promise((r) => setTimeout(r, 800));
+    return await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '10mm', right: '8mm', bottom: '12mm', left: '8mm' },
+    });
+  } finally {
+    await browser.close();
   }
 }
 
@@ -1473,6 +1516,33 @@ app.get('/api/model-specifications/:modelName', async (req, res) => {
   } catch (error) {
     console.error('Error fetching model specifications:', error);
     res.status(500).json({ error: 'Failed to fetch model specifications' });
+  }
+});
+
+// Model page brochures (PDF) — admin only; paths are whitelisted in model-brochures.js
+app.get('/api/admin/model-brochure-pages', authenticateAdmin, (req, res) => {
+  res.json({
+    pages: MODEL_BROCHURE_PAGES.map(({ slug, label }) => ({ slug, label })),
+  });
+});
+
+app.get('/api/admin/model-brochure-pdf/:slug', authenticateAdmin, async (req, res) => {
+  const entry = getBrochurePageBySlug(req.params.slug);
+  if (!entry) {
+    return res.status(404).json({ error: 'Unknown brochure page' });
+  }
+  try {
+    const pdfBuffer = await generateModelBrochurePdf(entry.path);
+    const filename = `${entry.slug}-brochure.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(Buffer.from(pdfBuffer));
+  } catch (error) {
+    console.error('PDF brochure error:', error);
+    return res.status(500).json({
+      error: 'PDF generation failed',
+      details: error.message || String(error),
+    });
   }
 });
 

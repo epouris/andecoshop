@@ -767,6 +767,7 @@
                         try {
                             console.log('Model Specs tab clicked, rendering table...');
                             renderModelSpecsTable();
+                            ensureModelBrochurePdfButtons();
                         } catch (error) {
                             console.error('Error rendering model specs table:', error);
                         }
@@ -1123,6 +1124,92 @@
                 if (tableBody) {
                     tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: #dc2626;">Error loading specifications: ' + error.message + '</td></tr>';
                 }
+            }
+        }
+
+        let modelBrochurePagesCache = null;
+
+        async function ensureModelBrochurePdfButtons() {
+            const wrap = document.getElementById('modelBrochurePdfButtons');
+            const statusEl = document.getElementById('modelBrochurePdfStatus');
+            if (!wrap) return;
+            const token = localStorage.getItem('admin_token');
+            if (!token) {
+                if (statusEl) statusEl.textContent = 'Log in to download brochures.';
+                return;
+            }
+            if (modelBrochurePagesCache) {
+                return;
+            }
+            wrap.innerHTML = '<span class="brochure-pdf-loading">Loading brochure list…</span>';
+            if (statusEl) statusEl.textContent = '';
+            try {
+                const response = await fetch('/api/admin/model-brochure-pages', {
+                    headers: { Authorization: 'Bearer ' + token },
+                });
+                if (!response.ok) {
+                    throw new Error('Could not load brochure list (' + response.status + ')');
+                }
+                const data = await response.json();
+                const pages = Array.isArray(data.pages) ? data.pages : [];
+                modelBrochurePagesCache = pages;
+                wrap.innerHTML = '';
+                pages.forEach(function (p) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-secondary btn-small';
+                    btn.textContent = 'PDF — ' + (p.label || p.slug);
+                    btn.addEventListener('click', function () {
+                        downloadBrochurePdf(p.slug, p.label || p.slug);
+                    });
+                    wrap.appendChild(btn);
+                });
+            } catch (err) {
+                modelBrochurePagesCache = null;
+                wrap.innerHTML = '';
+                const msg = err.message || 'Failed to load brochures';
+                if (statusEl) statusEl.textContent = msg;
+                console.error(msg, err);
+            }
+        }
+
+        async function downloadBrochurePdf(slug, label) {
+            const statusEl = document.getElementById('modelBrochurePdfStatus');
+            const token = localStorage.getItem('admin_token');
+            if (!token) {
+                alert('Please log in again.');
+                return;
+            }
+            if (statusEl) statusEl.textContent = 'Generating PDF for ' + (label || slug) + '…';
+            try {
+                const response = await fetch(
+                    '/api/admin/model-brochure-pdf/' + encodeURIComponent(slug),
+                    { headers: { Authorization: 'Bearer ' + token } }
+                );
+                if (!response.ok) {
+                    let errMsg = 'PDF request failed (' + response.status + ')';
+                    const text = await response.text();
+                    try {
+                        const j = JSON.parse(text);
+                        if (j.error) errMsg = j.error + (j.details ? ': ' + j.details : '');
+                    } catch (e) {
+                        if (text) errMsg = text.slice(0, 200);
+                    }
+                    throw new Error(errMsg);
+                }
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = slug + '-brochure.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                if (statusEl) statusEl.textContent = 'Download started for ' + (label || slug) + '.';
+            } catch (err) {
+                if (statusEl) statusEl.textContent = err.message || 'PDF failed';
+                alert(err.message || 'PDF generation failed');
             }
         }
 

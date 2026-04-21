@@ -1349,3 +1349,33 @@
         padding: 0 0.5rem;
     }
 }
+
+/* Print / PDF brochure output (Puppeteer uses print CSS) */
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    .header .nav,
+    .footer {
+        display: none !important;
+    }
+
+    .header {
+        box-shadow: none !important;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative !important;
+    }
+
+    .olympic-main,
+    .model-hero,
+    .model-side-view,
+    .model-specs {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .specs-table-detailed tr {
+        break-inside: avoid;
+    }
+}

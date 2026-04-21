@@ -1024,3 +1024,50 @@
         max-width: 95%;
     }
 }
+
+/* Model brochure PDF downloads (Model Specifications tab) */
+.brochure-pdf-panel {
+    margin-bottom: 1.75rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--bg-color);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+}
+
+.brochure-pdf-panel h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.brochure-pdf-panel-desc {
+    margin: 0 0 0.35rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.brochure-pdf-panel-note {
+    margin: 0 0 1rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    opacity: 0.95;
+}
+
+.brochure-pdf-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.brochure-pdf-loading {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.brochure-pdf-status {
+    margin: 0.75rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
