@@ -1436,11 +1436,145 @@
         padding-right: 10px !important;
     }
 
-    /* Spec brochure: drop long marketing sections to save pages */
-    .model-features,
-    .model-gallery,
+    /* Key features: stack all panels so every point prints (screen accordion only shows one) */
+    .model-features {
+        padding: 0.65rem 0 !important;
+        overflow: visible !important;
+    }
+
+    .model-features .section-header {
+        margin-bottom: 0.35rem !important;
+    }
+
+    .model-features .section-title {
+        font-size: 10pt !important;
+    }
+
+    .features-accordion {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        gap: 0.45rem !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .feature-accordion-item,
+    .feature-accordion-item.active,
+    .feature-accordion-item:not(.active) {
+        flex: none !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        position: relative !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+        cursor: default !important;
+    }
+
+    .feature-accordion-image {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 95px !important;
+        object-fit: cover !important;
+        opacity: 0.9 !important;
+    }
+
+    .feature-accordion-item.active .feature-accordion-image,
+    .feature-accordion-item:not(.active) .feature-accordion-image {
+        opacity: 0.9 !important;
+    }
+
+    .feature-accordion-overlay {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.78) 100%) !important;
+        padding: 0.4rem 0.55rem !important;
+        justify-content: flex-start !important;
+    }
+
+    .feature-accordion-content {
+        transform: none !important;
+        opacity: 1 !important;
+    }
+
+    .feature-accordion-item.active .feature-accordion-content,
+    .feature-accordion-item:not(.active) .feature-accordion-content {
+        transform: none !important;
+        opacity: 1 !important;
+    }
+
+    .feature-accordion-title {
+        transform: none !important;
+        position: static !important;
+        font-size: 8pt !important;
+        margin-bottom: 0.15rem !important;
+        width: auto !important;
+        white-space: normal !important;
+    }
+
+    .feature-accordion-item.active .feature-accordion-title {
+        transform: none !important;
+        position: static !important;
+    }
+
+    .feature-accordion-description {
+        display: block !important;
+        font-size: 6.5pt !important;
+        line-height: 1.25 !important;
+        max-width: 100% !important;
+    }
+
+    .feature-accordion-item:not(.active) .feature-accordion-description {
+        display: block !important;
+    }
+
+    /* Gallery: compact grid for PDF */
+    .model-gallery {
+        padding: 0.65rem 0 !important;
+    }
+
+    .model-gallery .section-header {
+        margin-bottom: 0.35rem !important;
+    }
+
+    .model-gallery .section-title {
+        font-size: 10pt !important;
+    }
+
+    .gallery-grid {
+        gap: 0.35rem !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .gallery-image {
+        max-height: 72px !important;
+        width: 100% !important;
+        object-fit: cover !important;
+    }
+
+    /* Contact strip: smaller but present */
     .olympic-contact {
-        display: none !important;
+        padding: 0.55rem 0 !important;
+        break-inside: avoid;
+    }
+
+    .olympic-contact .section-title {
+        font-size: 9pt !important;
+    }
+
+    .olympic-contact .section-description {
+        font-size: 6.5pt !important;
+        margin-bottom: 0.35rem !important;
+        line-height: 1.3 !important;
+    }
+
+    .olympic-contact .btn-large {
+        font-size: 7pt !important;
+        padding: 0.25rem 0.5rem !important;
     }
 
     /* Compact hero / title band */
@@ -1530,7 +1664,8 @@
 
     .model-layout {
         margin-top: 0.35rem !important;
-        break-inside: avoid;
+        /* Allow break after layout so the spec table can start on a fresh page as one block */
+        break-inside: auto;
     }
 
     .model-layout .section-title {
@@ -1542,36 +1677,55 @@
     }
 
     .layout-image {
-        max-height: 140px !important;
+        max-height: 118px !important;
         width: auto !important;
         margin: 0 auto !important;
         border-radius: 4px !important;
         box-shadow: none !important;
     }
 
-    /* Tight specification tables */
+    /* Specification table: keep table + disclaimer on one sheet (Chromium PDF) */
     .detailed-specs-table {
-        margin-top: 0.35rem !important;
+        margin-top: 0.3rem !important;
         max-width: 100% !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        display: block !important;
+    }
+
+    .detailed-specs-table .specs-table-detailed {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        width: 100% !important;
     }
 
     .specs-table-detailed {
         box-shadow: none !important;
         border-radius: 4px !important;
-        font-size: 7.5pt !important;
+        font-size: 7pt !important;
+    }
+
+    .specs-table-detailed tbody {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .specs-table-detailed tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
 
     .spec-section-header td {
-        padding: 0.18rem 0.35rem !important;
-        font-size: 7.5pt !important;
-        line-height: 1.2 !important;
+        padding: 0.12rem 0.3rem !important;
+        font-size: 7pt !important;
+        line-height: 1.15 !important;
     }
 
     .spec-label-cell,
     .spec-value-cell {
-        padding: 0.12rem 0.35rem !important;
-        font-size: 7.5pt !important;
-        line-height: 1.25 !important;
+        padding: 0.08rem 0.3rem !important;
+        font-size: 7pt !important;
+        line-height: 1.15 !important;
     }
 
     .spec-label-cell {
@@ -1583,9 +1737,11 @@
     }
 
     .specs-disclaimer {
-        font-size: 6pt !important;
-        margin-top: 0.3rem !important;
-        padding: 0 0.15rem !important;
-        line-height: 1.3 !important;
+        font-size: 5.5pt !important;
+        margin-top: 0.2rem !important;
+        padding: 0 0.1rem !important;
+        line-height: 1.25 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
 }
