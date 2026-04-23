@@ -259,11 +259,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         productContainer.innerHTML = `
             <div class="product-details">
                 <div class="product-gallery">
-                    <img src="${mainImageSrc}" 
-                         alt="${product.name}" 
-                         class="main-image"
-                         id="mainImage"
-                         onerror="handleImageErrorLarge(this)">
+                    <div class="main-image-frame">
+                        <img src="${mainImageSrc}" 
+                             alt="${product.name}" 
+                             class="main-image"
+                             id="mainImage"
+                             onerror="handleImageErrorLarge(this)">
+                    </div>
                     ${product.images && product.images.length > 1 ? `
                         <div class="thumbnail-grid">
                             ${product.images.map((img, index) => `

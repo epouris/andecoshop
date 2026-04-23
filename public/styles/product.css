@@ -22,14 +22,32 @@
     position: relative;
 }
 
-.main-image {
+/* Hero image: full photo visible inside viewport (no cropping) */
+.main-image-frame {
     width: 100%;
-    height: 500px;
-    object-fit: cover;
-    border-radius: 16px;
+    height: min(75vh, 600px);
+    max-height: min(75vh, 600px);
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 1.25rem;
+    padding: 0.75rem;
+    box-sizing: border-box;
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-radius: 16px;
     border: 1px solid var(--border-light);
+    overflow: hidden;
+}
+
+.main-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
 }
 
 .thumbnail-grid {
@@ -41,12 +59,14 @@
 .thumbnail {
     width: 100%;
     height: 80px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 10px;
     cursor: pointer;
     border: 2px solid transparent;
     transition: all 0.2s ease;
     background: var(--bg-light);
+    padding: 2px;
+    box-sizing: border-box;
 }
 
 .thumbnail:hover {
@@ -379,8 +399,10 @@
         gap: 2rem;
     }
 
-    .main-image {
-        height: 400px;
+    .main-image-frame {
+        height: min(68vh, 520px);
+        max-height: min(68vh, 520px);
+        min-height: 200px;
     }
 
     .equipment-list {
@@ -402,8 +424,10 @@
         font-size: 2rem;
     }
 
-    .main-image {
-        height: 300px;
+    .main-image-frame {
+        height: min(62vh, 440px);
+        max-height: min(62vh, 440px);
+        min-height: 180px;
     }
 
     .equipment-list {
@@ -475,9 +499,12 @@
         font-size: 0.85rem;
     }
 
-    .main-image {
-        height: 250px;
+    .main-image-frame {
+        height: min(58vh, 360px);
+        max-height: min(58vh, 360px);
+        min-height: 160px;
         border-radius: 12px;
+        padding: 0.5rem;
     }
 
     .product-description {
@@ -579,8 +606,10 @@
         font-size: 1.5rem;
     }
 
-    .main-image {
-        height: 220px;
+    .main-image-frame {
+        height: min(52vh, 300px);
+        max-height: min(52vh, 300px);
+        min-height: 140px;
     }
 
     .product-specs h2,
