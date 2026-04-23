@@ -249,48 +249,16 @@
                 div.textContent = text;
                 return div.innerHTML;
             };
-            
-            sortedBrands.forEach(brandName => {
-                const brandProducts = productsByBrand[brandName];
-                const brandInfo = brands.find(b => b.name === brandName);
-                
-                // Create brand header row
-                const headerRow = document.createElement('tr');
-                headerRow.className = 'brand-header-row';
-                const productCount = brandProducts.length;
-                // Use image proxy for external brand logos
-                let brandLogoUrl = '';
-                if (brandInfo && brandInfo.logo) {
-                    if (brandInfo.logo.startsWith('http') && !brandInfo.logo.startsWith(window.location.origin)) {
-                        brandLogoUrl = `/api/image-proxy?url=${encodeURIComponent(brandInfo.logo)}`;
-                    } else {
-                        brandLogoUrl = brandInfo.logo;
-                    }
-                }
-                
-                headerRow.innerHTML = `
-                    <td colspan="6" class="brand-header-cell">
-                        <div class="brand-header-content">
-                            ${brandLogoUrl ? `
-                                <img src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(brandName)} Logo" class="brand-header-logo" onerror="this.style.display='none'">
-                            ` : ''}
-                            <h3 class="brand-header-title">${escapeHtml(brandName)}</h3>
-                            <span class="brand-header-count">(${productCount} ${productCount === 1 ? 'product' : 'products'})</span>
-                        </div>
-                    </td>
-                `;
-                fragment.appendChild(headerRow);
-                
-                // Add products for this brand
-                brandProducts.forEach(product => {
+
+            const appendRowsForProducts = (productList) => {
+                productList.forEach(product => {
                     const tr = document.createElement('tr');
-                    tr.className = 'product-row';
+                    tr.className = 'product-row' + (product.isBrandAccessory ? ' product-row--accessory' : '');
                     
                     const originalImageSrc = (product.images && product.images[0]) 
                         ? product.images[0] 
                         : window.ADMIN_PLACEHOLDER_IMAGE;
                     
-                    // Use image proxy for external URLs to avoid CORS issues
                     let imageSrc = originalImageSrc;
                     if (originalImageSrc && originalImageSrc.startsWith('http') && !originalImageSrc.startsWith(window.location.origin)) {
                         imageSrc = `/api/image-proxy?url=${encodeURIComponent(originalImageSrc)}`;
@@ -319,7 +287,6 @@
                         </td>
                     `;
                     
-                    // Use event delegation instead of inline onclick
                     const moveUpBtn = tr.querySelector(`[data-move-up="${product.id}"]`);
                     const moveDownBtn = tr.querySelector(`[data-move-down="${product.id}"]`);
                     const editBtn = tr.querySelector(`[data-edit-product="${product.id}"]`);
@@ -346,6 +313,54 @@
                     
                     fragment.appendChild(tr);
                 });
+            };
+            
+            sortedBrands.forEach(brandName => {
+                const brandProducts = productsByBrand[brandName];
+                const brandInfo = brands.find(b => b.name === brandName);
+                
+                // Create brand header row
+                const headerRow = document.createElement('tr');
+                headerRow.className = 'brand-header-row';
+                const mainCount = brandProducts.filter(p => !p.isBrandAccessory).length;
+                const accCount = brandProducts.filter(p => p.isBrandAccessory).length;
+                const productCount = brandProducts.length;
+                const countLabel = accCount > 0
+                    ? `${productCount} ${productCount === 1 ? 'product' : 'products'} (${mainCount} main · ${accCount} ${accCount === 1 ? 'accessory' : 'accessories'})`
+                    : `${productCount} ${productCount === 1 ? 'product' : 'products'}`;
+                // Use image proxy for external brand logos
+                let brandLogoUrl = '';
+                if (brandInfo && brandInfo.logo) {
+                    if (brandInfo.logo.startsWith('http') && !brandInfo.logo.startsWith(window.location.origin)) {
+                        brandLogoUrl = `/api/image-proxy?url=${encodeURIComponent(brandInfo.logo)}`;
+                    } else {
+                        brandLogoUrl = brandInfo.logo;
+                    }
+                }
+                
+                headerRow.innerHTML = `
+                    <td colspan="6" class="brand-header-cell">
+                        <div class="brand-header-content">
+                            ${brandLogoUrl ? `
+                                <img src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(brandName)} Logo" class="brand-header-logo" onerror="this.style.display='none'">
+                            ` : ''}
+                            <h3 class="brand-header-title">${escapeHtml(brandName)}</h3>
+                            <span class="brand-header-count">(${escapeHtml(countLabel)})</span>
+                        </div>
+                    </td>
+                `;
+                fragment.appendChild(headerRow);
+                
+                const mainForBrand = brandProducts.filter(p => !p.isBrandAccessory);
+                const accForBrand = brandProducts.filter(p => p.isBrandAccessory);
+                appendRowsForProducts(mainForBrand);
+                if (accForBrand.length > 0) {
+                    const subRow = document.createElement('tr');
+                    subRow.className = 'admin-brand-subsection-row';
+                    subRow.innerHTML = '<td colspan="6" class="admin-brand-subsection-cell">Accessories (brand page)</td>';
+                    fragment.appendChild(subRow);
+                    appendRowsForProducts(accForBrand);
+                }
             });
             
             productsTableBody.innerHTML = '';
@@ -461,6 +476,12 @@
                         addOptionToForm(option);
                     });
                 }
+
+                const accChk = document.getElementById('productBrandAccessory');
+                if (accChk) accChk.checked = !!product.isBrandAccessory;
+            } else {
+                const accChkNew = document.getElementById('productBrandAccessory');
+                if (accChkNew) accChkNew.checked = false;
             }
         }
 
@@ -498,7 +519,9 @@
                     standardEquipment: product.standardEquipment ? JSON.parse(JSON.stringify(product.standardEquipment)) : [],
                     specs: product.specs ? JSON.parse(JSON.stringify(product.specs)) : {},
                     images: product.images ? [...product.images] : [],
-                    options: product.options ? JSON.parse(JSON.stringify(product.options)) : []
+                    options: product.options ? JSON.parse(JSON.stringify(product.options)) : [],
+                    specsColumns: product.specsColumns || 1,
+                    isBrandAccessory: !!product.isBrandAccessory
                 };
 
                 // Create the new product
@@ -595,6 +618,7 @@
                     }
                 });
                 
+                const accEl = document.getElementById('productBrandAccessory');
                 const product = {
                     name: document.getElementById('productName').value,
                     category: document.getElementById('productCategory').value,
@@ -605,7 +629,8 @@
                     specs,
                     images,
                     options,
-                    specsColumns: parseInt(document.getElementById('productSpecsColumns').value) || 1
+                    specsColumns: parseInt(document.getElementById('productSpecsColumns').value) || 1,
+                    isBrandAccessory: accEl ? accEl.checked : false
                 };
                 
                 if (editingProductId) {

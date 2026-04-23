@@ -289,6 +289,32 @@ body {
     margin-bottom: 2rem;
 }
 
+/* Brand page: accessories block (e.g. SipaBoards) */
+.brand-accessories-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.brand-accessories-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 0.35rem;
+    letter-spacing: -0.02em;
+}
+
+.brand-accessories-intro {
+    margin: 0 0 1.25rem;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    max-width: 42rem;
+}
+
+.brand-accessories-grid {
+    margin-bottom: 0;
+}
+
 /* Brands Grid */
 .brands-grid {
     display: grid;

@@ -134,8 +134,6 @@ function applyFeaturePanelsFromRecord(record) {
     }).filter(Boolean).join('');
 
     if (!wrap.innerHTML.trim()) return;
-    wrap.dataset.delegateWired = '';
-    ensureFeatureAccordionDelegation();
 }
 
 function applyGalleryFromRecord(record) {
@@ -156,18 +154,25 @@ function applyGalleryFromRecord(record) {
     if (!grid.innerHTML.trim()) return;
 }
 
-function ensureFeatureAccordionDelegation() {
+function onFeaturesAccordionClick(e) {
     const wrap = document.getElementById('featuresAccordion') || document.querySelector('.features-accordion');
     if (!wrap) return;
-    if (wrap.dataset.delegateWired === '1') return;
-    wrap.dataset.delegateWired = '1';
-    wrap.addEventListener('click', (e) => {
-        const item = e.target.closest('.feature-accordion-item');
-        if (!item || !wrap.contains(item)) return;
-        wrap.querySelectorAll('.feature-accordion-item').forEach((i) => i.classList.remove('active'));
-        item.classList.add('active');
-    });
+    const item = e.target.closest('.feature-accordion-item');
+    if (!item || !wrap.contains(item)) return;
+    wrap.querySelectorAll('.feature-accordion-item').forEach((i) => i.classList.remove('active'));
+    item.classList.add('active');
 }
+
+/** Bind once; run early so panels work before async spec fetch finishes. */
+function ensureFeatureAccordionDelegation() {
+    const wrap = document.getElementById('featuresAccordion') || document.querySelector('.features-accordion');
+    if (!wrap || wrap.dataset.featuresAccordionBound === '1') return;
+    wrap.dataset.featuresAccordionBound = '1';
+    wrap.addEventListener('click', onFeaturesAccordionClick);
+}
+
+ensureFeatureAccordionDelegation();
+document.addEventListener('DOMContentLoaded', ensureFeatureAccordionDelegation);
 
 async function initModelSpecifications(modelName) {
     const container = document.querySelector('.detailed-specs-table');

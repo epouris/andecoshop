@@ -121,6 +121,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const brandProducts = allProducts.filter(product => 
             (product.category || 'No Brand') === brandName
         );
+        const mainProducts = brandProducts.filter(p => !p.isBrandAccessory);
+        const accessoryProducts = brandProducts.filter(p => p.isBrandAccessory);
 
         const decodedBrandName = decodeURIComponent(brandName);
         
@@ -141,16 +143,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Render luxury models section
         renderLuxuryModels(decodedBrandName);
 
+        const accessoriesSection = document.getElementById('brandAccessoriesSection');
+        const accessoriesGrid = document.getElementById('brandAccessoriesGrid');
+
         if (brandProducts.length === 0) {
             productsGrid.style.display = 'none';
+            if (accessoriesSection) accessoriesSection.style.display = 'none';
             emptyState.style.display = 'block';
             return;
         }
 
-        productsGrid.style.display = 'grid';
         emptyState.style.display = 'none';
 
-        productsGrid.innerHTML = brandProducts.map(product => renderProductCard(product)).join('');
+        if (mainProducts.length > 0) {
+            productsGrid.style.display = 'grid';
+            productsGrid.innerHTML = mainProducts.map(product => renderProductCard(product)).join('');
+        } else {
+            productsGrid.style.display = 'none';
+            productsGrid.innerHTML = '';
+        }
+
+        if (accessoryProducts.length > 0 && accessoriesSection && accessoriesGrid) {
+            accessoriesSection.style.display = 'block';
+            accessoriesGrid.innerHTML = accessoryProducts.map(product => renderProductCard(product)).join('');
+        } else if (accessoriesSection) {
+            accessoriesSection.style.display = 'none';
+            if (accessoriesGrid) accessoriesGrid.innerHTML = '';
+        }
     }
 
     // Initial render

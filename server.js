@@ -189,6 +189,7 @@ async function initializeDatabase() {
         display_order INTEGER DEFAULT 0,
         pdf_photo TEXT,
         specs_columns INTEGER DEFAULT 1,
+        is_brand_accessory BOOLEAN NOT NULL DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -419,6 +420,25 @@ async function initializeDatabase() {
       console.log('specs_columns migration check completed (or not needed)');
     } catch (error) {
       console.error('Error checking specs_columns column:', error);
+    }
+
+    // Brand listing: accessories section (e.g. SipaBoards brand page)
+    try {
+      const accCheck = await pool.query(`
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'products' AND column_name = 'is_brand_accessory'
+      `);
+      if (accCheck.rows.length === 0) {
+        console.log('Adding is_brand_accessory column to products table...');
+        await pool.query(`
+          ALTER TABLE products
+          ADD COLUMN is_brand_accessory BOOLEAN NOT NULL DEFAULT FALSE
+        `);
+        console.log('✓ is_brand_accessory column added');
+      }
+    } catch (migrationError) {
+      console.error('is_brand_accessory migration:', migrationError);
     }
 
     // Model page media: key feature panels + gallery (JSON arrays)
@@ -703,7 +723,8 @@ app.get('/api/products', async (req, res) => {
       options: row.options || [],
       displayOrder: row.display_order || 0,
       pdfPhoto: row.pdf_photo || null,
-      specsColumns: row.specs_columns || 1
+      specsColumns: row.specs_columns || 1,
+      isBrandAccessory: row.is_brand_accessory === true
     }));
     res.json(products);
   } catch (error) {
@@ -734,7 +755,8 @@ app.get('/api/products/:id', async (req, res) => {
       options: row.options || [],
       displayOrder: row.display_order || 0,
       pdfPhoto: row.pdf_photo || null,
-      specsColumns: row.specs_columns || 1
+      specsColumns: row.specs_columns || 1,
+      isBrandAccessory: row.is_brand_accessory === true
     };
     res.json(product);
   } catch (error) {
@@ -1227,8 +1249,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
     const newDisplayOrder = (maxOrderResult.rows[0].max_order || 0) + 1;
     
     const result = await pool.query(`
-      INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options, display_order, pdf_photo, specs_columns)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options, display_order, pdf_photo, specs_columns, is_brand_accessory)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *
     `, [
       product.name,
@@ -1242,7 +1264,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       JSON.stringify(product.options || []),
       product.displayOrder || newDisplayOrder,
       null, // pdf_photo - no longer used, set to null
-      product.specsColumns || 1
+      product.specsColumns || 1,
+      product.isBrandAccessory === true
     ]);
     
     // Convert database format to frontend format
@@ -1260,7 +1283,8 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       options: typeof row.options === 'string' ? JSON.parse(row.options) : (row.options || []),
       displayOrder: row.display_order || 0,
       pdfPhoto: row.pdf_photo || null,
-      specsColumns: row.specs_columns || 1
+      specsColumns: row.specs_columns || 1,
+      isBrandAccessory: row.is_brand_accessory === true
     };
     
     res.status(201).json(productResponse);
@@ -1289,8 +1313,9 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       UPDATE products 
       SET name = $1, category = $2, price = $3, stock = $4, description = $5,
           standard_equipment = $6, specs = $7, images = $8, options = $9,
-          display_order = $10, pdf_photo = $11, specs_columns = $12, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $13
+          display_order = $10, pdf_photo = $11, specs_columns = $12,
+          is_brand_accessory = $13, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $14
       RETURNING *
     `, [
       product.name,
@@ -1305,6 +1330,7 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       displayOrder,
       null, // pdf_photo - no longer used, set to null
       product.specsColumns || 1,
+      product.isBrandAccessory === true,
       req.params.id
     ]);
     if (result.rows.length === 0) {
@@ -1326,7 +1352,8 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       options: typeof row.options === 'string' ? JSON.parse(row.options) : (row.options || []),
       displayOrder: row.display_order || 0,
       pdfPhoto: row.pdf_photo || null,
-      specsColumns: row.specs_columns || 1
+      specsColumns: row.specs_columns || 1,
+      isBrandAccessory: row.is_brand_accessory === true
     };
     
     res.json(productResponse);
@@ -1700,8 +1727,8 @@ app.post('/api/admin/migrate-localstorage', authenticateAdmin, async (req, res) 
           if (existing.rows.length === 0) {
             // Let database generate new ID (BIGSERIAL)
             await pool.query(`
-              INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+              INSERT INTO products (name, category, price, stock, description, standard_equipment, specs, images, options, is_brand_accessory)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             `, [
               product.name,
               product.category,
@@ -1711,7 +1738,8 @@ app.post('/api/admin/migrate-localstorage', authenticateAdmin, async (req, res) 
               JSON.stringify(product.standardEquipment || []),
               JSON.stringify(product.specs || {}),
               product.images || [],
-              JSON.stringify(product.options || [])
+              JSON.stringify(product.options || []),
+              product.isBrandAccessory === true || product.is_brand_accessory === true
             ]);
             results.products++;
           }
