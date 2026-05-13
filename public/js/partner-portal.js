@@ -1,9 +1,9 @@
-import {
-  partnerLogin,
-  partnerLogout,
-  isPartnerAuthenticated,
-  getPartnerCatalog,
-} from './api.js';
+// Absolute URL + cache bust so we never bind to a stale ./api.js graph (missing partner exports).
+const _partnerApiV =
+  typeof window !== 'undefined' && window.__PARTNER_ASSET_V != null
+    ? String(window.__PARTNER_ASSET_V)
+    : String(Date.now());
+const api = await import(`/js/api.js?v=${encodeURIComponent(_partnerApiV)}`);
 
 const VAT_RATE = 0.19;
 
@@ -271,7 +271,7 @@ function updatePricingAndPrint() {
 }
 
 async function loadCatalog() {
-  const data = await getPartnerCatalog();
+  const data = await api.getPartnerCatalog();
   state.partner = data.partner || {};
   state.products = data.products || [];
 
@@ -330,7 +330,7 @@ async function openApp() {
 }
 
 function doLogout() {
-  partnerLogout();
+  api.partnerLogout();
   document.getElementById('appView').hidden = true;
   document.getElementById('loginView').hidden = false;
   state.partner = null;
@@ -347,7 +347,7 @@ function wireUi() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
     try {
-      await partnerLogin(username, password);
+      await api.partnerLogin(username, password);
       await openApp();
     } catch (ex) {
       err.textContent = ex.message || 'Login failed';
@@ -366,7 +366,7 @@ function wireUi() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   wireUi();
-  if (isPartnerAuthenticated()) {
+  if (api.isPartnerAuthenticated()) {
     await openApp();
   }
 });
