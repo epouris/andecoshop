@@ -11,13 +11,20 @@ let cacheInitialized = false;
 // Make cacheInitialized accessible globally
 window.cacheInitialized = false;
 
+async function importApiModule() {
+    const v = typeof window !== 'undefined' && window.__ASSET_V != null && String(window.__ASSET_V) !== ''
+        ? encodeURIComponent(String(window.__ASSET_V))
+        : null;
+    return v != null ? import(`/js/api.js?v=${v}`) : import('/js/api.js');
+}
+
 // Initialize data from API
 async function initializeData() {
   if (cacheInitialized) return;
   
   try {
     // Import API functions
-    const api = await import('./api.js');
+    const api = await importApiModule();
     
     // Load all data
     productsCache = await api.getProducts();
@@ -75,7 +82,7 @@ function getProductById(id) {
 
 async function addProduct(product) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     const newProduct = await api.createProduct(product);
     productsCache.push(newProduct);
     return newProduct;
@@ -87,7 +94,7 @@ async function addProduct(product) {
 
 async function updateProduct(id, updatedProduct) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     const updated = await api.updateProduct(id, updatedProduct);
     const index = productsCache.findIndex(p => p.id == id);
     if (index !== -1) {
@@ -102,7 +109,7 @@ async function updateProduct(id, updatedProduct) {
 
 async function deleteProduct(id) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     await api.deleteProduct(id);
     productsCache = productsCache.filter(p => p.id != id);
     return true;
@@ -123,7 +130,7 @@ function getBrandByName(name) {
 
 async function addBrand(brand) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     const newBrand = await api.createBrand(brand);
     brandsCache.push(newBrand);
     return newBrand;
@@ -135,7 +142,7 @@ async function addBrand(brand) {
 
 async function updateBrand(id, updatedBrand) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     const updated = await api.updateBrand(id, updatedBrand);
     const index = brandsCache.findIndex(b => b.id == id);
     if (index !== -1) {
@@ -150,7 +157,7 @@ async function updateBrand(id, updatedBrand) {
 
 async function deleteBrand(id) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     await api.deleteBrand(id);
     brandsCache = brandsCache.filter(b => b.id != id);
     return true;
@@ -167,7 +174,7 @@ function getShopLogo() {
 
 async function setShopLogo(logoUrl) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     await api.setShopLogo(logoUrl);
     shopLogoCache = logoUrl || '';
     updateShopLogo();
@@ -242,7 +249,7 @@ function getOrders() {
 
 async function addOrder(order) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     const newOrder = await api.createOrder(order);
     ordersCache.unshift(newOrder);
     return newOrder;
@@ -258,7 +265,7 @@ function getOrderById(id) {
 
 async function updateOrderStatus(id, status) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     const updated = await api.updateOrderStatus(id, status);
     const index = ordersCache.findIndex(o => o.id == id);
     if (index !== -1) {
@@ -273,7 +280,7 @@ async function updateOrderStatus(id, status) {
 
 async function deleteOrder(id) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     await api.deleteOrder(id);
     ordersCache = ordersCache.filter(o => o.id != id);
     return true;
@@ -290,7 +297,7 @@ function getQueries() {
 
 async function deleteQuery(id) {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     await api.deleteQuery(id);
     queriesCache = queriesCache.filter(q => q.id != id);
     return true;
@@ -303,7 +310,7 @@ async function deleteQuery(id) {
 // Refresh cache functions (for admin use)
 async function refreshProducts() {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     productsCache = await api.getProducts();
   } catch (error) {
     console.error('Error refreshing products:', error);
@@ -312,7 +319,7 @@ async function refreshProducts() {
 
 async function refreshBrands() {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     brandsCache = await api.getBrands();
   } catch (error) {
     console.error('Error refreshing brands:', error);
@@ -321,7 +328,7 @@ async function refreshBrands() {
 
 async function refreshOrders() {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     ordersCache = await api.getOrders();
   } catch (error) {
     console.error('Error refreshing orders:', error);
@@ -330,7 +337,7 @@ async function refreshOrders() {
 
 async function refreshQueries() {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     queriesCache = await api.getQueries();
   } catch (error) {
     console.error('Error refreshing queries:', error);
@@ -339,7 +346,7 @@ async function refreshQueries() {
 
 async function refreshShopLogo() {
   try {
-    const api = await import('./api.js');
+    const api = await importApiModule();
     shopLogoCache = await api.getShopLogo();
     updateShopLogo();
   } catch (error) {

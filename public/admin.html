@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AndecoMarine.shop - Admin Portal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/admin.css">
 </head>
@@ -602,28 +599,22 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>window.__ASSET_V = Date.now();</script>
     <script type="module">
-        // Check authentication before loading admin
-        import { isAdminAuthenticated } from './js/api.js';
+        const { isAdminAuthenticated } = await import('/js/api.js?v=' + window.__ASSET_V);
         
         if (!isAdminAuthenticated()) {
             window.location.href = 'login.html';
         } else {
             // Load data.js first (must be loaded before admin.js)
             const dataScript = document.createElement('script');
-            dataScript.src = 'js/data.js';
+            dataScript.src = 'js/data.js?v=' + window.__ASSET_V;
             document.body.appendChild(dataScript);
             
             // Load image-proxy.js
             const imageProxyScript = document.createElement('script');
             imageProxyScript.src = 'js/image-proxy.js';
             document.body.appendChild(imageProxyScript);
-            
-            // Load api.js
-            const script1 = document.createElement('script');
-            script1.src = 'js/api.js';
-            script1.type = 'module';
-            document.head.appendChild(script1);
             
             // Load nav.js
             const script2 = document.createElement('script');
@@ -646,8 +637,8 @@
                     if (typeof getProducts === 'function' && typeof getBrands === 'function') {
                         console.log('Functions available, loading admin.js...');
                         const script3 = document.createElement('script');
-                        // Add cache busting
-                        script3.src = 'js/admin.js?v=' + Date.now();
+                        // Same cache key as data/api so modules stay in sync after deploy
+                        script3.src = 'js/admin.js?v=' + window.__ASSET_V;
                         script3.onload = () => console.log('admin.js loaded successfully');
                         script3.onerror = (e) => console.error('Error loading admin.js:', e);
                         // Don't use module type - admin.js needs access to global functions
@@ -693,7 +684,7 @@
                 if (!document.querySelector('script[src*="admin.js"]') && typeof getProducts === 'function') {
                     console.log('Fallback: Loading admin.js after timeout');
                     const script3 = document.createElement('script');
-                    script3.src = 'js/admin.js?v=' + Date.now();
+                    script3.src = 'js/admin.js?v=' + (window.__ASSET_V || Date.now());
                     document.body.appendChild(script3);
                 }
             }, 2000);

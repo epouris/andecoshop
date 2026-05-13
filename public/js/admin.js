@@ -12,6 +12,13 @@
     // Create a data URI placeholder image for admin table
     window.ADMIN_PLACEHOLDER_IMAGE = window.ADMIN_PLACEHOLDER_IMAGE || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23f1f5f9" width="100" height="100"/%3E%3Ctext fill="%2394a3b8" font-family="sans-serif" font-size="12" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
 
+    async function importApiModule() {
+        const v = typeof window !== 'undefined' && window.__ASSET_V != null && String(window.__ASSET_V) !== ''
+            ? encodeURIComponent(String(window.__ASSET_V))
+            : null;
+        return v != null ? import(`/js/api.js?v=${v}`) : import('/js/api.js');
+    }
+
     // Make function globally accessible for inline onerror handlers
     window.handleAdminImageError = window.handleAdminImageError || function(img) {
         if (img.src !== window.ADMIN_PLACEHOLDER_IMAGE) {
@@ -539,7 +546,7 @@
 
         async function moveProductOrder(productId, direction) {
             try {
-                const api = await import('./api.js');
+                const api = await importApiModule();
                 await api.updateProductOrder(productId, direction);
                 await refreshProducts();
                 renderProductsTable();
@@ -979,7 +986,7 @@
         let editingPartnerId = null;
 
         async function loadPartnersList() {
-            const api = await import('./api.js');
+            const api = await importApiModule();
             partnersListCache = await api.getPartners();
         }
 
@@ -1025,7 +1032,7 @@
                     if (!confirm('Delete this partner account? They will no longer be able to sign in.')) return;
                     (async () => {
                         try {
-                            const api = await import('./api.js');
+                            const api = await importApiModule();
                             await api.deletePartner(pid);
                             await renderPartnersTable();
                             showAdminNotification('Partner deleted');
@@ -1157,7 +1164,7 @@
                 if (password) body.password = password;
 
                 try {
-                    const api = await import('./api.js');
+                    const api = await importApiModule();
                     if (editingPartnerId) {
                         await api.updatePartner(editingPartnerId, body);
                     } else {
@@ -2021,7 +2028,7 @@
             }
 
             try {
-                const api = await import('./api.js');
+                const api = await importApiModule();
                 const data = await api.getTraffic(period, dateValue);
 
                 if (totalVisitorsEl) totalVisitorsEl.textContent = data.totalVisitors || 0;
@@ -2095,7 +2102,7 @@
         // Real-time traffic polling
         async function updateRealtimeTraffic() {
             try {
-                const api = await import('./api.js');
+                const api = await importApiModule();
                 const data = await api.getRealtimeTraffic();
                 if (realtimeVisitorsEl) {
                     realtimeVisitorsEl.textContent = data.activeVisitors || 0;

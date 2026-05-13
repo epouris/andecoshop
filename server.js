@@ -16,6 +16,13 @@ app.use(cors());
 // Increase JSON payload limit to handle large base64 images (50MB)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+// Avoid stale admin/api modules after deploy (admin.js used cache-bust; api.js did not).
+app.use((req, res, next) => {
+  if (/^\/js\/[^/]+\.js$/.test(req.path)) {
+    res.setHeader('Cache-Control', 'no-cache');
+  }
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection
