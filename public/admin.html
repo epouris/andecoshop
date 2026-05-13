@@ -34,6 +34,7 @@
                 <button class="tab-btn" data-tab="orders">Orders <span class="tab-badge" id="ordersBadge" style="display: none;"></span></button>
                 <button class="tab-btn" data-tab="queries">Queries <span class="tab-badge" id="queriesBadge" style="display: none;"></span></button>
                 <button class="tab-btn" data-tab="traffic">Traffic</button>
+                <button class="tab-btn" data-tab="partners">Partners</button>
                 <button class="tab-btn" data-tab="settings">Settings</button>
             </div>
 
@@ -282,6 +283,32 @@
                 </div>
             </div>
 
+            <!-- Partners Tab (B2B dealer portal accounts) -->
+            <div id="partnersTab" class="admin-tab-content">
+                <div class="admin-header">
+                    <h2>Partner portal accounts</h2>
+                    <button class="btn btn-primary" id="addPartnerBtn">+ Add partner</button>
+                </div>
+                <p class="settings-description" style="margin-bottom: 1rem;">Dealers sign in at <a href="partnerportal.html" target="_blank" rel="noopener">partnerportal.html</a>. Assign products they can configure; set their discount % for net price and margin estimates.</p>
+                <div class="products-table-container">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Logo</th>
+                                <th>Company</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Discount</th>
+                                <th>Products</th>
+                                <th>Active</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="partnersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Settings Tab -->
             <div id="settingsTab" class="admin-tab-content">
                 <div class="admin-header">
@@ -320,6 +347,68 @@
             </div>
         </div>
     </main>
+
+    <!-- Partner Modal -->
+    <div id="partnerModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="partnerModalTitle">Add partner</h3>
+                <button class="modal-close" id="closePartnerModal">&times;</button>
+            </div>
+            <form id="partnerForm" class="product-form">
+                <input type="hidden" id="partnerId">
+                <div class="form-group">
+                    <label for="partnerUsername">Username *</label>
+                    <input type="text" id="partnerUsername" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="partnerPassword">Password *</label>
+                    <input type="password" id="partnerPassword" autocomplete="new-password">
+                    <small id="partnerPasswordHint">Required for new partners. When editing, leave blank to keep the current password.</small>
+                </div>
+                <div class="form-group">
+                    <label for="partnerCompanyName">Company / display name</label>
+                    <input type="text" id="partnerCompanyName" placeholder="Dealer name shown on quotes">
+                </div>
+                <div class="form-group">
+                    <label for="partnerEmail">Email</label>
+                    <input type="email" id="partnerEmail" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="partnerPhone">Phone</label>
+                    <input type="text" id="partnerPhone">
+                </div>
+                <div class="form-group">
+                    <label for="partnerContactNotes">Contact notes</label>
+                    <textarea id="partnerContactNotes" rows="3" placeholder="Address, VAT ID, internal notes…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="partnerLogoUrl">Logo URL</label>
+                    <input type="text" id="partnerLogoUrl" placeholder="https://… or images/dealer-logo.png">
+                    <small>Used on printed partner quotes.</small>
+                </div>
+                <div class="form-group">
+                    <label for="partnerDiscountPercent">Discount % (off list, excl. VAT)</label>
+                    <input type="number" id="partnerDiscountPercent" step="0.01" min="0" max="100" value="15">
+                </div>
+                <div class="form-group form-group-checkbox">
+                    <label class="checkbox-label" for="partnerActive">
+                        <input type="checkbox" id="partnerActive" checked>
+                        <span>Account active (can sign in)</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>Assigned products (catalog for this partner)</label>
+                    <div id="partnerProductsCheckboxes" class="partner-products-checkboxes"></div>
+                    <small>Only checked products appear in the partner configurator.</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelPartnerBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save partner</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Brand Modal -->
     <div id="brandModal" class="modal">

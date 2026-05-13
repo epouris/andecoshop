@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner portal — AndecoMarine.shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .pp-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+        .pp-login-card {
+            max-width: 420px; margin: 3rem auto; padding: 2rem;
+            background: var(--bg-color); border-radius: 16px;
+            border: 1px solid var(--border-light); box-shadow: var(--shadow-lg);
+        }
+        .pp-login-card h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .pp-login-card p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; }
+        .pp-err { color: #dc2626; font-size: 0.875rem; margin-top: 0.5rem; min-height: 1.25rem; }
+        .pp-app-hdr {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .pp-app-hdr h1 { font-size: 1.35rem; margin: 0; }
+        .pp-layout { display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem; align-items: start; }
+        @media (max-width: 900px) { .pp-layout { grid-template-columns: 1fr; } }
+        #productSelect {
+            width: 100%; max-width: 480px; padding: 0.65rem 1rem; border-radius: 10px;
+            border: 1.5px solid var(--border-color); font-size: 1rem; margin-bottom: 1rem;
+            background: var(--bg-color);
+        }
+        .pp-section { margin-bottom: 1.75rem; }
+        .pp-section h3 { font-size: 1.05rem; margin-bottom: 0.75rem; color: var(--text-color); }
+        .pp-muted { color: var(--text-secondary); font-size: 0.9rem; }
+        .pp-req { color: #dc2626; }
+        .pp-fieldset {
+            border: 1px solid var(--border-light); border-radius: 12px; padding: 1rem 1rem 0.75rem;
+            margin-bottom: 1rem; background: var(--bg-color);
+        }
+        .pp-fieldset legend { font-weight: 600; padding: 0 0.35rem; }
+        .pp-choice { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem; cursor: pointer; }
+        .pp-choice input { margin-top: 0.2rem; }
+        .pp-price-tag { margin-left: auto; color: var(--text-secondary); font-size: 0.875rem; white-space: nowrap; }
+        .pp-product-head { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+        .pp-product-thumb { width: 120px; height: 80px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border-light); }
+        .pp-product-title { margin: 0 0 0.25rem; font-size: 1.35rem; }
+        .pp-std-groups h4 { margin: 0.75rem 0 0.35rem; font-size: 0.95rem; }
+        .pp-std-groups ul { margin: 0 0 0.5rem 1.1rem; padding: 0; }
+        #totalsPanel {
+            position: sticky; top: 1rem; padding: 1.25rem; border-radius: 14px;
+            border: 1px solid var(--border-light); background: linear-gradient(160deg, #f8fafc 0%, #fff 100%);
+            box-shadow: var(--shadow-md);
+        }
+        #totalsPanel h3 { margin-top: 0; font-size: 1.05rem; }
+        .pp-tot-row { display: flex; justify-content: space-between; gap: 1rem; margin: 0.45rem 0; font-size: 0.95rem; }
+        .pp-tot-row.highlight { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color); }
+        .pp-tot-row.success { color: #15803d; }
+        .pp-disclaimer { font-size: 0.75rem; color: var(--text-secondary); margin: 1rem 0 0; line-height: 1.4; }
+        .pp-client-row { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+        .pp-client-row .form-group { flex: 1; min-width: 180px; margin: 0; }
+        .pp-client-row label { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.875rem; }
+        .pp-client-row input {
+            width: 100%; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-color);
+            font-family: inherit;
+        }
+        .pp-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+        #printSheet {
+            display: none;
+        }
+        @media print {
+            body * { visibility: hidden; }
+            #printSheet, #printSheet * { visibility: visible; }
+            #printSheet {
+                display: block; position: absolute; left: 0; top: 0; width: 100%;
+                padding: 12mm; background: white;
+            }
+            .no-print { display: none !important; }
+        }
+        .print-sheet-inner { font-size: 11pt; color: #111; max-width: 800px; margin: 0 auto; }
+        .print-hdr { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #1e40af; padding-bottom: 0.75rem; }
+        .print-logo { max-height: 48px; max-width: 160px; object-fit: contain; }
+        .print-hdr h1 { margin: 0; font-size: 18pt; }
+        .print-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        .print-table th, .print-table td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+        .print-table .num { text-align: right; }
+        .print-totals { margin-top: 0.5rem; }
+        .print-opts { margin: 0.5rem 0 1rem 1.2rem; }
+        .print-small { font-size: 9pt; color: #555; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <header class="header no-print">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo"><span class="logo-text">AndecoMarine.shop</span></a>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="partnerportal.html" class="nav-link active">Partner portal</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main no-print">
+        <div class="pp-wrap">
+            <div id="loginView">
+                <div class="pp-login-card">
+                    <h1>Partner login</h1>
+                    <p>Sign in to build configurations, see list and net prices, and print a quote for your client.</p>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginUsername">Username</label>
+                            <input type="text" id="loginUsername" required autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required autocomplete="current-password">
+                        </div>
+                        <p class="pp-err" id="loginError" aria-live="polite"></p>
+                        <button type="submit" class="btn btn-primary" style="width:100%;">Sign in</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="appView" hidden>
+                <div class="pp-app-hdr">
+                    <div>
+                        <h1>Partner workspace</h1>
+                        <p class="pp-muted" style="margin:0;">Signed in as <strong id="partnerUserLabel"></strong></p>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="logoutBtn">Log out</button>
+                </div>
+
+                <label for="productSelect" class="pp-muted" style="display:block;margin-bottom:0.35rem;">Model</label>
+                <select id="productSelect"></select>
+
+                <div class="pp-client-row">
+                    <div class="form-group">
+                        <label for="clientNameInput">Client name (optional, for print)</label>
+                        <input type="text" id="clientNameInput" placeholder="End customer" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientRefInput">Your reference (optional)</label>
+                        <input type="text" id="clientRefInput" placeholder="Quote # / project" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="pp-layout">
+                    <div id="configuratorArea"><p class="pp-muted">Loading…</p></div>
+                    <aside>
+                        <div id="totalsPanel"></div>
+                        <div class="pp-actions">
+                            <button type="button" class="btn btn-primary" id="printBtn">Print quote</button>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="printSheet" aria-hidden="true"></div>
+
+    <footer class="footer no-print">
+        <div class="container">
+            <p>&copy; <span id="currentYear"></span> AndecoMarine.shop. Partner pricing is confidential.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+    <script type="module" src="js/partner-portal.js"></script>
+</body>
+</html>

@@ -321,3 +321,85 @@ export async function setShopLogo(logoUrl) {
     throw error;
   }
 }
+
+async function partnerApiCall(endpoint, options = {}) {
+  const url = `${API_BASE_URL}${endpoint}`;
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const token = localStorage.getItem('partner_token');
+  if (token) {
+    defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const config = { ...defaultOptions, ...options };
+
+  if (config.body && typeof config.body === 'object') {
+    config.body = JSON.stringify(config.body);
+  }
+
+  const response = await fetch(url, config);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'API request failed');
+  }
+
+  return data;
+}
+
+export async function partnerLogin(username, password) {
+  const data = await partnerApiCall('/partner/login', {
+    method: 'POST',
+    body: { username, password },
+  });
+  localStorage.setItem('partner_token', data.token);
+  localStorage.setItem('partner_username', data.username || '');
+  if (data.companyName) {
+    localStorage.setItem('partner_company_name', data.companyName);
+  } else {
+    localStorage.removeItem('partner_company_name');
+  }
+  return data;
+}
+
+export function partnerLogout() {
+  localStorage.removeItem('partner_token');
+  localStorage.removeItem('partner_username');
+  localStorage.removeItem('partner_company_name');
+}
+
+export function isPartnerAuthenticated() {
+  return !!localStorage.getItem('partner_token');
+}
+
+export async function getPartnerCatalog() {
+  return partnerApiCall('/partner/catalog');
+}
+
+export async function getPartners() {
+  return apiCall('/admin/partners');
+}
+
+export async function createPartner(partner) {
+  return apiCall('/admin/partners', {
+    method: 'POST',
+    body: partner,
+  });
+}
+
+export async function updatePartner(id, partner) {
+  return apiCall(`/admin/partners/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: partner,
+  });
+}
+
+export async function deletePartner(id) {
+  return apiCall(`/admin/partners/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+}

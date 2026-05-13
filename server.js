@@ -290,6 +290,25 @@ async function initializeDatabase() {
       )
     `);
 
+    // B2B partners (dealer portal)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS partners (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(512) NOT NULL,
+        email VARCHAR(255),
+        phone VARCHAR(100),
+        company_name VARCHAR(255),
+        contact_notes TEXT,
+        logo_url TEXT,
+        discount_percent NUMERIC(8, 2) NOT NULL DEFAULT 0,
+        active BOOLEAN NOT NULL DEFAULT TRUE,
+        assigned_product_ids BIGINT[] NOT NULL DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log('Database tables initialized');
     
     // Migrate existing schema if needed (fix INTEGER to BIGINT for product IDs)
@@ -541,6 +560,76 @@ async function getAdminByToken(token) {
   }
 }
 
+const authenticatePartner = async (req, res, next) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+
+  if (!token) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM partners WHERE password_hash = $1 AND active = TRUE',
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    req.partner = result.rows[0];
+    next();
+  } catch (error) {
+    console.error('Partner auth error:', error);
+    res.status(401).json({ error: 'Authentication failed' });
+  }
+};
+
+function formatPartnerForAdmin(row) {
+  return {
+    id: String(row.id),
+    username: row.username,
+    email: row.email || '',
+    phone: row.phone || '',
+    companyName: row.company_name || '',
+    contactNotes: row.contact_notes || '',
+    logoUrl: row.logo_url || '',
+    discountPercent: parseFloat(String(row.discount_percent)) || 0,
+    active: row.active !== false,
+    assignedProductIds: (row.assigned_product_ids || []).map((id) => String(id)),
+  };
+}
+
+function mapProductRow(row) {
+  return {
+    id: row.id.toString(),
+    name: row.name,
+    category: row.category,
+    price: parseFloat(row.price),
+    stock: row.stock,
+    description: row.description,
+    standardEquipment: row.standard_equipment || [],
+    specs: row.specs || {},
+    images: row.images || [],
+    options: row.options || [],
+    displayOrder: row.display_order || 0,
+    pdfPhoto: row.pdf_photo || null,
+    specsColumns: row.specs_columns || 1,
+    isBrandAccessory: row.is_brand_accessory === true,
+  };
+}
+
+/** Safe bigint[] SQL literal for partner assigned product IDs (avoids empty-array bind issues). */
+function sqlBigIntArrayLiteral(ids) {
+  const safe = (ids || [])
+    .map((id) => parseInt(String(id), 10))
+    .filter((n) => !Number.isNaN(n));
+  if (!safe.length) {
+    return "'{}'::bigint[]";
+  }
+  return `ARRAY[${safe.join(',')}]::bigint[]`;
+}
+
 /** Renders a whitelisted public model page to PDF (Chromium via Puppeteer). */
 async function generateModelBrochurePdf(pagePath) {
   const puppeteer = require('puppeteer');
@@ -709,23 +798,7 @@ app.post('/api/track', async (req, res) => {
 app.get('/api/products', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM products ORDER BY display_order ASC, id ASC');
-    // Convert database format to frontend format
-    const products = result.rows.map(row => ({
-      id: row.id.toString(),
-      name: row.name,
-      category: row.category,
-      price: parseFloat(row.price),
-      stock: row.stock,
-      description: row.description,
-      standardEquipment: row.standard_equipment || [],
-      specs: row.specs || {},
-      images: row.images || [],
-      options: row.options || [],
-      displayOrder: row.display_order || 0,
-      pdfPhoto: row.pdf_photo || null,
-      specsColumns: row.specs_columns || 1,
-      isBrandAccessory: row.is_brand_accessory === true
-    }));
+    const products = result.rows.map(mapProductRow);
     res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -740,25 +813,7 @@ app.get('/api/products/:id', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Product not found' });
     }
-    const row = result.rows[0];
-    // Convert database format to frontend format
-    const product = {
-      id: row.id.toString(),
-      name: row.name,
-      category: row.category,
-      price: parseFloat(row.price),
-      stock: row.stock,
-      description: row.description,
-      standardEquipment: row.standard_equipment || [],
-      specs: row.specs || {},
-      images: row.images || [],
-      options: row.options || [],
-      displayOrder: row.display_order || 0,
-      pdfPhoto: row.pdf_photo || null,
-      specsColumns: row.specs_columns || 1,
-      isBrandAccessory: row.is_brand_accessory === true
-    };
-    res.json(product);
+    res.json(mapProductRow(result.rows[0]));
   } catch (error) {
     console.error('Error fetching product:', error);
     res.status(500).json({ error: 'Failed to fetch product' });
@@ -940,6 +995,278 @@ app.post('/api/admin/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Partner portal login (same token pattern as admin)
+app.post('/api/partner/login', async (req, res) => {
+  try {
+    const { username, password } = req.body || {};
+
+    const result = await pool.query(
+      'SELECT * FROM partners WHERE username = $1',
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const row = result.rows[0];
+    if (!row.active) {
+      return res.status(401).json({ error: 'Account disabled' });
+    }
+
+    if (row.password_hash !== password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    res.json({
+      token: row.password_hash,
+      username: row.username,
+      companyName: row.company_name || '',
+    });
+  } catch (error) {
+    console.error('Partner login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Partner catalog: assigned products only + discount for configurator
+app.get('/api/partner/catalog', authenticatePartner, async (req, res) => {
+  try {
+    const row = req.partner;
+    const ids = row.assigned_product_ids || [];
+    if (!ids.length) {
+      return res.json({
+        partner: {
+          companyName: row.company_name || '',
+          logoUrl: row.logo_url || '',
+          discountPercent: parseFloat(String(row.discount_percent)) || 0,
+        },
+        products: [],
+      });
+    }
+
+    const result = await pool.query(
+      'SELECT * FROM products WHERE id = ANY($1::bigint[]) ORDER BY display_order ASC, id ASC',
+      [ids]
+    );
+
+    const products = result.rows.map(mapProductRow);
+    res.json({
+      partner: {
+        companyName: row.company_name || '',
+        logoUrl: row.logo_url || '',
+        discountPercent: parseFloat(String(row.discount_percent)) || 0,
+      },
+      products,
+    });
+  } catch (error) {
+    console.error('Partner catalog error:', error);
+    res.status(500).json({ error: 'Failed to load catalog' });
+  }
+});
+
+// Admin: list partners
+app.get('/api/admin/partners', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, username, email, phone, company_name, contact_notes, logo_url, discount_percent, active, assigned_product_ids, created_at, updated_at FROM partners ORDER BY company_name NULLS LAST, username ASC'
+    );
+    res.json(result.rows.map(formatPartnerForAdmin));
+  } catch (error) {
+    console.error('List partners error:', error);
+    res.status(500).json({ error: 'Failed to list partners' });
+  }
+});
+
+// Admin: create partner
+app.post('/api/admin/partners', authenticateAdmin, async (req, res) => {
+  try {
+    const {
+      username,
+      password,
+      email,
+      phone,
+      companyName,
+      contactNotes,
+      logoUrl,
+      discountPercent,
+      active,
+      assignedProductIds,
+    } = req.body || {};
+
+    if (!username || typeof username !== 'string') {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({ error: 'Password is required' });
+    }
+
+    const ids = Array.isArray(assignedProductIds)
+      ? assignedProductIds.map((id) => parseInt(String(id), 10)).filter((n) => !Number.isNaN(n))
+      : [];
+
+    const discount = discountPercent != null && discountPercent !== ''
+      ? parseFloat(String(discountPercent))
+      : 0;
+
+    const arraySql = sqlBigIntArrayLiteral(ids);
+
+    const insert = await pool.query(
+      `INSERT INTO partners (
+        username, password_hash, email, phone, company_name, contact_notes, logo_url,
+        discount_percent, active, assigned_product_ids
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${arraySql})
+      RETURNING id, username, email, phone, company_name, contact_notes, logo_url, discount_percent, active, assigned_product_ids`,
+      [
+        username.trim(),
+        password,
+        email ? String(email).trim() : null,
+        phone ? String(phone).trim() : null,
+        companyName ? String(companyName).trim() : null,
+        contactNotes ? String(contactNotes) : null,
+        logoUrl ? String(logoUrl).trim() : null,
+        Number.isNaN(discount) ? 0 : discount,
+        active === false ? false : true,
+      ]
+    );
+
+    res.status(201).json(formatPartnerForAdmin(insert.rows[0]));
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({ error: 'Username already exists' });
+    }
+    console.error('Create partner error:', error);
+    res.status(500).json({ error: 'Failed to create partner' });
+  }
+});
+
+// Admin: update partner
+app.put('/api/admin/partners/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid partner id' });
+    }
+
+    const existing = await pool.query('SELECT * FROM partners WHERE id = $1', [id]);
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    const {
+      username,
+      password,
+      email,
+      phone,
+      companyName,
+      contactNotes,
+      logoUrl,
+      discountPercent,
+      active,
+      assignedProductIds,
+    } = req.body || {};
+
+    if (!username || typeof username !== 'string') {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+
+    const ids = Array.isArray(assignedProductIds)
+      ? assignedProductIds.map((pid) => parseInt(String(pid), 10)).filter((n) => !Number.isNaN(n))
+      : [];
+
+    const discount = discountPercent != null && discountPercent !== ''
+      ? parseFloat(String(discountPercent))
+      : 0;
+
+    const arraySql = sqlBigIntArrayLiteral(ids);
+
+    let query;
+    let params;
+
+    if (password && typeof password === 'string' && password.length > 0) {
+      query = `UPDATE partners SET
+        username = $1,
+        password_hash = $2,
+        email = $3,
+        phone = $4,
+        company_name = $5,
+        contact_notes = $6,
+        logo_url = $7,
+        discount_percent = $8,
+        active = $9,
+        assigned_product_ids = ${arraySql},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $10
+      RETURNING id, username, email, phone, company_name, contact_notes, logo_url, discount_percent, active, assigned_product_ids`;
+      params = [
+        username.trim(),
+        password,
+        email ? String(email).trim() : null,
+        phone ? String(phone).trim() : null,
+        companyName ? String(companyName).trim() : null,
+        contactNotes ? String(contactNotes) : null,
+        logoUrl ? String(logoUrl).trim() : null,
+        Number.isNaN(discount) ? 0 : discount,
+        active === false ? false : true,
+        id,
+      ];
+    } else {
+      query = `UPDATE partners SET
+        username = $1,
+        email = $2,
+        phone = $3,
+        company_name = $4,
+        contact_notes = $5,
+        logo_url = $6,
+        discount_percent = $7,
+        active = $8,
+        assigned_product_ids = ${arraySql},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $9
+      RETURNING id, username, email, phone, company_name, contact_notes, logo_url, discount_percent, active, assigned_product_ids`;
+      params = [
+        username.trim(),
+        email ? String(email).trim() : null,
+        phone ? String(phone).trim() : null,
+        companyName ? String(companyName).trim() : null,
+        contactNotes ? String(contactNotes) : null,
+        logoUrl ? String(logoUrl).trim() : null,
+        Number.isNaN(discount) ? 0 : discount,
+        active === false ? false : true,
+        id,
+      ];
+    }
+
+    const result = await pool.query(query, params);
+    res.json(formatPartnerForAdmin(result.rows[0]));
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({ error: 'Username already exists' });
+    }
+    console.error('Update partner error:', error);
+    res.status(500).json({ error: 'Failed to update partner' });
+  }
+});
+
+// Admin: delete partner
+app.delete('/api/admin/partners/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid partner id' });
+    }
+
+    const result = await pool.query('DELETE FROM partners WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete partner error:', error);
+    res.status(500).json({ error: 'Failed to delete partner' });
   }
 });
 

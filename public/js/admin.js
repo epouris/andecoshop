@@ -818,6 +818,12 @@
                         } catch (error) {
                             console.error('Error loading settings:', error);
                         }
+                    } else if (targetTab === 'partners') {
+                        try {
+                            renderPartnersTable();
+                        } catch (error) {
+                            console.error('Error rendering partners table:', error);
+                        }
                     }
                 } catch (error) {
                     console.error('Error switching tabs:', error);
@@ -960,6 +966,211 @@
                 closeBrandModal();
             }
         }, { passive: true });
+
+        // Partner portal accounts (B2B)
+        const partnerModal = document.getElementById('partnerModal');
+        const partnerForm = document.getElementById('partnerForm');
+        const addPartnerBtn = document.getElementById('addPartnerBtn');
+        const closePartnerModalBtn = document.getElementById('closePartnerModal');
+        const cancelPartnerBtn = document.getElementById('cancelPartnerBtn');
+        const partnersTableBody = document.getElementById('partnersTableBody');
+        const partnerPasswordInput = document.getElementById('partnerPassword');
+        let partnersListCache = [];
+        let editingPartnerId = null;
+
+        async function loadPartnersList() {
+            const api = await import('./api.js');
+            partnersListCache = await api.getPartners();
+        }
+
+        function escapePartnerHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text == null ? '' : String(text);
+            return div.innerHTML;
+        }
+
+        async function renderPartnersTable() {
+            if (!partnersTableBody) return;
+            try {
+                await loadPartnersList();
+            } catch (error) {
+                console.error(error);
+                partnersTableBody.innerHTML = `<tr><td colspan="8">Could not load partners: ${escapePartnerHtml(error.message)}</td></tr>`;
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            partnersListCache.forEach((p) => {
+                const tr = document.createElement('tr');
+                const logoSrc = p.logoUrl ? getProxiedImageUrl(p.logoUrl) : window.ADMIN_PLACEHOLDER_IMAGE;
+                const nProducts = (p.assignedProductIds || []).length;
+                tr.innerHTML = `
+                    <td><img src="${escapePartnerHtml(logoSrc)}" alt="" class="table-image" loading="lazy" onerror="handleAdminImageError(this)"></td>
+                    <td>${escapePartnerHtml(p.companyName || '—')}</td>
+                    <td>${escapePartnerHtml(p.username)}</td>
+                    <td>${escapePartnerHtml(p.email || '—')}</td>
+                    <td>${Number(p.discountPercent || 0).toFixed(2)}%</td>
+                    <td>${nProducts}</td>
+                    <td>${p.active ? 'Yes' : 'No'}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button type="button" class="btn btn-secondary btn-small" data-edit-partner="${escapePartnerHtml(p.id)}">Edit</button>
+                            <button type="button" class="btn btn-danger btn-small" data-delete-partner="${escapePartnerHtml(p.id)}">Delete</button>
+                        </div>
+                    </td>
+                `;
+                const pid = p.id;
+                tr.querySelector('[data-edit-partner]')?.addEventListener('click', () => openPartnerModalById(pid));
+                tr.querySelector('[data-delete-partner]')?.addEventListener('click', () => {
+                    if (!confirm('Delete this partner account? They will no longer be able to sign in.')) return;
+                    (async () => {
+                        try {
+                            const api = await import('./api.js');
+                            await api.deletePartner(pid);
+                            await renderPartnersTable();
+                            showAdminNotification('Partner deleted');
+                        } catch (err) {
+                            alert('Error: ' + err.message);
+                        }
+                    })();
+                });
+                fragment.appendChild(tr);
+            });
+
+            partnersTableBody.innerHTML = '';
+            if (partnersListCache.length === 0) {
+                partnersTableBody.innerHTML = '<tr><td colspan="8">No partners yet. Add one to allow dealer login at partnerportal.html.</td></tr>';
+            } else {
+                partnersTableBody.appendChild(fragment);
+            }
+        }
+
+        function buildPartnerProductCheckboxes(selectedIds) {
+            const box = document.getElementById('partnerProductsCheckboxes');
+            if (!box || typeof getProducts !== 'function') return;
+            const selected = new Set((selectedIds || []).map((id) => String(id)));
+            const products = getProducts();
+            const frag = document.createDocumentFragment();
+            products.forEach((prod) => {
+                const id = String(prod.id);
+                const label = document.createElement('label');
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = id;
+                cb.checked = selected.has(id);
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(` ${prod.name} (${prod.category || '—'})`));
+                frag.appendChild(label);
+            });
+            box.innerHTML = '';
+            box.appendChild(frag);
+        }
+
+        function openPartnerModalById(id) {
+            const p = partnersListCache.find((x) => String(x.id) === String(id));
+            if (p) openPartnerModal(p);
+        }
+
+        function openPartnerModal(partner) {
+            if (!partnerModal || !partnerForm) return;
+            editingPartnerId = partner ? partner.id : null;
+            document.getElementById('partnerModalTitle').textContent = partner ? 'Edit partner' : 'Add partner';
+            partnerForm.reset();
+            document.getElementById('partnerActive').checked = true;
+            document.getElementById('partnerDiscountPercent').value = partner ? String(partner.discountPercent ?? 15) : '15';
+            partnerPasswordInput.required = !partner;
+            document.getElementById('partnerPasswordHint').style.display = 'block';
+
+            if (partner) {
+                document.getElementById('partnerId').value = partner.id;
+                document.getElementById('partnerUsername').value = partner.username || '';
+                document.getElementById('partnerPassword').value = '';
+                document.getElementById('partnerCompanyName').value = partner.companyName || '';
+                document.getElementById('partnerEmail').value = partner.email || '';
+                document.getElementById('partnerPhone').value = partner.phone || '';
+                document.getElementById('partnerContactNotes').value = partner.contactNotes || '';
+                document.getElementById('partnerLogoUrl').value = partner.logoUrl || '';
+                document.getElementById('partnerActive').checked = partner.active !== false;
+                buildPartnerProductCheckboxes(partner.assignedProductIds);
+            } else {
+                document.getElementById('partnerId').value = '';
+                document.getElementById('partnerUsername').value = '';
+                document.getElementById('partnerPassword').value = '';
+                buildPartnerProductCheckboxes([]);
+            }
+            partnerModal.classList.add('active');
+        }
+
+        function closePartnerModal() {
+            if (partnerModal) partnerModal.classList.remove('active');
+            editingPartnerId = null;
+            if (partnerForm) partnerForm.reset();
+        }
+
+        if (addPartnerBtn) {
+            addPartnerBtn.addEventListener('click', () => openPartnerModal(null));
+        }
+        if (closePartnerModalBtn) closePartnerModalBtn.addEventListener('click', closePartnerModal);
+        if (cancelPartnerBtn) cancelPartnerBtn.addEventListener('click', closePartnerModal);
+        if (partnerModal) {
+            partnerModal.addEventListener('click', (e) => {
+                if (e.target === partnerModal) closePartnerModal();
+            }, { passive: true });
+        }
+
+        if (partnerForm) {
+            partnerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('partnerUsername').value.trim();
+                const password = document.getElementById('partnerPassword').value;
+                const companyName = document.getElementById('partnerCompanyName').value.trim();
+                const email = document.getElementById('partnerEmail').value.trim();
+                const phone = document.getElementById('partnerPhone').value.trim();
+                const contactNotes = document.getElementById('partnerContactNotes').value;
+                const logoUrl = document.getElementById('partnerLogoUrl').value.trim();
+                const discountPercent = parseFloat(document.getElementById('partnerDiscountPercent').value) || 0;
+                const active = document.getElementById('partnerActive').checked;
+                const assignedProductIds = Array.from(
+                    document.querySelectorAll('#partnerProductsCheckboxes input[type="checkbox"]:checked')
+                ).map((cb) => cb.value);
+
+                if (!username) {
+                    alert('Username is required');
+                    return;
+                }
+                if (!editingPartnerId && !password) {
+                    alert('Password is required for new partners');
+                    return;
+                }
+
+                const body = {
+                    username,
+                    email,
+                    phone,
+                    companyName,
+                    contactNotes,
+                    logoUrl,
+                    discountPercent,
+                    active,
+                    assignedProductIds,
+                };
+                if (password) body.password = password;
+
+                try {
+                    const api = await import('./api.js');
+                    if (editingPartnerId) {
+                        await api.updatePartner(editingPartnerId, body);
+                    } else {
+                        await api.createPartner(body);
+                    }
+                    closePartnerModal();
+                    await renderPartnersTable();
+                    showAdminNotification('Partner saved');
+                } catch (err) {
+                    alert('Error saving partner: ' + err.message);
+                }
+            });
+        }
 
         // Model Specifications management
         const modelSpecsTableBody = document.getElementById('modelSpecsTableBody');

@@ -1160,3 +1160,28 @@
 .media-row-remove {
     margin-top: 0.35rem;
 }
+
+.partner-products-checkboxes {
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background: var(--bg-light);
+}
+
+.partner-products-checkboxes label {
+    font-weight: 500;
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.partner-products-checkboxes input {
+    margin-top: 0.15rem;
+}
