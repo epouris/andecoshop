@@ -1,9 +1,5 @@
-// Absolute URL + cache bust so we never bind to a stale ./api.js graph (missing partner exports).
-const _partnerApiV =
-  typeof window !== 'undefined' && window.__PARTNER_ASSET_V != null
-    ? String(window.__PARTNER_ASSET_V)
-    : String(Date.now());
-const api = await import(`/js/api.js?v=${encodeURIComponent(_partnerApiV)}`);
+// Load api after DOM is ready; top-level await delayed registering DOMContentLoaded (listener never ran).
+let api;
 
 const VAT_RATE = 0.19;
 
@@ -364,9 +360,22 @@ function wireUi() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function bootstrap() {
+  const v =
+    typeof window !== 'undefined' && window.__PARTNER_ASSET_V != null
+      ? String(window.__PARTNER_ASSET_V)
+      : String(Date.now());
+  api = await import(`/js/api.js?v=${encodeURIComponent(v)}`);
   wireUi();
   if (api.isPartnerAuthenticated()) {
     await openApp();
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    void bootstrap();
+  });
+} else {
+  void bootstrap();
+}
