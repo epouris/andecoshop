@@ -287,6 +287,8 @@
         document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
     <script>window.__PARTNER_ASSET_V = Date.now();</script>
-    <script type="module" src="js/partner-portal.js"></script>
+    <script type="module">
+        void import(`/js/partner-portal.js?v=${encodeURIComponent(window.__PARTNER_ASSET_V)}`);
+    </script>
 </body>
 </html>

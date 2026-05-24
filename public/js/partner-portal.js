@@ -80,6 +80,15 @@ function initSelectedOptions(product) {
   return selectedOptions;
 }
 
+const state = {
+  partner: null,
+  products: [],
+  currentProduct: null,
+  selectedOptions: {},
+  currentQuoteId: null,
+  savedQuotes: [],
+};
+
 function formatCompanyLines(contactNotes) {
   if (!contactNotes) return '';
   return contactNotes
@@ -583,7 +592,7 @@ function doLogout() {
 }
 
 function wireUi() {
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = document.getElementById('loginError');
     err.textContent = '';
@@ -597,14 +606,11 @@ function wireUi() {
     }
   });
 
-  document.getElementById('logoutBtn').addEventListener('click', () => doLogout());
-
-  document.getElementById('printBtn').addEventListener('click', () => window.print());
-
-  document.getElementById('saveQuoteBtn').addEventListener('click', () => {
+  document.getElementById('logoutBtn')?.addEventListener('click', () => doLogout());
+  document.getElementById('printBtn')?.addEventListener('click', () => window.print());
+  document.getElementById('saveQuoteBtn')?.addEventListener('click', () => {
     void saveCurrentQuote();
   });
-
   document.getElementById('newQuoteBtn')?.addEventListener('click', () => {
     resetNewQuote();
     const select = document.getElementById('productSelect');
@@ -618,10 +624,9 @@ function wireUi() {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  document.getElementById('settingsForm').addEventListener('submit', (e) => {
+  document.getElementById('settingsForm')?.addEventListener('submit', (e) => {
     void saveSettings(e);
   });
-
   document.getElementById('settingsLogoUrl')?.addEventListener('input', updateSettingsLogoPreview);
 
   ['clientNameInput', 'clientRefInput'].forEach((id) => {
