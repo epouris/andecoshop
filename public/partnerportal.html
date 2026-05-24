@@ -64,6 +64,54 @@
             font-family: inherit;
         }
         .pp-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+        .pp-tabs {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem;
+        }
+        .pp-tab {
+            padding: 0.5rem 1rem; border-radius: 999px; border: 1px solid var(--border-color);
+            background: var(--bg-color); cursor: pointer; font-family: inherit; font-size: 0.95rem;
+            color: var(--text-color);
+        }
+        .pp-tab.active {
+            background: var(--primary-color, #1e40af); color: #fff; border-color: transparent;
+        }
+        .pp-panel[hidden] { display: none !important; }
+        .pp-settings-card, .pp-quotes-card {
+            max-width: 720px; padding: 1.5rem; border-radius: 14px;
+            border: 1px solid var(--border-light); background: var(--bg-color);
+            box-shadow: var(--shadow-md);
+        }
+        .pp-settings-card h2, .pp-quotes-card h2 { margin: 0 0 0.35rem; font-size: 1.2rem; }
+        .pp-settings-card .form-group { margin-bottom: 1rem; }
+        .pp-settings-card label { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.875rem; }
+        .pp-settings-card input, .pp-settings-card textarea {
+            width: 100%; padding: 0.55rem 0.75rem; border-radius: 8px;
+            border: 1px solid var(--border-color); font-family: inherit;
+        }
+        .pp-settings-card textarea { min-height: 100px; resize: vertical; }
+        .pp-settings-preview {
+            display: flex; align-items: center; gap: 1rem; margin: 1rem 0;
+            padding: 1rem; border-radius: 10px; border: 1px dashed var(--border-color);
+            background: #f8fafc;
+        }
+        .pp-settings-preview img { max-height: 56px; max-width: 140px; object-fit: contain; }
+        .pp-save-status { min-height: 1.25rem; font-size: 0.875rem; margin-top: 0.5rem; }
+        .pp-save-status.ok { color: #15803d; }
+        .pp-save-status.err { color: #dc2626; }
+        .pp-quote-list { list-style: none; margin: 1rem 0 0; padding: 0; }
+        .pp-quote-item {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            gap: 0.75rem; padding: 0.85rem 0; border-bottom: 1px solid var(--border-light);
+        }
+        .pp-quote-item:last-child { border-bottom: none; }
+        .pp-quote-meta { flex: 1; min-width: 200px; }
+        .pp-quote-meta strong { display: block; margin-bottom: 0.15rem; }
+        .pp-quote-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .pp-editing-badge {
+            display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.55rem;
+            border-radius: 999px; background: #dbeafe; color: #1e40af; font-size: 0.75rem; font-weight: 600;
+        }
         #printSheet {
             display: none;
         }
@@ -77,9 +125,21 @@
             .no-print { display: none !important; }
         }
         .print-sheet-inner { font-size: 11pt; color: #111; max-width: 800px; margin: 0 auto; }
-        .print-hdr { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #1e40af; padding-bottom: 0.75rem; }
-        .print-logo { max-height: 48px; max-width: 160px; object-fit: contain; }
-        .print-hdr h1 { margin: 0; font-size: 18pt; }
+        .print-hdr {
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem;
+            margin-bottom: 1.25rem; border-bottom: 2px solid #1e40af; padding-bottom: 0.85rem;
+        }
+        .print-hdr-left { display: flex; align-items: flex-start; gap: 1rem; flex: 1; min-width: 0; }
+        .print-logo { max-height: 56px; max-width: 180px; object-fit: contain; flex-shrink: 0; }
+        .print-hdr-company h2 { margin: 0 0 0.35rem; font-size: 14pt; }
+        .print-hdr-company p { margin: 0.15rem 0; font-size: 10pt; color: #333; }
+        .print-hdr-doc { text-align: right; flex-shrink: 0; }
+        .print-hdr-doc h1 { margin: 0 0 0.35rem; font-size: 16pt; color: #1e40af; }
+        .print-hdr-doc p { margin: 0.15rem 0; font-size: 10pt; color: #555; }
+        .print-client-box {
+            margin: 1rem 0; padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 6px;
+            background: #f9fafb;
+        }
         .print-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
         .print-table th, .print-table td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
         .print-table .num { text-align: right; }
@@ -131,29 +191,86 @@
                     <button type="button" class="btn btn-secondary" id="logoutBtn">Log out</button>
                 </div>
 
-                <label for="productSelect" class="pp-muted" style="display:block;margin-bottom:0.35rem;">Model</label>
-                <select id="productSelect"></select>
+                <nav class="pp-tabs" aria-label="Partner sections">
+                    <button type="button" class="pp-tab active" data-tab="quote">Quote builder</button>
+                    <button type="button" class="pp-tab" data-tab="saved">Saved quotes</button>
+                    <button type="button" class="pp-tab" data-tab="settings">Company settings</button>
+                </nav>
 
-                <div class="pp-client-row">
-                    <div class="form-group">
-                        <label for="clientNameInput">Client name (optional, for print)</label>
-                        <input type="text" id="clientNameInput" placeholder="End customer" autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label for="clientRefInput">Your reference (optional)</label>
-                        <input type="text" id="clientRefInput" placeholder="Quote # / project" autocomplete="off">
-                    </div>
-                </div>
+                <section id="quotePanel" class="pp-panel">
+                    <p class="pp-muted" id="editingQuoteLabel" hidden>Editing saved quote <span class="pp-editing-badge" id="editingQuoteBadge"></span> <button type="button" class="btn btn-secondary" id="newQuoteBtn" style="padding:0.25rem 0.65rem;font-size:0.8rem;">New quote</button></p>
 
-                <div class="pp-layout">
-                    <div id="configuratorArea"><p class="pp-muted">Loading…</p></div>
-                    <aside>
-                        <div id="totalsPanel"></div>
-                        <div class="pp-actions">
-                            <button type="button" class="btn btn-primary" id="printBtn">Print quote</button>
+                    <label for="productSelect" class="pp-muted" style="display:block;margin-bottom:0.35rem;">Model</label>
+                    <select id="productSelect"></select>
+
+                    <div class="pp-client-row">
+                        <div class="form-group">
+                            <label for="clientNameInput">Client name</label>
+                            <input type="text" id="clientNameInput" placeholder="End customer" autocomplete="off">
                         </div>
-                    </aside>
-                </div>
+                        <div class="form-group">
+                            <label for="clientRefInput">Your reference</label>
+                            <input type="text" id="clientRefInput" placeholder="Quote # / project" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="pp-layout">
+                        <div id="configuratorArea"><p class="pp-muted">Loading…</p></div>
+                        <aside>
+                            <div id="totalsPanel"></div>
+                            <div class="pp-actions">
+                                <button type="button" class="btn btn-primary" id="saveQuoteBtn">Save quote</button>
+                                <button type="button" class="btn btn-secondary" id="printBtn">Print quote</button>
+                            </div>
+                            <p class="pp-save-status" id="quoteSaveStatus" aria-live="polite"></p>
+                        </aside>
+                    </div>
+                </section>
+
+                <section id="savedPanel" class="pp-panel" hidden>
+                    <div class="pp-quotes-card">
+                        <h2>Saved client quotations</h2>
+                        <p class="pp-muted">Open a saved quote to edit the configuration, update client details, or print.</p>
+                        <ul class="pp-quote-list" id="quotesList">
+                            <li class="pp-muted">Loading…</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="settingsPanel" class="pp-panel" hidden>
+                    <div class="pp-settings-card">
+                        <h2>Company details</h2>
+                        <p class="pp-muted">This information appears on your printed quotes. Your discount and assigned models are managed by AndecoMarine.shop.</p>
+                        <form id="settingsForm">
+                            <div class="form-group">
+                                <label for="settingsCompanyName">Company name</label>
+                                <input type="text" id="settingsCompanyName" required autocomplete="organization">
+                            </div>
+                            <div class="form-group">
+                                <label for="settingsLogoUrl">Logo URL</label>
+                                <input type="url" id="settingsLogoUrl" placeholder="https://… or /images/logo.png">
+                            </div>
+                            <div class="pp-settings-preview" id="settingsLogoPreview" hidden>
+                                <img id="settingsLogoImg" src="" alt="Logo preview">
+                                <span class="pp-muted">Logo preview</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="settingsEmail">Email</label>
+                                <input type="email" id="settingsEmail" autocomplete="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="settingsPhone">Phone</label>
+                                <input type="tel" id="settingsPhone" autocomplete="tel">
+                            </div>
+                            <div class="form-group">
+                                <label for="settingsContactNotes">Address &amp; extra info</label>
+                                <textarea id="settingsContactNotes" placeholder="Street address, city, VAT number, website…"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save company details</button>
+                            <p class="pp-save-status" id="settingsSaveStatus" aria-live="polite"></p>
+                        </form>
+                    </div>
+                </section>
             </div>
         </div>
     </main>

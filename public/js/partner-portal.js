@@ -80,12 +80,257 @@ function initSelectedOptions(product) {
   return selectedOptions;
 }
 
-const state = {
-  partner: null,
-  products: [],
-  currentProduct: null,
-  selectedOptions: {},
-};
+function formatCompanyLines(contactNotes) {
+  if (!contactNotes) return '';
+  return contactNotes
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .join('');
+}
+
+function buildPrintHeaderHtml(clientName, clientRef, dateStr) {
+  const partner = state.partner || {};
+  const company = partner.companyName || '';
+  const logo = partner.logoUrl ? getProxiedUrl(partner.logoUrl) : '';
+  const email = partner.email || '';
+  const phone = partner.phone || '';
+  const addressHtml = formatCompanyLines(partner.contactNotes || '');
+
+  return `
+    <header class="print-hdr">
+      <div class="print-hdr-left">
+        ${logo ? `<img src="${escapeAttr(logo)}" class="print-logo" alt="" />` : ''}
+        <div class="print-hdr-company">
+          ${company ? `<h2>${escapeHtml(company)}</h2>` : ''}
+          ${addressHtml}
+          ${email ? `<p>${escapeHtml(email)}</p>` : ''}
+          ${phone ? `<p>${escapeHtml(phone)}</p>` : ''}
+        </div>
+      </div>
+      <div class="print-hdr-doc">
+        <h1>Configuration quote</h1>
+        <p><strong>Date:</strong> ${escapeHtml(dateStr)}</p>
+        ${clientRef ? `<p><strong>Reference:</strong> ${escapeHtml(clientRef)}</p>` : ''}
+      </div>
+    </header>
+    ${clientName ? `<div class="print-client-box"><p><strong>Client:</strong> ${escapeHtml(clientName)}</p></div>` : ''}
+  `;
+}
+
+function setSaveStatus(elId, message, isError = false) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = message || '';
+  el.classList.toggle('ok', !!message && !isError);
+  el.classList.toggle('err', !!message && isError);
+}
+
+function updateEditingBadge() {
+  const label = document.getElementById('editingQuoteLabel');
+  const badge = document.getElementById('editingQuoteBadge');
+  if (!label || !badge) return;
+  if (state.currentQuoteId) {
+    const quote = state.savedQuotes.find((q) => String(q.id) === String(state.currentQuoteId));
+    const title =
+      quote?.clientName ||
+      document.getElementById('clientNameInput')?.value?.trim() ||
+      quote?.clientRef ||
+      document.getElementById('clientRefInput')?.value?.trim() ||
+      quote?.productName ||
+      `#${state.currentQuoteId}`;
+    badge.textContent = title;
+    label.hidden = false;
+  } else {
+    label.hidden = true;
+    badge.textContent = '';
+  }
+}
+
+function resetNewQuote() {
+  state.currentQuoteId = null;
+  document.getElementById('clientNameInput').value = '';
+  document.getElementById('clientRefInput').value = '';
+  setSaveStatus('quoteSaveStatus', '');
+  updateEditingBadge();
+}
+
+async function loadQuoteIntoBuilder(quote) {
+  const product = state.products.find((p) => String(p.id) === String(quote.productId));
+  if (!product) {
+    alert('This quote uses a model that is no longer assigned to your account.');
+    return;
+  }
+
+  state.currentQuoteId = quote.id;
+  document.getElementById('clientNameInput').value = quote.clientName || '';
+  document.getElementById('clientRefInput').value = quote.clientRef || '';
+
+  const select = document.getElementById('productSelect');
+  select.value = String(product.id);
+  state.currentProduct = product;
+  state.selectedOptions = {
+    ...initSelectedOptions(product),
+    ...(quote.selectedOptions || {}),
+  };
+  renderConfigurator();
+  updatePricingAndPrint();
+  updateEditingBadge();
+  switchTab('quote');
+  setSaveStatus('quoteSaveStatus', 'Loaded saved quote — edit and save to update.');
+}
+
+function switchTab(tabName) {
+  document.querySelectorAll('.pp-tab').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+  document.getElementById('quotePanel').hidden = tabName !== 'quote';
+  document.getElementById('savedPanel').hidden = tabName !== 'saved';
+  document.getElementById('settingsPanel').hidden = tabName !== 'settings';
+  if (tabName === 'saved') {
+    void loadSavedQuotes();
+  }
+  if (tabName === 'settings') {
+    populateSettingsForm();
+  }
+}
+
+function populateSettingsForm() {
+  const partner = state.partner || {};
+  document.getElementById('settingsCompanyName').value = partner.companyName || '';
+  document.getElementById('settingsLogoUrl').value = partner.logoUrl || '';
+  document.getElementById('settingsEmail').value = partner.email || '';
+  document.getElementById('settingsPhone').value = partner.phone || '';
+  document.getElementById('settingsContactNotes').value = partner.contactNotes || '';
+  updateSettingsLogoPreview();
+  setSaveStatus('settingsSaveStatus', '');
+}
+
+function updateSettingsLogoPreview() {
+  const url = document.getElementById('settingsLogoUrl')?.value?.trim() || '';
+  const preview = document.getElementById('settingsLogoPreview');
+  const img = document.getElementById('settingsLogoImg');
+  if (!preview || !img) return;
+  if (url) {
+    img.src = getProxiedUrl(url);
+    preview.hidden = false;
+  } else {
+    img.removeAttribute('src');
+    preview.hidden = true;
+  }
+}
+
+async function loadSavedQuotes() {
+  const list = document.getElementById('quotesList');
+  if (!list) return;
+  list.innerHTML = '<li class="pp-muted">Loading…</li>';
+  try {
+    state.savedQuotes = await api.getPartnerQuotes();
+    if (!state.savedQuotes.length) {
+      list.innerHTML = '<li class="pp-muted">No saved quotes yet. Build a configuration and click Save quote.</li>';
+      return;
+    }
+    list.innerHTML = state.savedQuotes
+      .map((quote) => {
+        const title = quote.clientName || quote.clientRef || quote.productName || 'Untitled quote';
+        const updated = quote.updatedAt ? new Date(quote.updatedAt).toLocaleString() : '';
+        return `
+          <li class="pp-quote-item" data-quote-id="${escapeAttr(quote.id)}">
+            <div class="pp-quote-meta">
+              <strong>${escapeHtml(title)}</strong>
+              <span class="pp-muted">${escapeHtml(quote.productName || 'Model')} · ${escapeHtml(updated)}</span>
+            </div>
+            <div class="pp-quote-actions">
+              <button type="button" class="btn btn-primary pp-open-quote" data-id="${escapeAttr(quote.id)}">Open</button>
+              <button type="button" class="btn btn-secondary pp-delete-quote" data-id="${escapeAttr(quote.id)}">Delete</button>
+            </div>
+          </li>
+        `;
+      })
+      .join('');
+
+    list.querySelectorAll('.pp-open-quote').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const quote = state.savedQuotes.find((q) => String(q.id) === btn.dataset.id);
+        if (quote) void loadQuoteIntoBuilder(quote);
+      });
+    });
+    list.querySelectorAll('.pp-delete-quote').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Delete this saved quote?')) return;
+        try {
+          await api.deletePartnerQuote(btn.dataset.id);
+          if (String(state.currentQuoteId) === String(btn.dataset.id)) {
+            resetNewQuote();
+          }
+          await loadSavedQuotes();
+        } catch (e) {
+          alert(e.message || 'Could not delete quote');
+        }
+      });
+    });
+  } catch (e) {
+    list.innerHTML = `<li class="pp-muted">${escapeHtml(e.message || 'Could not load quotes')}</li>`;
+  }
+}
+
+async function saveCurrentQuote() {
+  const product = state.currentProduct;
+  if (!product) {
+    setSaveStatus('quoteSaveStatus', 'Select a model first.', true);
+    return;
+  }
+
+  const payload = {
+    clientName: document.getElementById('clientNameInput')?.value?.trim() || '',
+    clientRef: document.getElementById('clientRefInput')?.value?.trim() || '',
+    productId: product.id,
+    productName: product.name,
+    selectedOptions: state.selectedOptions,
+  };
+
+  try {
+    if (state.currentQuoteId) {
+      await api.updatePartnerQuote(state.currentQuoteId, payload);
+      setSaveStatus('quoteSaveStatus', 'Quote updated.');
+    } else {
+      const created = await api.createPartnerQuote(payload);
+      state.currentQuoteId = created.id;
+      setSaveStatus('quoteSaveStatus', 'Quote saved.');
+    }
+    updateEditingBadge();
+    state.savedQuotes = await api.getPartnerQuotes();
+  } catch (e) {
+    setSaveStatus('quoteSaveStatus', e.message || 'Could not save quote', true);
+  }
+}
+
+async function saveSettings(e) {
+  e.preventDefault();
+  const profile = {
+    companyName: document.getElementById('settingsCompanyName').value.trim(),
+    logoUrl: document.getElementById('settingsLogoUrl').value.trim(),
+    email: document.getElementById('settingsEmail').value.trim(),
+    phone: document.getElementById('settingsPhone').value.trim(),
+    contactNotes: document.getElementById('settingsContactNotes').value.trim(),
+  };
+  try {
+    state.partner = await api.updatePartnerProfile(profile);
+    const userLabel = document.getElementById('partnerUserLabel');
+    if (userLabel) {
+      userLabel.textContent =
+        state.partner.companyName || localStorage.getItem('partner_username') || 'Partner';
+    }
+    if (state.partner.companyName) {
+      localStorage.setItem('partner_company_name', state.partner.companyName);
+    }
+    updatePricingAndPrint();
+    setSaveStatus('settingsSaveStatus', 'Company details saved.');
+  } catch (err) {
+    setSaveStatus('settingsSaveStatus', err.message || 'Could not save settings', true);
+  }
+}
 
 function getProxiedUrl(url) {
   if (!url) return '';
@@ -215,8 +460,8 @@ function updatePricingAndPrint() {
 
   const clientName = document.getElementById('clientNameInput')?.value?.trim() || '';
   const clientRef = document.getElementById('clientRefInput')?.value?.trim() || '';
+  const dateStr = new Date().toLocaleDateString();
   const company = state.partner?.companyName || '';
-  const logo = state.partner?.logoUrl ? getProxiedUrl(state.partner.logoUrl) : '';
 
   const breakdownRows = breakdown
     .map(
@@ -228,15 +473,7 @@ function updatePricingAndPrint() {
   if (printEl) {
     printEl.innerHTML = `
       <div class="print-sheet-inner">
-        <header class="print-hdr">
-          ${logo ? `<img src="${escapeAttr(logo)}" class="print-logo" alt="" />` : ''}
-          <div>
-            <h1>Configuration quote</h1>
-            <p>${escapeHtml(company)}</p>
-          </div>
-        </header>
-        ${clientName ? `<p><strong>Client:</strong> ${escapeHtml(clientName)}</p>` : ''}
-        ${clientRef ? `<p><strong>Reference:</strong> ${escapeHtml(clientRef)}</p>` : ''}
+        ${buildPrintHeaderHtml(clientName, clientRef, dateStr)}
         <p><strong>Model:</strong> ${escapeHtml(product.name)}</p>
         <h3>Options selected</h3>
         <ul class="print-opts">${Object.keys(state.selectedOptions)
@@ -259,7 +496,7 @@ function updatePricingAndPrint() {
           <tr><td><strong>Your net (excl. VAT)</strong></td><td class="num"><strong>€${partnerNet.toFixed(2)}</strong></td></tr>
           <tr><td>Approx. incl. ${Math.round(VAT_RATE * 100)}% VAT (list)</td><td class="num">€${inclVat.toFixed(2)}</td></tr>
         </table>
-        <p class="print-small">${escapeHtml(new Date().toLocaleDateString())} — ${escapeHtml(company || 'Partner')}</p>
+        <p class="print-small">${escapeHtml(dateStr)} — ${escapeHtml(company || 'Partner')}</p>
         <p class="print-small">Indicative estimate only; not binding.</p>
       </div>
     `;
@@ -270,6 +507,12 @@ async function loadCatalog() {
   const data = await api.getPartnerCatalog();
   state.partner = data.partner || {};
   state.products = data.products || [];
+
+  try {
+    state.savedQuotes = await api.getPartnerQuotes();
+  } catch (_) {
+    state.savedQuotes = [];
+  }
 
   const userLabel = document.getElementById('partnerUserLabel');
   if (userLabel) {
@@ -318,6 +561,7 @@ async function openApp() {
       renderConfigurator();
       updatePricingAndPrint();
     }
+    updateEditingBadge();
   } catch (e) {
     console.error(e);
     alert(e.message || 'Could not load catalog');
@@ -333,6 +577,9 @@ function doLogout() {
   state.products = [];
   state.currentProduct = null;
   state.selectedOptions = {};
+  state.currentQuoteId = null;
+  state.savedQuotes = [];
+  switchTab('quote');
 }
 
 function wireUi() {
@@ -353,6 +600,29 @@ function wireUi() {
   document.getElementById('logoutBtn').addEventListener('click', () => doLogout());
 
   document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+  document.getElementById('saveQuoteBtn').addEventListener('click', () => {
+    void saveCurrentQuote();
+  });
+
+  document.getElementById('newQuoteBtn')?.addEventListener('click', () => {
+    resetNewQuote();
+    const select = document.getElementById('productSelect');
+    if (select && select.options.length > 1) {
+      select.selectedIndex = 1;
+      select.dispatchEvent(new Event('change'));
+    }
+  });
+
+  document.querySelectorAll('.pp-tab').forEach((btn) => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  document.getElementById('settingsForm').addEventListener('submit', (e) => {
+    void saveSettings(e);
+  });
+
+  document.getElementById('settingsLogoUrl')?.addEventListener('input', updateSettingsLogoPreview);
 
   ['clientNameInput', 'clientRefInput'].forEach((id) => {
     const el = document.getElementById(id);

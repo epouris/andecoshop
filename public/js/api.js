@@ -380,6 +380,41 @@ export async function getPartnerCatalog() {
   return partnerApiCall('/partner/catalog');
 }
 
+export async function getPartnerProfile() {
+  return partnerApiCall('/partner/profile');
+}
+
+export async function updatePartnerProfile(profile) {
+  return partnerApiCall('/partner/profile', {
+    method: 'PUT',
+    body: profile,
+  });
+}
+
+export async function getPartnerQuotes() {
+  return partnerApiCall('/partner/quotes');
+}
+
+export async function createPartnerQuote(quote) {
+  return partnerApiCall('/partner/quotes', {
+    method: 'POST',
+    body: quote,
+  });
+}
+
+export async function updatePartnerQuote(id, quote) {
+  return partnerApiCall(`/partner/quotes/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: quote,
+  });
+}
+
+export async function deletePartnerQuote(id) {
+  return partnerApiCall(`/partner/quotes/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+}
+
 export async function getPartners() {
   return apiCall('/admin/partners');
 }

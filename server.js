@@ -316,6 +316,26 @@ async function initializeDatabase() {
       )
     `);
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS partner_quotes (
+        id SERIAL PRIMARY KEY,
+        partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+        client_name VARCHAR(255),
+        client_ref VARCHAR(255),
+        product_id BIGINT NOT NULL,
+        product_name VARCHAR(255),
+        selected_options JSONB NOT NULL DEFAULT '{}',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_partner_quotes_partner_id
+      ON partner_quotes (partner_id, updated_at DESC)
+    `);
+
     console.log('Database tables initialized');
     
     // Migrate existing schema if needed (fix INTEGER to BIGINT for product IDs)
@@ -604,6 +624,31 @@ function formatPartnerForAdmin(row) {
     discountPercent: parseFloat(String(row.discount_percent)) || 0,
     active: row.active !== false,
     assignedProductIds: (row.assigned_product_ids || []).map((id) => String(id)),
+  };
+}
+
+function formatPartnerForPortal(row) {
+  return {
+    companyName: row.company_name || '',
+    logoUrl: row.logo_url || '',
+    email: row.email || '',
+    phone: row.phone || '',
+    contactNotes: row.contact_notes || '',
+    discountPercent: parseFloat(String(row.discount_percent)) || 0,
+  };
+}
+
+function formatPartnerQuote(row) {
+  return {
+    id: String(row.id),
+    clientName: row.client_name || '',
+    clientRef: row.client_ref || '',
+    productId: String(row.product_id),
+    productName: row.product_name || '',
+    selectedOptions: row.selected_options || {},
+    notes: row.notes || '',
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 
@@ -1046,11 +1091,7 @@ app.get('/api/partner/catalog', authenticatePartner, async (req, res) => {
     const ids = row.assigned_product_ids || [];
     if (!ids.length) {
       return res.json({
-        partner: {
-          companyName: row.company_name || '',
-          logoUrl: row.logo_url || '',
-          discountPercent: parseFloat(String(row.discount_percent)) || 0,
-        },
+        partner: formatPartnerForPortal(row),
         products: [],
       });
     }
@@ -1062,16 +1103,180 @@ app.get('/api/partner/catalog', authenticatePartner, async (req, res) => {
 
     const products = result.rows.map(mapProductRow);
     res.json({
-      partner: {
-        companyName: row.company_name || '',
-        logoUrl: row.logo_url || '',
-        discountPercent: parseFloat(String(row.discount_percent)) || 0,
-      },
+      partner: formatPartnerForPortal(row),
       products,
     });
   } catch (error) {
     console.error('Partner catalog error:', error);
     res.status(500).json({ error: 'Failed to load catalog' });
+  }
+});
+
+app.get('/api/partner/profile', authenticatePartner, async (req, res) => {
+  try {
+    res.json(formatPartnerForPortal(req.partner));
+  } catch (error) {
+    console.error('Partner profile error:', error);
+    res.status(500).json({ error: 'Failed to load profile' });
+  }
+});
+
+app.put('/api/partner/profile', authenticatePartner, async (req, res) => {
+  try {
+    const { companyName, logoUrl, email, phone, contactNotes } = req.body || {};
+    const result = await pool.query(
+      `UPDATE partners SET
+        company_name = $1,
+        logo_url = $2,
+        email = $3,
+        phone = $4,
+        contact_notes = $5,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $6
+      RETURNING *`,
+      [
+        companyName != null ? String(companyName).trim() : '',
+        logoUrl != null ? String(logoUrl).trim() : '',
+        email != null ? String(email).trim() : '',
+        phone != null ? String(phone).trim() : '',
+        contactNotes != null ? String(contactNotes).trim() : '',
+        req.partner.id,
+      ]
+    );
+    res.json(formatPartnerForPortal(result.rows[0]));
+  } catch (error) {
+    console.error('Partner profile update error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+app.get('/api/partner/quotes', authenticatePartner, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM partner_quotes
+       WHERE partner_id = $1
+       ORDER BY updated_at DESC, id DESC`,
+      [req.partner.id]
+    );
+    res.json(result.rows.map(formatPartnerQuote));
+  } catch (error) {
+    console.error('Partner quotes list error:', error);
+    res.status(500).json({ error: 'Failed to load quotes' });
+  }
+});
+
+app.get('/api/partner/quotes/:id', authenticatePartner, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM partner_quotes WHERE id = $1 AND partner_id = $2',
+      [req.params.id, req.partner.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Quote not found' });
+    }
+    res.json(formatPartnerQuote(result.rows[0]));
+  } catch (error) {
+    console.error('Partner quote get error:', error);
+    res.status(500).json({ error: 'Failed to load quote' });
+  }
+});
+
+app.post('/api/partner/quotes', authenticatePartner, async (req, res) => {
+  try {
+    const { clientName, clientRef, productId, productName, selectedOptions, notes } = req.body || {};
+    if (!productId) {
+      return res.status(400).json({ error: 'Product is required' });
+    }
+    const assigned = req.partner.assigned_product_ids || [];
+    if (!assigned.some((id) => String(id) === String(productId))) {
+      return res.status(403).json({ error: 'Product not assigned to your account' });
+    }
+    const result = await pool.query(
+      `INSERT INTO partner_quotes (
+        partner_id, client_name, client_ref, product_id, product_name, selected_options, notes
+      ) VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)
+      RETURNING *`,
+      [
+        req.partner.id,
+        clientName != null ? String(clientName).trim() : '',
+        clientRef != null ? String(clientRef).trim() : '',
+        productId,
+        productName != null ? String(productName).trim() : '',
+        JSON.stringify(selectedOptions && typeof selectedOptions === 'object' ? selectedOptions : {}),
+        notes != null ? String(notes).trim() : '',
+      ]
+    );
+    res.status(201).json(formatPartnerQuote(result.rows[0]));
+  } catch (error) {
+    console.error('Partner quote create error:', error);
+    res.status(500).json({ error: 'Failed to save quote' });
+  }
+});
+
+app.put('/api/partner/quotes/:id', authenticatePartner, async (req, res) => {
+  try {
+    const existing = await pool.query(
+      'SELECT * FROM partner_quotes WHERE id = $1 AND partner_id = $2',
+      [req.params.id, req.partner.id]
+    );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Quote not found' });
+    }
+
+    const { clientName, clientRef, productId, productName, selectedOptions, notes } = req.body || {};
+    if (productId) {
+      const assigned = req.partner.assigned_product_ids || [];
+      if (!assigned.some((id) => String(id) === String(productId))) {
+        return res.status(403).json({ error: 'Product not assigned to your account' });
+      }
+    }
+
+    const result = await pool.query(
+      `UPDATE partner_quotes SET
+        client_name = COALESCE($1, client_name),
+        client_ref = COALESCE($2, client_ref),
+        product_id = COALESCE($3, product_id),
+        product_name = COALESCE($4, product_name),
+        selected_options = COALESCE($5::jsonb, selected_options),
+        notes = COALESCE($6, notes),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $7 AND partner_id = $8
+      RETURNING *`,
+      [
+        clientName !== undefined ? String(clientName).trim() : null,
+        clientRef !== undefined ? String(clientRef).trim() : null,
+        productId || null,
+        productName !== undefined ? String(productName).trim() : null,
+        selectedOptions !== undefined
+          ? JSON.stringify(
+              selectedOptions && typeof selectedOptions === 'object' ? selectedOptions : {}
+            )
+          : null,
+        notes !== undefined ? String(notes).trim() : null,
+        req.params.id,
+        req.partner.id,
+      ]
+    );
+    res.json(formatPartnerQuote(result.rows[0]));
+  } catch (error) {
+    console.error('Partner quote update error:', error);
+    res.status(500).json({ error: 'Failed to update quote' });
+  }
+});
+
+app.delete('/api/partner/quotes/:id', authenticatePartner, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'DELETE FROM partner_quotes WHERE id = $1 AND partner_id = $2 RETURNING id',
+      [req.params.id, req.partner.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Quote not found' });
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Partner quote delete error:', error);
+    res.status(500).json({ error: 'Failed to delete quote' });
   }
 });
 
