@@ -322,6 +322,9 @@ async function initializeDatabase() {
         partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
         client_name VARCHAR(255),
         client_ref VARCHAR(255),
+        client_phone VARCHAR(100),
+        client_email VARCHAR(255),
+        client_address TEXT,
         product_id BIGINT NOT NULL,
         product_name VARCHAR(255),
         selected_options JSONB NOT NULL DEFAULT '{}',
@@ -335,6 +338,23 @@ async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_partner_quotes_partner_id
       ON partner_quotes (partner_id, updated_at DESC)
     `);
+
+    try {
+      const partnerQuoteClientPhoneCheck = await pool.query(`
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'partner_quotes' AND column_name = 'client_phone'
+      `);
+      if (partnerQuoteClientPhoneCheck.rows.length === 0) {
+        console.log('Adding client contact columns to partner_quotes table...');
+        await pool.query(`ALTER TABLE partner_quotes ADD COLUMN client_phone VARCHAR(100)`);
+        await pool.query(`ALTER TABLE partner_quotes ADD COLUMN client_email VARCHAR(255)`);
+        await pool.query(`ALTER TABLE partner_quotes ADD COLUMN client_address TEXT`);
+        console.log('✓ partner_quotes client contact columns added');
+      }
+    } catch (migrationError) {
+      console.log('partner_quotes client contact migration check completed (or not needed)');
+    }
 
     console.log('Database tables initialized');
     
@@ -643,6 +663,9 @@ function formatPartnerQuote(row) {
     id: String(row.id),
     clientName: row.client_name || '',
     clientRef: row.client_ref || '',
+    clientPhone: row.client_phone || '',
+    clientEmail: row.client_email || '',
+    clientAddress: row.client_address || '',
     productId: String(row.product_id),
     productName: row.product_name || '',
     selectedOptions: row.selected_options || {},
@@ -1183,7 +1206,17 @@ app.get('/api/partner/quotes/:id', authenticatePartner, async (req, res) => {
 
 app.post('/api/partner/quotes', authenticatePartner, async (req, res) => {
   try {
-    const { clientName, clientRef, productId, productName, selectedOptions, notes } = req.body || {};
+    const {
+      clientName,
+      clientRef,
+      clientPhone,
+      clientEmail,
+      clientAddress,
+      productId,
+      productName,
+      selectedOptions,
+      notes,
+    } = req.body || {};
     if (!productId) {
       return res.status(400).json({ error: 'Product is required' });
     }
@@ -1193,13 +1226,17 @@ app.post('/api/partner/quotes', authenticatePartner, async (req, res) => {
     }
     const result = await pool.query(
       `INSERT INTO partner_quotes (
-        partner_id, client_name, client_ref, product_id, product_name, selected_options, notes
-      ) VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)
+        partner_id, client_name, client_ref, client_phone, client_email, client_address,
+        product_id, product_name, selected_options, notes
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10)
       RETURNING *`,
       [
         req.partner.id,
         clientName != null ? String(clientName).trim() : '',
         clientRef != null ? String(clientRef).trim() : '',
+        clientPhone != null ? String(clientPhone).trim() : '',
+        clientEmail != null ? String(clientEmail).trim() : '',
+        clientAddress != null ? String(clientAddress).trim() : '',
         productId,
         productName != null ? String(productName).trim() : '',
         JSON.stringify(selectedOptions && typeof selectedOptions === 'object' ? selectedOptions : {}),
@@ -1223,7 +1260,17 @@ app.put('/api/partner/quotes/:id', authenticatePartner, async (req, res) => {
       return res.status(404).json({ error: 'Quote not found' });
     }
 
-    const { clientName, clientRef, productId, productName, selectedOptions, notes } = req.body || {};
+    const {
+      clientName,
+      clientRef,
+      clientPhone,
+      clientEmail,
+      clientAddress,
+      productId,
+      productName,
+      selectedOptions,
+      notes,
+    } = req.body || {};
     if (productId) {
       const assigned = req.partner.assigned_product_ids || [];
       if (!assigned.some((id) => String(id) === String(productId))) {
@@ -1235,16 +1282,22 @@ app.put('/api/partner/quotes/:id', authenticatePartner, async (req, res) => {
       `UPDATE partner_quotes SET
         client_name = COALESCE($1, client_name),
         client_ref = COALESCE($2, client_ref),
-        product_id = COALESCE($3, product_id),
-        product_name = COALESCE($4, product_name),
-        selected_options = COALESCE($5::jsonb, selected_options),
-        notes = COALESCE($6, notes),
+        client_phone = COALESCE($3, client_phone),
+        client_email = COALESCE($4, client_email),
+        client_address = COALESCE($5, client_address),
+        product_id = COALESCE($6, product_id),
+        product_name = COALESCE($7, product_name),
+        selected_options = COALESCE($8::jsonb, selected_options),
+        notes = COALESCE($9, notes),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $7 AND partner_id = $8
+      WHERE id = $10 AND partner_id = $11
       RETURNING *`,
       [
         clientName !== undefined ? String(clientName).trim() : null,
         clientRef !== undefined ? String(clientRef).trim() : null,
+        clientPhone !== undefined ? String(clientPhone).trim() : null,
+        clientEmail !== undefined ? String(clientEmail).trim() : null,
+        clientAddress !== undefined ? String(clientAddress).trim() : null,
         productId || null,
         productName !== undefined ? String(productName).trim() : null,
         selectedOptions !== undefined

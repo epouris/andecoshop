@@ -59,10 +59,12 @@
         .pp-client-row { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
         .pp-client-row .form-group { flex: 1; min-width: 180px; margin: 0; }
         .pp-client-row label { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.875rem; }
-        .pp-client-row input {
+        .pp-client-row input, .pp-client-row textarea {
             width: 100%; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-color);
             font-family: inherit;
         }
+        .pp-client-row textarea { min-height: 72px; resize: vertical; }
+        .pp-client-row .pp-client-full { flex: 1 1 100%; }
         .pp-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
         .pp-tabs {
             display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;
@@ -106,7 +108,13 @@
         }
         .pp-quote-item:last-child { border-bottom: none; }
         .pp-quote-meta { flex: 1; min-width: 200px; }
-        .pp-quote-meta strong { display: block; margin-bottom: 0.15rem; }
+        .pp-quote-meta strong { display: block; margin-bottom: 0.35rem; font-size: 1rem; }
+        .pp-quote-detail { display: block; font-size: 0.875rem; margin: 0.12rem 0; color: var(--text-secondary); }
+        .pp-quote-detail-label { font-weight: 600; color: var(--text-color); }
+        .pp-quotes-search {
+            width: 100%; max-width: 420px; margin: 1rem 0 0.5rem; padding: 0.55rem 0.75rem;
+            border-radius: 8px; border: 1px solid var(--border-color); font-family: inherit;
+        }
         .pp-quote-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
         .pp-editing-badge {
             display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.55rem;
@@ -212,6 +220,18 @@
                             <label for="clientRefInput">Your reference</label>
                             <input type="text" id="clientRefInput" placeholder="Quote # / project" autocomplete="off">
                         </div>
+                        <div class="form-group">
+                            <label for="clientPhoneInput">Client phone</label>
+                            <input type="tel" id="clientPhoneInput" placeholder="+30 …" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientEmailInput">Client email</label>
+                            <input type="email" id="clientEmailInput" placeholder="client@example.com" autocomplete="off">
+                        </div>
+                        <div class="form-group pp-client-full">
+                            <label for="clientAddressInput">Client address</label>
+                            <textarea id="clientAddressInput" placeholder="Street, city, country" rows="2"></textarea>
+                        </div>
                     </div>
 
                     <div class="pp-layout">
@@ -231,6 +251,7 @@
                     <div class="pp-quotes-card">
                         <h2>Saved client quotations</h2>
                         <p class="pp-muted">Open a saved quote to edit the configuration, update client details, or print.</p>
+                        <input type="search" id="quotesSearchInput" class="pp-quotes-search" placeholder="Search by client name, reference, phone, or email…" autocomplete="off">
                         <ul class="pp-quote-list" id="quotesList">
                             <li class="pp-muted">Loading…</li>
                         </ul>

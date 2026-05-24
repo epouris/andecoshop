@@ -89,6 +89,56 @@ const state = {
   savedQuotes: [],
 };
 
+const CLIENT_FIELD_IDS = [
+  'clientNameInput',
+  'clientRefInput',
+  'clientPhoneInput',
+  'clientEmailInput',
+  'clientAddressInput',
+];
+
+function getClientFormData() {
+  return {
+    clientName: document.getElementById('clientNameInput')?.value?.trim() || '',
+    clientRef: document.getElementById('clientRefInput')?.value?.trim() || '',
+    clientPhone: document.getElementById('clientPhoneInput')?.value?.trim() || '',
+    clientEmail: document.getElementById('clientEmailInput')?.value?.trim() || '',
+    clientAddress: document.getElementById('clientAddressInput')?.value?.trim() || '',
+  };
+}
+
+function setClientFormFields(data = {}) {
+  document.getElementById('clientNameInput').value = data.clientName || '';
+  document.getElementById('clientRefInput').value = data.clientRef || '';
+  document.getElementById('clientPhoneInput').value = data.clientPhone || '';
+  document.getElementById('clientEmailInput').value = data.clientEmail || '';
+  document.getElementById('clientAddressInput').value = data.clientAddress || '';
+}
+
+function clearClientFormFields() {
+  setClientFormFields({});
+}
+
+function buildPrintClientBoxHtml(client) {
+  const { clientName, clientPhone, clientEmail, clientAddress } = client;
+  if (!clientName && !clientPhone && !clientEmail && !clientAddress) return '';
+
+  let html = '<div class="print-client-box">';
+  if (clientName) html += `<p><strong>Client:</strong> ${escapeHtml(clientName)}</p>`;
+  if (clientPhone) html += `<p><strong>Phone:</strong> ${escapeHtml(clientPhone)}</p>`;
+  if (clientEmail) html += `<p><strong>Email:</strong> ${escapeHtml(clientEmail)}</p>`;
+  if (clientAddress) {
+    const lines = clientAddress.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    if (lines.length <= 1) {
+      html += `<p><strong>Address:</strong> ${escapeHtml(lines[0] || clientAddress.trim())}</p>`;
+    } else {
+      html += `<p><strong>Address:</strong></p>${formatCompanyLines(clientAddress)}`;
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
 function formatCompanyLines(contactNotes) {
   if (!contactNotes) return '';
   return contactNotes
@@ -99,13 +149,14 @@ function formatCompanyLines(contactNotes) {
     .join('');
 }
 
-function buildPrintHeaderHtml(clientName, clientRef, dateStr) {
+function buildPrintHeaderHtml(client, dateStr) {
   const partner = state.partner || {};
   const company = partner.companyName || '';
   const logo = partner.logoUrl ? getProxiedUrl(partner.logoUrl) : '';
   const email = partner.email || '';
   const phone = partner.phone || '';
   const addressHtml = formatCompanyLines(partner.contactNotes || '');
+  const clientRef = client.clientRef || '';
 
   return `
     <header class="print-hdr">
@@ -124,7 +175,7 @@ function buildPrintHeaderHtml(clientName, clientRef, dateStr) {
         ${clientRef ? `<p><strong>Reference:</strong> ${escapeHtml(clientRef)}</p>` : ''}
       </div>
     </header>
-    ${clientName ? `<div class="print-client-box"><p><strong>Client:</strong> ${escapeHtml(clientName)}</p></div>` : ''}
+    ${buildPrintClientBoxHtml(client)}
   `;
 }
 
@@ -159,8 +210,7 @@ function updateEditingBadge() {
 
 function resetNewQuote() {
   state.currentQuoteId = null;
-  document.getElementById('clientNameInput').value = '';
-  document.getElementById('clientRefInput').value = '';
+  clearClientFormFields();
   setSaveStatus('quoteSaveStatus', '');
   updateEditingBadge();
 }
@@ -173,8 +223,7 @@ async function loadQuoteIntoBuilder(quote) {
   }
 
   state.currentQuoteId = quote.id;
-  document.getElementById('clientNameInput').value = quote.clientName || '';
-  document.getElementById('clientRefInput').value = quote.clientRef || '';
+  setClientFormFields(quote);
 
   const select = document.getElementById('productSelect');
   select.value = String(product.id);
@@ -230,55 +279,96 @@ function updateSettingsLogoPreview() {
   }
 }
 
+function filterQuotes(quotes, query) {
+  const q = (query || '').trim().toLowerCase();
+  if (!q) return quotes;
+  return quotes.filter((quote) => {
+    const client = (quote.clientName || '').toLowerCase();
+    const ref = (quote.clientRef || '').toLowerCase();
+    const phone = (quote.clientPhone || '').toLowerCase();
+    const email = (quote.clientEmail || '').toLowerCase();
+    const address = (quote.clientAddress || '').toLowerCase();
+    const model = (quote.productName || '').toLowerCase();
+    return (
+      client.includes(q) ||
+      ref.includes(q) ||
+      phone.includes(q) ||
+      email.includes(q) ||
+      address.includes(q) ||
+      model.includes(q)
+    );
+  });
+}
+
+function renderQuotesList(quotes) {
+  const list = document.getElementById('quotesList');
+  if (!list) return;
+
+  if (!quotes.length) {
+    const query = document.getElementById('quotesSearchInput')?.value?.trim();
+    list.innerHTML = query
+      ? '<li class="pp-muted">No quotes match your search.</li>'
+      : '<li class="pp-muted">No saved quotes yet. Build a configuration and click Save quote.</li>';
+    return;
+  }
+
+  list.innerHTML = quotes
+    .map((quote) => {
+      const updated = quote.updatedAt ? new Date(quote.updatedAt).toLocaleString() : '';
+      const client = quote.clientName?.trim() || '—';
+      const ref = quote.clientRef?.trim() || '—';
+      const phone = quote.clientPhone?.trim() || '—';
+      const email = quote.clientEmail?.trim() || '—';
+      const model = quote.productName?.trim() || 'Model';
+      return `
+        <li class="pp-quote-item" data-quote-id="${escapeAttr(quote.id)}">
+          <div class="pp-quote-meta">
+            <strong>${escapeHtml(model)}</strong>
+            <span class="pp-quote-detail"><span class="pp-quote-detail-label">Client:</span> ${escapeHtml(client)}</span>
+            <span class="pp-quote-detail"><span class="pp-quote-detail-label">Reference:</span> ${escapeHtml(ref)}</span>
+            <span class="pp-quote-detail"><span class="pp-quote-detail-label">Phone:</span> ${escapeHtml(phone)}</span>
+            <span class="pp-quote-detail"><span class="pp-quote-detail-label">Email:</span> ${escapeHtml(email)}</span>
+            <span class="pp-quote-detail pp-muted">Updated ${escapeHtml(updated)}</span>
+          </div>
+          <div class="pp-quote-actions">
+            <button type="button" class="btn btn-primary pp-open-quote" data-id="${escapeAttr(quote.id)}">Open</button>
+            <button type="button" class="btn btn-secondary pp-delete-quote" data-id="${escapeAttr(quote.id)}">Delete</button>
+          </div>
+        </li>
+      `;
+    })
+    .join('');
+
+  list.querySelectorAll('.pp-open-quote').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const quote = state.savedQuotes.find((q) => String(q.id) === btn.dataset.id);
+      if (quote) void loadQuoteIntoBuilder(quote);
+    });
+  });
+  list.querySelectorAll('.pp-delete-quote').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this saved quote?')) return;
+      try {
+        await api.deletePartnerQuote(btn.dataset.id);
+        if (String(state.currentQuoteId) === String(btn.dataset.id)) {
+          resetNewQuote();
+        }
+        await loadSavedQuotes();
+      } catch (e) {
+        alert(e.message || 'Could not delete quote');
+      }
+    });
+  });
+}
+
 async function loadSavedQuotes() {
   const list = document.getElementById('quotesList');
   if (!list) return;
   list.innerHTML = '<li class="pp-muted">Loading…</li>';
   try {
     state.savedQuotes = await api.getPartnerQuotes();
-    if (!state.savedQuotes.length) {
-      list.innerHTML = '<li class="pp-muted">No saved quotes yet. Build a configuration and click Save quote.</li>';
-      return;
-    }
-    list.innerHTML = state.savedQuotes
-      .map((quote) => {
-        const title = quote.clientName || quote.clientRef || quote.productName || 'Untitled quote';
-        const updated = quote.updatedAt ? new Date(quote.updatedAt).toLocaleString() : '';
-        return `
-          <li class="pp-quote-item" data-quote-id="${escapeAttr(quote.id)}">
-            <div class="pp-quote-meta">
-              <strong>${escapeHtml(title)}</strong>
-              <span class="pp-muted">${escapeHtml(quote.productName || 'Model')} · ${escapeHtml(updated)}</span>
-            </div>
-            <div class="pp-quote-actions">
-              <button type="button" class="btn btn-primary pp-open-quote" data-id="${escapeAttr(quote.id)}">Open</button>
-              <button type="button" class="btn btn-secondary pp-delete-quote" data-id="${escapeAttr(quote.id)}">Delete</button>
-            </div>
-          </li>
-        `;
-      })
-      .join('');
-
-    list.querySelectorAll('.pp-open-quote').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const quote = state.savedQuotes.find((q) => String(q.id) === btn.dataset.id);
-        if (quote) void loadQuoteIntoBuilder(quote);
-      });
-    });
-    list.querySelectorAll('.pp-delete-quote').forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        if (!confirm('Delete this saved quote?')) return;
-        try {
-          await api.deletePartnerQuote(btn.dataset.id);
-          if (String(state.currentQuoteId) === String(btn.dataset.id)) {
-            resetNewQuote();
-          }
-          await loadSavedQuotes();
-        } catch (e) {
-          alert(e.message || 'Could not delete quote');
-        }
-      });
-    });
+    const query = document.getElementById('quotesSearchInput')?.value || '';
+    renderQuotesList(filterQuotes(state.savedQuotes, query));
   } catch (e) {
     list.innerHTML = `<li class="pp-muted">${escapeHtml(e.message || 'Could not load quotes')}</li>`;
   }
@@ -292,8 +382,7 @@ async function saveCurrentQuote() {
   }
 
   const payload = {
-    clientName: document.getElementById('clientNameInput')?.value?.trim() || '',
-    clientRef: document.getElementById('clientRefInput')?.value?.trim() || '',
+    ...getClientFormData(),
     productId: product.id,
     productName: product.name,
     selectedOptions: state.selectedOptions,
@@ -467,8 +556,7 @@ function updatePricingAndPrint() {
     <p class="pp-disclaimer">Indicative only — excludes delivery, commissioning, taxes in your country, and price changes. Not a binding offer from AndecoMarine.shop.</p>
   `;
 
-  const clientName = document.getElementById('clientNameInput')?.value?.trim() || '';
-  const clientRef = document.getElementById('clientRefInput')?.value?.trim() || '';
+  const client = getClientFormData();
   const dateStr = new Date().toLocaleDateString();
   const company = state.partner?.companyName || '';
 
@@ -482,7 +570,7 @@ function updatePricingAndPrint() {
   if (printEl) {
     printEl.innerHTML = `
       <div class="print-sheet-inner">
-        ${buildPrintHeaderHtml(clientName, clientRef, dateStr)}
+        ${buildPrintHeaderHtml(client, dateStr)}
         <p><strong>Model:</strong> ${escapeHtml(product.name)}</p>
         <h3>Options selected</h3>
         <ul class="print-opts">${Object.keys(state.selectedOptions)
@@ -628,8 +716,11 @@ function wireUi() {
     void saveSettings(e);
   });
   document.getElementById('settingsLogoUrl')?.addEventListener('input', updateSettingsLogoPreview);
+  document.getElementById('quotesSearchInput')?.addEventListener('input', () => {
+    renderQuotesList(filterQuotes(state.savedQuotes, document.getElementById('quotesSearchInput')?.value));
+  });
 
-  ['clientNameInput', 'clientRefInput'].forEach((id) => {
+  CLIENT_FIELD_IDS.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', () => updatePricingAndPrint());
   });
